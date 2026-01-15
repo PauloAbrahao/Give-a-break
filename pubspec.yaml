@@ -1,0 +1,56 @@
+name: give_a_break
+description: "App usage tracker and limiter for digital wellbeing"
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.10.7
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  cupertino_icons: ^1.0.8
+
+  # State Management
+  flutter_riverpod: ^2.6.1
+  riverpod_annotation: ^2.6.1
+
+  # Local Storage
+  hive_ce: ^2.10.1
+  hive_ce_flutter: ^2.3.0
+  shared_preferences: ^2.3.5
+
+  # Background Services & Overlay
+  flutter_overlay_window: ^0.5.0
+  flutter_local_notifications: ^18.0.1
+
+  # App Information
+  installed_apps: ^1.5.0
+
+  # Permissions
+  permission_handler: ^11.4.0
+
+  # UI Components
+  fl_chart: ^0.70.2
+  shimmer: ^3.0.0
+
+  # Utilities
+  intl: ^0.20.2
+  equatable: ^2.0.7
+  freezed_annotation: ^3.0.0
+  json_annotation: ^4.9.0
+  crypto: ^3.0.7
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+  build_runner: ^2.4.15
+  riverpod_generator: ^2.6.5
+  freezed: ^3.0.6
+  json_serializable: ^6.9.4
+  hive_ce_generator: ^1.7.0
+
+flutter:
+  uses-material-design: true
