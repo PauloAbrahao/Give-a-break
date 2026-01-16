@@ -5,22 +5,18 @@ class AppTheme {
 
   // Light Theme Colors
   static const Color _lightPrimary = Color(0xFF6366F1);
-  static const Color _lightPrimaryDark = Color(0xFF4F46E5);
   static const Color _lightBackground = Color(0xFFF8FAFC);
   static const Color _lightSurface = Color(0xFFFFFFFF);
   static const Color _lightSurfaceVariant = Color(0xFFF1F5F9);
   static const Color _lightTextPrimary = Color(0xFF1E293B);
-  static const Color _lightTextSecondary = Color(0xFF64748B);
 
   // Dark Theme Colors
   static const Color _darkPrimary = Color(0xFF818CF8);
-  static const Color _darkPrimaryDark = Color(0xFF6366F1);
   static const Color _darkBackground = Color(0xFF0F172A);
   static const Color _darkSurface = Color(0xFF1E293B);
   static const Color _darkSurfaceVariant = Color(0xFF334155);
   static const Color _darkTextPrimary = Color(0xFFF1F5F9);
-  static const Color _darkTextSecondary = Color(0xFF94A3B8);
-
+  
   static ThemeData lightTheme = ThemeData(
     useMaterial3: true,
     brightness: Brightness.light,

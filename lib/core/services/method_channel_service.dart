@@ -38,7 +38,6 @@ class MethodChannelService {
         {'startTime': startTime, 'endTime': endTime},
       );
       if (result == null) return [];
-      // Convert each item to Map<String, dynamic> properly
       return result.map((item) {
         if (item is Map) {
           return Map<String, dynamic>.from(item);
@@ -48,7 +47,6 @@ class MethodChannelService {
     } on PlatformException {
       return [];
     } catch (e) {
-      // Handle any casting or conversion errors
       return [];
     }
   }
@@ -107,11 +105,5 @@ class MethodChannelService {
     } on PlatformException {
       return false;
     }
-  }
-
-  static void setMonitorCallback(
-    Future<dynamic> Function(MethodCall) handler,
-  ) {
-    _monitorChannel.setMethodCallHandler(handler);
   }
 }

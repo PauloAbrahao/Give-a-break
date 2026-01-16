@@ -48,15 +48,6 @@ class OverlayService {
     );
   }
 
-  static Future<Map<String, String>> getOverlayData() async {
-    final prefs = await SharedPreferences.getInstance();
-    return {
-      'appName': prefs.getString(_keyAppName) ?? 'App',
-      'usedTime': prefs.getString(_keyUsedTime) ?? '--',
-      'limitTime': prefs.getString(_keyLimitTime) ?? '--',
-    };
-  }
-
   static Future<void> closeOverlay() async {
     final isActive = await FlutterOverlayWindow.isActive();
     if (isActive) {

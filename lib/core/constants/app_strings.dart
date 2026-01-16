@@ -67,15 +67,7 @@ class AppStrings {
   static const String startMonitoring = 'Start Monitoring';
   static const String stopMonitoring = 'Stop Monitoring';
   static const String permissions = 'Permissions';
-  static const String parentalControls = 'Parental Controls';
   static const String about = 'About';
-
-  // Parental
-  static const String setupPin = 'Set Up PIN';
-  static const String enterPin = 'Enter PIN';
-  static const String confirmPin = 'Confirm PIN';
-  static const String pinMismatch = 'PINs do not match';
-  static const String wrongPin = 'Wrong PIN';
 
   // General
   static const String next = 'Next';

@@ -5,6 +5,7 @@ import '../../../core/constants/app_strings.dart';
 import '../../providers/usage_provider.dart';
 import '../../providers/monitoring_provider.dart';
 import '../../providers/app_limit_provider.dart';
+import '../../widgets/floating_menu.dart';
 import '../app_list/app_list_screen.dart';
 import '../app_detail/app_detail_screen.dart';
 import '../settings/settings_screen.dart';
@@ -39,14 +40,6 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
         title: const Text(AppStrings.dashboardTitle, style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500)),
         actions: [
           IconButton(
-            icon: const Icon(Icons.apps),
-            onPressed: () {
-              Navigator.of(context).push(
-                MaterialPageRoute(builder: (_) => const AppListScreen()),
-              );
-            },
-          ),
-          IconButton(
             icon: const Icon(Icons.settings),
             onPressed: () {
               Navigator.of(context).push(
@@ -56,6 +49,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
           ),
         ],
       ),
+      floatingActionButton: const FloatingMenu(currentScreen: 'dashboard'),
       body: RefreshIndicator(
         onRefresh: () async {
           ref.invalidate(todaySummaryProvider);

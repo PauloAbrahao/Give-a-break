@@ -34,7 +34,7 @@ class AppMonitorService : Service() {
         private const val TAG = "AppMonitorService"
         private const val NOTIFICATION_ID = 1001
         private const val CHANNEL_ID = "app_monitor_channel"
-        private const val MONITOR_INTERVAL = 350L // 350ms for faster detection
+        private const val MONITOR_INTERVAL = 300L // 300ms for faster detection
         private const val PREFS_NAME = "FlutterSharedPreferences"
         private const val LIMITS_KEY = "flutter.app_limits_json"
 

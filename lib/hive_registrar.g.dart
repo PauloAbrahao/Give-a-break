@@ -5,13 +5,13 @@
 import 'package:hive_ce/hive.dart';
 import 'package:give_a_break/data/models/app_limit_model.dart';
 import 'package:give_a_break/data/models/app_settings_model.dart';
-import 'package:give_a_break/data/models/parental_settings_model.dart';
+// import 'package:give_a_break/data/models/routine_model.dart';
 
 extension HiveRegistrar on HiveInterface {
   void registerAdapters() {
     registerAdapter(AppLimitModelAdapter());
     registerAdapter(AppSettingsModelAdapter());
-    registerAdapter(ParentalSettingsModelAdapter());
+    // registerAdapter(RoutineModelAdapter());
   }
 }
 
@@ -19,6 +19,6 @@ extension IsolatedHiveRegistrar on IsolatedHiveInterface {
   void registerAdapters() {
     registerAdapter(AppLimitModelAdapter());
     registerAdapter(AppSettingsModelAdapter());
-    registerAdapter(ParentalSettingsModelAdapter());
+    // registerAdapter(RoutineModelAdapter());
   }
 }

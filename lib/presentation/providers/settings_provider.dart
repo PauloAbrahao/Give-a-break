@@ -18,11 +18,6 @@ final onboardingCompletedProvider = FutureProvider<bool>((ref) async {
   return repo.isOnboardingCompleted;
 });
 
-final parentalEnabledProvider = FutureProvider<bool>((ref) async {
-  final repo = await ref.watch(settingsRepositoryProvider.future);
-  return repo.isParentalEnabled;
-});
-
 final themeModeProvider = FutureProvider<int>((ref) async {
   final repo = await ref.watch(settingsRepositoryProvider.future);
   return repo.themeMode;
@@ -44,30 +39,10 @@ class SettingsNotifier extends StateNotifier<void> {
     _ref.invalidate(onboardingCompletedProvider);
   }
 
-  Future<void> setParentalEnabled(bool enabled) async {
-    await _repository.setParentalEnabled(enabled);
-    _ref.invalidate(parentalEnabledProvider);
-  }
-
   Future<void> setThemeMode(int mode) async {
     await _repository.setThemeMode(mode);
     _ref.invalidate(themeModeProvider);
   }
-
-  Future<void> setPin(String pin) async {
-    await _repository.setPin(pin);
-  }
-
-  Future<void> removePin() async {
-    await _repository.removePin();
-    _ref.invalidate(parentalEnabledProvider);
-  }
-
-  bool verifyPin(String pin) {
-    return _repository.verifyPin(pin);
-  }
-
-  bool get hasPin => _repository.hasPin;
 }
 
 final settingsNotifierProvider =
