@@ -4,6 +4,7 @@ import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_strings.dart';
 import '../../providers/permission_provider.dart';
 import '../../providers/settings_provider.dart';
+import '../../providers/monitoring_provider.dart';
 import '../dashboard/dashboard_screen.dart';
 
 class OnboardingScreen extends ConsumerStatefulWidget {
@@ -109,19 +110,19 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
           const SizedBox(height: 48),
           Text(
             page.title,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 24,
               fontWeight: FontWeight.bold,
-              color: AppColors.textPrimary,
+              color: AppColors.getTextPrimary(context),
             ),
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 16),
           Text(
             page.subtitle,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 16,
-              color: AppColors.textSecondary,
+              color: AppColors.getTextSecondary(context),
               height: 1.5,
             ),
             textAlign: TextAlign.center,
@@ -229,6 +230,9 @@ class _PermissionSetupScreenState extends ConsumerState<PermissionSetupScreen>
   Future<void> _completeSetup() async {
     await ref.read(settingsNotifierProvider.notifier).setOnboardingCompleted(true);
 
+    // Start monitoring automatically
+    await ref.read(monitoringProvider.notifier).startMonitoring();
+
     if (!mounted) return;
 
     Navigator.of(context).pushAndRemoveUntil(
@@ -250,20 +254,20 @@ class _PermissionSetupScreenState extends ConsumerState<PermissionSetupScreen>
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            const Text(
+            Text(
               AppStrings.onboardingPermissionTitle,
               style: TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
-                color: AppColors.textPrimary,
+                color: AppColors.getTextPrimary(context),
               ),
             ),
             const SizedBox(height: 8),
-            const Text(
+            Text(
               AppStrings.onboardingPermissionSubtitle,
               style: TextStyle(
                 fontSize: 14,
-                color: AppColors.textSecondary,
+                color: AppColors.getTextSecondary(context),
               ),
             ),
             const SizedBox(height: 32),
@@ -307,7 +311,7 @@ class _PermissionSetupScreenState extends ConsumerState<PermissionSetupScreen>
                 'Please grant Usage Access and Overlay permissions to continue',
                 style: TextStyle(
                   fontSize: 12,
-                  color: AppColors.textTertiary,
+                  color: AppColors.getTextTertiary(context),
                 ),
                 textAlign: TextAlign.center,
               ),
@@ -327,12 +331,12 @@ class _PermissionSetupScreenState extends ConsumerState<PermissionSetupScreen>
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: AppColors.getSurface(context),
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
           color: isGranted
               ? AppColors.success.withValues(alpha: 0.3)
-              : AppColors.surfaceVariant,
+              : AppColors.getSurfaceVariant(context),
         ),
       ),
       child: Row(
@@ -357,18 +361,18 @@ class _PermissionSetupScreenState extends ConsumerState<PermissionSetupScreen>
               children: [
                 Text(
                   title,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
-                    color: AppColors.textPrimary,
+                    color: AppColors.getTextPrimary(context),
                   ),
                 ),
                 const SizedBox(height: 4),
                 Text(
                   description,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 12,
-                    color: AppColors.textSecondary,
+                    color: AppColors.getTextSecondary(context),
                   ),
                 ),
               ],

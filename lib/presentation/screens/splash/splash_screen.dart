@@ -4,6 +4,7 @@ import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_strings.dart';
 import '../../providers/permission_provider.dart';
 import '../../providers/settings_provider.dart';
+import '../../providers/monitoring_provider.dart';
 import '../onboarding/onboarding_screen.dart';
 import '../dashboard/dashboard_screen.dart';
 
@@ -39,6 +40,11 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
     final permissions = ref.read(permissionProvider);
 
     if (onboardingCompleted && permissions.coreGranted) {
+      // Start monitoring automatically
+      await ref.read(monitoringProvider.notifier).startMonitoring();
+
+      if (!mounted) return;
+
       // Go to dashboard
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(builder: (_) => const DashboardScreen()),

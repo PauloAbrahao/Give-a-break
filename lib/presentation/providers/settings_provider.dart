@@ -23,6 +23,11 @@ final parentalEnabledProvider = FutureProvider<bool>((ref) async {
   return repo.isParentalEnabled;
 });
 
+final themeModeProvider = FutureProvider<int>((ref) async {
+  final repo = await ref.watch(settingsRepositoryProvider.future);
+  return repo.themeMode;
+});
+
 class SettingsNotifier extends StateNotifier<void> {
   final SettingsRepository _repository;
   final Ref _ref;
@@ -42,6 +47,11 @@ class SettingsNotifier extends StateNotifier<void> {
   Future<void> setParentalEnabled(bool enabled) async {
     await _repository.setParentalEnabled(enabled);
     _ref.invalidate(parentalEnabledProvider);
+  }
+
+  Future<void> setThemeMode(int mode) async {
+    await _repository.setThemeMode(mode);
+    _ref.invalidate(themeModeProvider);
   }
 
   Future<void> setPin(String pin) async {

@@ -13,9 +13,13 @@ class AppSettingsModel extends HiveObject {
   @HiveField(2)
   bool onboardingCompleted;
 
+  @HiveField(3)
+  int themeMode; // 0 = system, 1 = light, 2 = dark
+
   AppSettingsModel({
-    this.monitoringEnabled = false,
+    this.monitoringEnabled = true,
     this.notificationsEnabled = true,
     this.onboardingCompleted = false,
+    this.themeMode = 0,
   });
 }

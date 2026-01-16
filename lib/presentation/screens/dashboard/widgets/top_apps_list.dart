@@ -21,21 +21,21 @@ class TopAppsList extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     if (isLoading) {
-      return _buildLoadingState();
+      return _buildLoadingState(context);
     }
 
     if (apps.isEmpty) {
       return Container(
         padding: const EdgeInsets.all(32),
         decoration: BoxDecoration(
-          color: AppColors.surface,
+          color: AppColors.getSurface(context),
           borderRadius: BorderRadius.circular(16),
         ),
-        child: const Center(
+        child: Center(
           child: Text(
             'No usage data yet.\nStart using apps to see statistics.',
             textAlign: TextAlign.center,
-            style: TextStyle(color: AppColors.textSecondary),
+            style: TextStyle(color: AppColors.getTextSecondary(context)),
           ),
         ),
       );
@@ -45,28 +45,30 @@ class TopAppsList extends ConsumerWidget {
 
     return Container(
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: AppColors.getSurface(context),
         borderRadius: BorderRadius.circular(16),
       ),
       child: ListView.separated(
         shrinkWrap: true,
         physics: const NeverScrollableScrollPhysics(),
         itemCount: apps.length,
-        separatorBuilder: (_, __) => const Divider(height: 1, color: AppColors.dividerBackground),
+        separatorBuilder: (_, __) => Divider(height: 1, color: AppColors.getDivider(context)),
         itemBuilder: (context, index) {
           final usage = apps[index];
           final appInfo = ref.watch(appInfoProvider(usage.packageName));
 
           return appInfo.when(
             data: (info) => _buildAppTile(
+              context: context,
               packageName: usage.packageName,
               appName: info?.appName ?? usage.packageName.split('.').last,
               icon: info?.icon,
               duration: usage.totalTimeInForeground,
               maxDuration: maxTime,
             ),
-            loading: () => _buildLoadingTile(),
+            loading: () => _buildLoadingTile(context),
             error: (_, __) => _buildAppTile(
+              context: context,
               packageName: usage.packageName,
               appName: usage.packageName.split('.').last,
               icon: null,
@@ -80,6 +82,7 @@ class TopAppsList extends ConsumerWidget {
   }
 
   Widget _buildAppTile({
+    required BuildContext context,
     required String packageName,
     required String appName,
     required dynamic icon,
@@ -104,10 +107,10 @@ class TopAppsList extends ConsumerWidget {
                 children: [
                   Text(
                     appName,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w500,
-                      color: AppColors.textPrimary,
+                      color: AppColors.getTextPrimary(context),
                     ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
@@ -117,7 +120,7 @@ class TopAppsList extends ConsumerWidget {
                     borderRadius: BorderRadius.circular(4),
                     child: LinearProgressIndicator(
                       value: progress,
-                      backgroundColor: AppColors.surfaceVariant,
+                      backgroundColor: AppColors.getSurfaceVariant(context),
                       valueColor: AlwaysStoppedAnimation<Color>(
                         _getColorForProgress(progress),
                       ),
@@ -130,10 +133,10 @@ class TopAppsList extends ConsumerWidget {
             const SizedBox(width: 20),
             Text(
               duration.toReadableString(),
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.w600,
-                color: AppColors.textPrimary,
+                color: AppColors.getTextPrimary(context),
               ),
             ),
           ],
@@ -175,26 +178,26 @@ class TopAppsList extends ConsumerWidget {
     return AppColors.usageLow;
   }
 
-  Widget _buildLoadingState() {
+  Widget _buildLoadingState(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: AppColors.getSurface(context),
         borderRadius: BorderRadius.circular(16),
       ),
       child: Shimmer.fromColors(
-        baseColor: AppColors.surfaceVariant,
-        highlightColor: AppColors.surface,
+        baseColor: AppColors.getSurfaceVariant(context),
+        highlightColor: AppColors.getSurface(context),
         child: ListView.builder(
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
           itemCount: 5,
-          itemBuilder: (_, __) => _buildLoadingTile(),
+          itemBuilder: (_, __) => _buildLoadingTile(context),
         ),
       ),
     );
   }
 
-  Widget _buildLoadingTile() {
+  Widget _buildLoadingTile(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.all(16),
       child: Row(
@@ -203,7 +206,7 @@ class TopAppsList extends ConsumerWidget {
             width: 40,
             height: 40,
             decoration: BoxDecoration(
-              color: AppColors.surfaceVariant,
+              color: AppColors.getSurfaceVariant(context),
               borderRadius: BorderRadius.circular(10),
             ),
           ),
@@ -216,7 +219,7 @@ class TopAppsList extends ConsumerWidget {
                   width: 100,
                   height: 14,
                   decoration: BoxDecoration(
-                    color: AppColors.surfaceVariant,
+                    color: AppColors.getSurfaceVariant(context),
                     borderRadius: BorderRadius.circular(4),
                   ),
                 ),
@@ -224,7 +227,7 @@ class TopAppsList extends ConsumerWidget {
                 Container(
                   height: 6,
                   decoration: BoxDecoration(
-                    color: AppColors.surfaceVariant,
+                    color: AppColors.getSurfaceVariant(context),
                     borderRadius: BorderRadius.circular(4),
                   ),
                 ),
@@ -236,7 +239,7 @@ class TopAppsList extends ConsumerWidget {
             width: 40,
             height: 14,
             decoration: BoxDecoration(
-              color: AppColors.surfaceVariant,
+              color: AppColors.getSurfaceVariant(context),
               borderRadius: BorderRadius.circular(4),
             ),
           ),

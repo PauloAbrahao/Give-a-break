@@ -21,7 +21,7 @@ class UsageSummaryCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(24),
+      padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         gradient: const LinearGradient(
           colors: [AppColors.primary, AppColors.primaryDark],
@@ -29,13 +29,6 @@ class UsageSummaryCard extends StatelessWidget {
           end: Alignment.bottomRight,
         ),
         borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.primary.withValues(alpha: 0.3),
-            blurRadius: 20,
-            offset: const Offset(0, 10),
-          ),
-        ],
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
@@ -44,21 +37,6 @@ class UsageSummaryCard extends StatelessWidget {
             child: isLoading
                 ? _buildLoadingState()
                 : _buildContent(),
-          ),
-
-          const SizedBox(width: 16),
-
-          Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.1),
-              shape: BoxShape.circle,
-            ),
-            child: Icon(
-              Icons.data_usage,
-              color: Colors.white.withOpacity(0.15),
-              size: 64,
-            ),
           ),
         ],
       ),
@@ -99,28 +77,37 @@ class UsageSummaryCard extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Row(
-          mainAxisAlignment: MainAxisAlignment.start,
           children: [
-            const Icon(
-              Icons.phone_android,
-              color: Colors.white,
-              size: 20,
+            Container(
+              width: 32,
+              height: 32,
+              decoration: BoxDecoration(
+                color: Colors.white.withValues(alpha: 0.2),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: const Icon(
+                Icons.phone_android,
+                color: Colors.white,
+                size: 18,
+              ),
             ),
             const SizedBox(width: 8),
-            Text(
+            Expanded(
+              child: Text(
               AppStrings.todayUsage,
               style: TextStyle(
-                fontSize: 14,
+                fontSize: 13,
                 color: Colors.white.withValues(alpha: 0.9),
+              ),
               ),
             ),
           ],
         ),
-        const SizedBox(height: 16),
+        const SizedBox(height: 8),
         Text(
           totalTime.toReadableString(),
           style: const TextStyle(
-            fontSize: 36,
+            fontSize: 34,
             fontWeight: FontWeight.bold,
             color: Colors.white,
           ),
@@ -129,7 +116,7 @@ class UsageSummaryCard extends StatelessWidget {
         Text(
           '$appsUsed apps used today',
           style: TextStyle(
-            fontSize: 14,
+            fontSize: 12,
             color: Colors.white.withValues(alpha: 0.8),
           ),
         ),

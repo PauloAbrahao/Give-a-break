@@ -17,22 +17,25 @@ class AppSettingsModelAdapter extends TypeAdapter<AppSettingsModel> {
       for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
     };
     return AppSettingsModel(
-      monitoringEnabled: fields[0] == null ? false : fields[0] as bool,
+      monitoringEnabled: fields[0] == null ? true : fields[0] as bool,
       notificationsEnabled: fields[1] == null ? true : fields[1] as bool,
       onboardingCompleted: fields[2] == null ? false : fields[2] as bool,
+      themeMode: fields[3] == null ? 0 : (fields[3] as num).toInt(),
     );
   }
 
   @override
   void write(BinaryWriter writer, AppSettingsModel obj) {
     writer
-      ..writeByte(3)
+      ..writeByte(4)
       ..writeByte(0)
       ..write(obj.monitoringEnabled)
       ..writeByte(1)
       ..write(obj.notificationsEnabled)
       ..writeByte(2)
-      ..write(obj.onboardingCompleted);
+      ..write(obj.onboardingCompleted)
+      ..writeByte(3)
+      ..write(obj.themeMode);
   }
 
   @override

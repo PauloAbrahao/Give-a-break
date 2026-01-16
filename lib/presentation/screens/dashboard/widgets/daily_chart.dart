@@ -19,7 +19,7 @@ class DailyChart extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (isLoading) {
-      return _buildLoadingState();
+      return _buildLoadingState(context);
     }
 
     if (summaries.isEmpty) {
@@ -33,7 +33,7 @@ class DailyChart extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: AppColors.getSurface(context),
         borderRadius: BorderRadius.circular(16),
       ),
       child: Column(
@@ -48,7 +48,7 @@ class DailyChart extends StatelessWidget {
                 barTouchData: BarTouchData(
                   enabled: true,
                   touchTooltipData: BarTouchTooltipData(
-                    getTooltipColor: (_) => AppColors.textPrimary,
+                    getTooltipColor: (_) => AppColors.getTextPrimary(context),
                     getTooltipItem: (group, groupIndex, rod, rodIndex) {
                       final summary = summaries[group.x.toInt()];
                       return BarTooltipItem(
@@ -77,9 +77,9 @@ class DailyChart extends StatelessWidget {
                         if (value == 0) return const SizedBox.shrink();
                         return Text(
                           '${value.toInt()}h',
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 10,
-                            color: AppColors.textTertiary,
+                            color: AppColors.getTextTertiary(context),
                           ),
                         );
                       },
@@ -103,7 +103,7 @@ class DailyChart extends StatelessWidget {
                               fontSize: 10,
                               color: isToday
                                   ? AppColors.primary
-                                  : AppColors.textTertiary,
+                                  : AppColors.getTextTertiary(context),
                               fontWeight:
                                   isToday ? FontWeight.bold : FontWeight.normal,
                             ),
@@ -119,7 +119,7 @@ class DailyChart extends StatelessWidget {
                   horizontalInterval: 1,
                   getDrawingHorizontalLine: (value) {
                     return FlLine(
-                      color: AppColors.surfaceVariant,
+                      color: AppColors.getSurfaceVariant(context),
                       strokeWidth: 1,
                     );
                   },
@@ -162,20 +162,20 @@ class DailyChart extends StatelessWidget {
         date.day == now.day;
   }
 
-  Widget _buildLoadingState() {
+  Widget _buildLoadingState(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: AppColors.getSurface(context),
         borderRadius: BorderRadius.circular(16),
       ),
       child: Shimmer.fromColors(
-        baseColor: AppColors.surfaceVariant,
-        highlightColor: AppColors.surface,
+        baseColor: AppColors.getSurfaceVariant(context),
+        highlightColor: AppColors.getSurface(context),
         child: Container(
           height: 200,
           decoration: BoxDecoration(
-            color: AppColors.surfaceVariant,
+            color: AppColors.getSurfaceVariant(context),
             borderRadius: BorderRadius.circular(8),
           ),
         ),

@@ -27,13 +27,14 @@ class AppMonitorService : Service() {
     private var monitoringRunnable: Runnable? = null
     private var lastForegroundPackage: String? = null
     private var lastOverlayShownTime: Long = 0
-    private val cooldownMs = 60000L // 1 minute cooldown between overlays
+    private var lastOverlayShownPackage: String? = null
+    private val cooldownMs = 30000L // 30 seconds cooldown only for same app (after "Continue anyway")
 
     companion object {
         private const val TAG = "AppMonitorService"
         private const val NOTIFICATION_ID = 1001
         private const val CHANNEL_ID = "app_monitor_channel"
-        private const val MONITOR_INTERVAL = 2000L // 2 seconds
+        private const val MONITOR_INTERVAL = 350L // 350ms for faster detection
         private const val PREFS_NAME = "FlutterSharedPreferences"
         private const val LIMITS_KEY = "flutter.app_limits_json"
 
@@ -66,11 +67,14 @@ class AppMonitorService : Service() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val channel = NotificationChannel(
                 CHANNEL_ID,
-                "App Monitor",
-                NotificationManager.IMPORTANCE_LOW
+                "Background Service",
+                NotificationManager.IMPORTANCE_MIN
             ).apply {
-                description = "Monitors app usage to help you stay focused"
+                description = "Required for app to run in background"
                 setShowBadge(false)
+                setSound(null, null)
+                enableLights(false)
+                enableVibration(false)
             }
             val notificationManager = getSystemService(NotificationManager::class.java)
             notificationManager.createNotificationChannel(channel)
@@ -87,12 +91,13 @@ class AppMonitorService : Service() {
 
         return NotificationCompat.Builder(this, CHANNEL_ID)
             .setContentTitle("Give a Break")
-            .setContentText("Monitoring app usage")
+            .setContentText("Running")
             .setSmallIcon(android.R.drawable.ic_menu_recent_history)
             .setContentIntent(pendingIntent)
             .setOngoing(true)
             .setSilent(true)
-            .setPriority(NotificationCompat.PRIORITY_LOW)
+            .setPriority(NotificationCompat.PRIORITY_MIN)
+            .setVisibility(NotificationCompat.VISIBILITY_SECRET)
             .build()
     }
 
@@ -118,18 +123,53 @@ class AppMonitorService : Service() {
             val limit = getAppLimit(foregroundPackage)
             if (limit != null && limit.isEnabled) {
                 val usageToday = getAppUsageToday(foregroundPackage)
-                Log.d(TAG, "Check: $foregroundPackage - used: ${usageToday}min, limit: ${limit.dailyLimitMinutes}min")
                 if (usageToday >= limit.dailyLimitMinutes) {
                     val now = System.currentTimeMillis()
-                    if (now - lastOverlayShownTime > cooldownMs) {
-                        Log.d(TAG, "TRIGGERING NOTIFICATION for $foregroundPackage")
+
+                    // Get the actual RESUMED event time from the system
+                    val lastResumeTime = getLastResumeTime(foregroundPackage)
+
+                    // Show overlay if:
+                    // 1. App was resumed AFTER our last overlay (user left and came back), OR
+                    // 2. It's a different app than last overlay shown, OR
+                    // 3. Cooldown expired (user clicked "Continue anyway" and kept using)
+                    val appResumedAfterLastOverlay = lastResumeTime > lastOverlayShownTime + 1000 // 1s buffer
+                    val isDifferentApp = foregroundPackage != lastOverlayShownPackage
+                    val cooldownExpired = now - lastOverlayShownTime > cooldownMs
+
+                    if (appResumedAfterLastOverlay || isDifferentApp || cooldownExpired) {
                         lastOverlayShownTime = now
+                        lastOverlayShownPackage = foregroundPackage
                         showOverlay(foregroundPackage, usageToday, limit.dailyLimitMinutes)
                     }
                 }
             }
             lastForegroundPackage = foregroundPackage
         }
+    }
+
+    private fun getLastResumeTime(packageName: String): Long {
+        val usageStatsManager = getSystemService(Context.USAGE_STATS_SERVICE) as? UsageStatsManager
+            ?: return 0
+
+        val endTime = System.currentTimeMillis()
+        val startTime = endTime - 300000 // Last 5 minutes
+
+        val usageEvents = usageStatsManager.queryEvents(startTime, endTime) ?: return 0
+
+        var lastResumeTime = 0L
+        val event = UsageEvents.Event()
+
+        while (usageEvents.hasNextEvent()) {
+            usageEvents.getNextEvent(event)
+            if (event.packageName == packageName && event.eventType == UsageEvents.Event.ACTIVITY_RESUMED) {
+                if (event.timeStamp > lastResumeTime) {
+                    lastResumeTime = event.timeStamp
+                }
+            }
+        }
+
+        return lastResumeTime
     }
 
     private fun getAppLimit(packageName: String): AppLimit? {
@@ -210,17 +250,16 @@ class AppMonitorService : Service() {
             packageName.split(".").last()
         }
 
-        // Save data for overlay to read (in case Flutter overlay works)
-        val prefs = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-        prefs.edit().apply {
-            putString("flutter.overlay_app_name", appName)
-            putString("flutter.overlay_used_time", formatMinutes(usedMinutes))
-            putString("flutter.overlay_limit_time", formatMinutes(limitMinutes))
-            apply()
-        }
+        val usedTime = formatMinutes(usedMinutes)
+        val limitTime = formatMinutes(limitMinutes)
 
-        // Show heads-up notification (works reliably)
-        showHeadsUpNotification(appName, usedMinutes, limitMinutes)
+        // Show native overlay if permission granted
+        if (Settings.canDrawOverlays(this)) {
+            OverlayService.show(this, appName, usedTime, limitTime, packageName)
+        } else {
+            // Fallback to notification
+            showHeadsUpNotification(appName, usedMinutes, limitMinutes)
+        }
     }
 
     private fun showHeadsUpNotification(appName: String, usedMinutes: Int, limitMinutes: Int) {

@@ -1,4 +1,3 @@
-import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -13,7 +12,9 @@ import '../../providers/app_limit_provider.dart';
 import '../app_detail/app_detail_screen.dart';
 
 class AppListScreen extends ConsumerStatefulWidget {
-  const AppListScreen({super.key});
+  final int initialTabIndex;
+
+  const AppListScreen({super.key, this.initialTabIndex = 0});
 
   @override
   ConsumerState<AppListScreen> createState() => _AppListScreenState();
@@ -22,17 +23,23 @@ class AppListScreen extends ConsumerStatefulWidget {
 class _AppListScreenState extends ConsumerState<AppListScreen>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
+  final TextEditingController _searchController = TextEditingController();
   String _searchQuery = '';
 
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 2, vsync: this);
+    _tabController = TabController(
+      length: 2,
+      vsync: this,
+      initialIndex: widget.initialTabIndex,
+    );
   }
 
   @override
   void dispose() {
     _tabController.dispose();
+    _searchController.dispose();
     super.dispose();
   }
 
@@ -47,7 +54,7 @@ class _AppListScreenState extends ConsumerState<AppListScreen>
             Tab(text: AppStrings.allApps),
             Tab(text: AppStrings.appsWithLimits),
           ],
-          dividerColor: AppColors.dividerBackground,
+          dividerColor: AppColors.getDivider(context),
           indicatorColor: AppColors.primary,
           indicatorSize: TabBarIndicatorSize.tab,
           overlayColor: WidgetStateProperty.all(Colors.transparent),
@@ -58,6 +65,7 @@ class _AppListScreenState extends ConsumerState<AppListScreen>
           Padding(
             padding: const EdgeInsets.all(16),
             child: TextField(
+              controller: _searchController,
               decoration: InputDecoration(
                 hintText: AppStrings.searchApps,
                 prefixIcon: const Icon(Icons.search),
@@ -65,6 +73,7 @@ class _AppListScreenState extends ConsumerState<AppListScreen>
                     ? IconButton(
                         icon: const Icon(Icons.clear),
                         onPressed: () {
+                          _searchController.clear();
                           setState(() => _searchQuery = '');
                         },
                       )
@@ -123,29 +132,29 @@ class _AppListScreenState extends ConsumerState<AppListScreen>
     return limits.when(
       data: (limitList) {
         if (limitList.isEmpty) {
-          return const Center(
+          return Center(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Icon(
                   Icons.timer_off,
                   size: 64,
-                  color: AppColors.textTertiary,
+                  color: AppColors.getTextTertiary(context),
                 ),
-                SizedBox(height: 16),
+                const SizedBox(height: 16),
                 Text(
                   'No app limits set yet',
                   style: TextStyle(
                     fontSize: 16,
-                    color: AppColors.textSecondary,
+                    color: AppColors.getTextSecondary(context),
                   ),
                 ),
-                SizedBox(height: 8),
+                const SizedBox(height: 8),
                 Text(
                   'Tap on any app to set a daily limit',
                   style: TextStyle(
                     fontSize: 14,
-                    color: AppColors.textTertiary,
+                    color: AppColors.getTextTertiary(context),
                   ),
                 ),
               ],

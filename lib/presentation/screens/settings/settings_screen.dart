@@ -39,92 +39,126 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen>
   Widget build(BuildContext context) {
     final permissions = ref.watch(permissionProvider);
     final monitoring = ref.watch(monitoringProvider);
+    final themeMode = ref.watch(themeModeProvider);
     // monitoringEnabledProvider used for persisting state across app restarts
     ref.watch(monitoringEnabledProvider);
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text(AppStrings.settings),
+        title: const Text(
+          AppStrings.settings,
+          style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+        ),
       ),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
           // Monitoring Section
-          _buildSectionHeader(AppStrings.monitoring),
+          _buildSectionHeader(context, AppStrings.monitoring),
           const SizedBox(height: 12),
           Container(
             decoration: BoxDecoration(
-              color: AppColors.surface,
+              color: AppColors.getSurface(context),
               borderRadius: BorderRadius.circular(16),
             ),
-            child: Column(
-              children: [
-                ListTile(
-                  leading: Container(
-                    width: 40,
-                    height: 40,
-                    decoration: BoxDecoration(
-                      color: (monitoring.isRunning
+            child: ListTile(
+              leading: Container(
+                width: 40,
+                height: 40,
+                decoration: BoxDecoration(
+                  color:
+                      (monitoring.isRunning
                               ? AppColors.success
-                              : AppColors.textTertiary)
+                              : AppColors.warning)
                           .withValues(alpha: 0.1),
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: Icon(
-                      monitoring.isRunning
-                          ? Icons.visibility
-                          : Icons.visibility_off,
-                      color: monitoring.isRunning
-                          ? AppColors.success
-                          : AppColors.textTertiary,
-                    ),
-                  ),
-                  title: const Text('App Monitoring'),
-                  subtitle: Text(
-                    monitoring.isRunning ? 'Active' : 'Inactive',
-                    style: TextStyle(
-                      color: monitoring.isRunning
-                          ? AppColors.success
-                          : AppColors.textTertiary,
-                    ),
-                  ),
-                  trailing: Switch(
-                    value: monitoring.isRunning,
-                    onChanged: (enabled) async {
-                      if (enabled) {
-                        await ref
-                            .read(monitoringProvider.notifier)
-                            .startMonitoring();
-                        await ref
-                            .read(settingsNotifierProvider.notifier)
-                            .setMonitoringEnabled(true);
-                      } else {
-                        await ref
-                            .read(monitoringProvider.notifier)
-                            .stopMonitoring();
-                        await ref
-                            .read(settingsNotifierProvider.notifier)
-                            .setMonitoringEnabled(false);
-                      }
-                    },
-                  ),
+                  borderRadius: BorderRadius.circular(10),
                 ),
-              ],
+                child: Icon(
+                  monitoring.isRunning
+                      ? Icons.visibility
+                      : Icons.visibility_off,
+                  color: monitoring.isRunning
+                      ? AppColors.success
+                      : AppColors.warning,
+                ),
+              ),
+              title: const Text('App Monitoring'),
+              subtitle: Text(
+                monitoring.isRunning ? 'Active' : 'Starting...',
+                style: TextStyle(
+                  color: monitoring.isRunning
+                      ? AppColors.success
+                      : AppColors.warning,
+                ),
+              ),
+              trailing: monitoring.isRunning
+                  ? const Icon(Icons.check_circle, color: AppColors.success)
+                  : const SizedBox(
+                      width: 20,
+                      height: 20,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    ),
+              onTap: !monitoring.isRunning
+                  ? () async {
+                      await ref
+                          .read(monitoringProvider.notifier)
+                          .startMonitoring();
+                    }
+                  : null,
+            ),
+          ),
+          const SizedBox(height: 24),
+
+          // Appearance Section
+          _buildSectionHeader(context, 'Appearance'),
+          const SizedBox(height: 12),
+          Container(
+            decoration: BoxDecoration(
+              color: AppColors.getSurface(context),
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: ListTile(
+              leading: Container(
+                width: 40,
+                height: 40,
+                decoration: BoxDecoration(
+                  color: AppColors.success.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: const Icon(
+                  Icons.palette_outlined,
+                  color: AppColors.success,
+                ),
+              ),
+              title: const Text('Theme'),
+              subtitle: Text(
+                themeMode.when(
+                  data: (mode) => _getThemeModeName(mode),
+                  loading: () => 'Loading...',
+                  error: (_, __) => 'System',
+                ),
+                style: TextStyle(
+                  color: AppColors.getTextSecondary(context),
+                ),
+              ),
+              trailing: const Icon(Icons.chevron_right),
+              onTap: () => _showThemePicker(context, themeMode.valueOrNull ?? 0),
             ),
           ),
           const SizedBox(height: 24),
 
           // Permissions Section
-          _buildSectionHeader(AppStrings.permissions),
+          _buildSectionHeader(context, AppStrings.permissions),
           const SizedBox(height: 12),
           Container(
             decoration: BoxDecoration(
-              color: AppColors.surface,
+              color: AppColors.getSurface(context),
               borderRadius: BorderRadius.circular(16),
             ),
             child: Column(
               children: [
                 _buildPermissionTile(
+                  context: context,
                   title: AppStrings.permissionUsageStatsTitle,
                   subtitle: AppStrings.permissionUsageStatsDesc,
                   icon: Icons.bar_chart,
@@ -135,8 +169,9 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen>
                         .requestUsageStatsPermission();
                   },
                 ),
-                const Divider(height: 1),
+                Divider(height: 1, color: AppColors.getDivider(context)),
                 _buildPermissionTile(
+                  context: context,
                   title: AppStrings.permissionOverlayTitle,
                   subtitle: AppStrings.permissionOverlayDesc,
                   icon: Icons.layers,
@@ -147,8 +182,9 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen>
                         .requestOverlayPermission();
                   },
                 ),
-                const Divider(height: 1),
+                Divider(height: 1, color: AppColors.getDivider(context)),
                 _buildPermissionTile(
+                  context: context,
                   title: AppStrings.permissionNotificationTitle,
                   subtitle: AppStrings.permissionNotificationDesc,
                   icon: Icons.notifications,
@@ -165,11 +201,11 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen>
           const SizedBox(height: 24),
 
           // About Section
-          _buildSectionHeader(AppStrings.about),
+          _buildSectionHeader(context, AppStrings.about),
           const SizedBox(height: 12),
           Container(
             decoration: BoxDecoration(
-              color: AppColors.surface,
+              color: AppColors.getSurface(context),
               borderRadius: BorderRadius.circular(16),
             ),
             child: Column(
@@ -179,12 +215,12 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen>
                     width: 40,
                     height: 40,
                     decoration: BoxDecoration(
-                      color: AppColors.primary.withValues(alpha: 0.1),
+                      color: AppColors.success.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(10),
                     ),
                     child: const Icon(
                       Icons.info_outline,
-                      color: AppColors.primary,
+                      color: AppColors.success,
                     ),
                   ),
                   title: const Text(AppStrings.appName),
@@ -198,18 +234,19 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen>
     );
   }
 
-  Widget _buildSectionHeader(String title) {
+  Widget _buildSectionHeader(BuildContext context, String title) {
     return Text(
       title,
-      style: const TextStyle(
+      style: TextStyle(
         fontSize: 14,
         fontWeight: FontWeight.w600,
-        color: AppColors.textSecondary,
+        color: AppColors.getTextSecondary(context),
       ),
     );
   }
 
   Widget _buildPermissionTile({
+    required BuildContext context,
     required String title,
     required String subtitle,
     required IconData icon,
@@ -233,7 +270,10 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen>
       title: Text(title),
       subtitle: Text(
         subtitle,
-        style: const TextStyle(fontSize: 12),
+        style: TextStyle(
+          fontSize: 12,
+          color: AppColors.getTextSecondary(context),
+        ),
       ),
       trailing: isGranted
           ? const Icon(Icons.check_circle, color: AppColors.success)
@@ -242,6 +282,126 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen>
               child: const Text('Grant'),
             ),
       onTap: isGranted ? null : onTap,
+    );
+  }
+
+  String _getThemeModeName(int mode) {
+    switch (mode) {
+      case 1:
+        return 'Light';
+      case 2:
+        return 'Dark';
+      default:
+        return 'System';
+    }
+  }
+
+  void _showThemePicker(BuildContext context, int currentMode) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (context) => Container(
+        decoration: BoxDecoration(
+          color: AppColors.getSurface(context),
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              margin: const EdgeInsets.only(top: 12),
+              width: 36,
+              height: 5,
+              decoration: BoxDecoration(
+                color: AppColors.primary,
+                borderRadius: BorderRadius.circular(2.5),
+              ),
+            ),
+            const Padding(
+              padding: EdgeInsets.all(20),
+              child: Text(
+                'Choose Theme',
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+            _buildThemeOption(
+              context: context,
+              icon: Icons.brightness_auto,
+              title: 'System',
+              subtitle: 'Follow system settings',
+              mode: 0,
+              currentMode: currentMode,
+            ),
+            _buildThemeOption(
+              context: context,
+              icon: Icons.light_mode,
+              title: 'Light',
+              subtitle: 'Always use light theme',
+              mode: 1,
+              currentMode: currentMode,
+            ),
+            _buildThemeOption(
+              context: context,
+              icon: Icons.dark_mode,
+              title: 'Dark',
+              subtitle: 'Always use dark theme',
+              mode: 2,
+              currentMode: currentMode,
+            ),
+            const SizedBox(height: 32),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildThemeOption({
+    required BuildContext context,
+    required IconData icon,
+    required String title,
+    required String subtitle,
+    required int mode,
+    required int currentMode,
+  }) {
+    final isSelected = mode == currentMode;
+    return ListTile(
+      leading: Container(
+        width: 40,
+        height: 40,
+        decoration: BoxDecoration(
+          color: (isSelected ? AppColors.success : AppColors.getTextSecondary(context))
+              .withValues(alpha: 0.1),
+          borderRadius: BorderRadius.circular(10),
+        ),
+        child: Icon(
+          icon,
+          color: isSelected ? AppColors.success : AppColors.getTextSecondary(context),
+        ),
+      ),
+      title: Text(
+        title,
+        style: TextStyle(
+          fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
+          color: isSelected ? AppColors.success : null,
+        ),
+      ),
+      subtitle: Text(
+        subtitle,
+        style: TextStyle(
+          fontSize: 12,
+          color: AppColors.getTextSecondary(context),
+        ),
+      ),
+      trailing: isSelected
+          ? const Icon(Icons.check_circle, color: AppColors.success)
+          : null,
+      onTap: () {
+        ref.read(settingsNotifierProvider.notifier).setThemeMode(mode);
+        Navigator.pop(context);
+      },
     );
   }
 }

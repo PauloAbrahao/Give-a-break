@@ -36,6 +36,7 @@ class AppStrings {
   static const String mostUsedApps = 'Most Used Apps';
   static const String weeklyOverview = 'Weekly Overview';
   static const String noUsageData = 'No usage data available';
+  static const String restrictedApps = 'Restricted';
 
   // App List
   static const String allApps = 'All Apps';
@@ -50,6 +51,7 @@ class AppStrings {
   static const String removeLimit = 'Remove Limit';
   static const String usageHistory = 'Usage History';
   static const String warningThreshold = 'Warning at';
+  static const String setAppLimits = 'Set App Limits';
 
   // Overlay Warning
   static const String timeIsUp = 'Time\'s Up!';

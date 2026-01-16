@@ -27,7 +27,10 @@ class _AppDetailScreenState extends ConsumerState<AppDetailScreen> {
     return Scaffold(
       appBar: AppBar(
         title: appInfo.when(
-          data: (info) => Text(info?.appName ?? 'App Details'),
+          data: (info) => Text(
+            'App Details',
+            style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+          ),
           loading: () => const Text('Loading...'),
           error: (_, __) => const Text('App Details'),
         ),
@@ -88,18 +91,18 @@ class _AppDetailScreenState extends ConsumerState<AppDetailScreen> {
               children: [
                 Text(
                   info?.appName ?? widget.packageName.split('.').last,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.bold,
-                    color: AppColors.textPrimary,
+                    color: AppColors.getTextPrimary(context),
                   ),
                 ),
                 const SizedBox(height: 4),
                 Text(
                   widget.packageName,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 12,
-                    color: AppColors.textTertiary,
+                    color: AppColors.getTextTertiary(context),
                   ),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
@@ -121,17 +124,17 @@ class _AppDetailScreenState extends ConsumerState<AppDetailScreen> {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: AppColors.getBackground(context),
         borderRadius: BorderRadius.circular(16),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
+          Text(
             AppStrings.todayUsage,
             style: TextStyle(
               fontSize: 14,
-              color: AppColors.textSecondary,
+              color: AppColors.getTextSecondary(context),
             ),
           ),
           const SizedBox(height: 8),
@@ -142,10 +145,10 @@ class _AppDetailScreenState extends ConsumerState<AppDetailScreen> {
                 children: [
                   Text(
                     duration.toReadableString(),
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 32,
                       fontWeight: FontWeight.bold,
-                      color: AppColors.textPrimary,
+                      color: AppColors.getTextPrimary(context),
                     ),
                   ),
                   limit.when(
@@ -163,13 +166,15 @@ class _AppDetailScreenState extends ConsumerState<AppDetailScreen> {
                             children: [
                               Text(
                                 'Limit: ${appLimit.dailyLimit.toReadableString()}',
-                                style: const TextStyle(
+                                style: TextStyle(
                                   fontSize: 12,
-                                  color: AppColors.textSecondary,
+                                  color: AppColors.getTextSecondary(context),
                                 ),
                               ),
                               Text(
-                                '${(progress * 100).toInt()}%',
+                                progress > 1
+                                    ? '${(duration.inMinutes - appLimit.dailyLimit.inMinutes)} min over limit'
+                                    : '${(progress * 100).toInt()}% used',
                                 style: TextStyle(
                                   fontSize: 12,
                                   color: progress > 1
@@ -185,7 +190,7 @@ class _AppDetailScreenState extends ConsumerState<AppDetailScreen> {
                             borderRadius: BorderRadius.circular(4),
                             child: LinearProgressIndicator(
                               value: progress.clamp(0.0, 1.0),
-                              backgroundColor: AppColors.surfaceVariant,
+                              backgroundColor: AppColors.getSurfaceVariant(context),
                               valueColor: AlwaysStoppedAnimation<Color>(
                                 progress > 1
                                     ? AppColors.error
@@ -217,7 +222,7 @@ class _AppDetailScreenState extends ConsumerState<AppDetailScreen> {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: AppColors.getSurface(context),
         borderRadius: BorderRadius.circular(16),
       ),
       child: Column(
@@ -226,12 +231,12 @@ class _AppDetailScreenState extends ConsumerState<AppDetailScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text(
-                AppStrings.dailyLimit,
+              Text(
+                'Settings',
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
-                  color: AppColors.textPrimary,
+                  color: AppColors.getTextPrimary(context),
                 ),
               ),
               limit.when(
@@ -268,7 +273,7 @@ class _AppDetailScreenState extends ConsumerState<AppDetailScreen> {
                     _buildLimitRow(
                       'Warning at',
                       '${(appLimit.warningThreshold * 100).toInt()}%',
-                      null,
+                      () => _showWarningPicker(appLimit),
                     ),
                     const SizedBox(height: 24),
                     SizedBox(
@@ -292,11 +297,11 @@ class _AppDetailScreenState extends ConsumerState<AppDetailScreen> {
 
               return Column(
                 children: [
-                  const Text(
+                  Text(
                     AppStrings.noLimitSet,
                     style: TextStyle(
                       fontSize: 14,
-                      color: AppColors.textSecondary,
+                      color: AppColors.getTextSecondary(context),
                     ),
                   ),
                   const SizedBox(height: 16),
@@ -325,19 +330,19 @@ class _AppDetailScreenState extends ConsumerState<AppDetailScreen> {
       children: [
         Text(
           label,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 14,
-            color: AppColors.textSecondary,
+            color: AppColors.getTextSecondary(context),
           ),
         ),
         Row(
           children: [
             Text(
               value,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.w600,
-                color: AppColors.textPrimary,
+                color: AppColors.getTextPrimary(context),
               ),
             ),
             if (onEdit != null) ...[
@@ -381,6 +386,30 @@ class _AppDetailScreenState extends ConsumerState<AppDetailScreen> {
     }
   }
 
+  Future<void> _showWarningPicker(AppLimit existingLimit) async {
+    final initialPercentage = (existingLimit.warningThreshold * 100).toInt();
+
+    final result = await showModalBottomSheet<int>(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder: (context) => _WarningThresholdPicker(
+        initialPercentage: initialPercentage,
+      ),
+    );
+
+    if (result != null) {
+      final newLimit = AppLimit(
+        packageName: widget.packageName,
+        dailyLimit: existingLimit.dailyLimit,
+        warningThreshold: result / 100.0,
+        cooldownPeriod: existingLimit.cooldownPeriod,
+        isEnabled: existingLimit.isEnabled,
+      );
+      ref.read(appLimitNotifierProvider.notifier).setLimit(newLimit);
+    }
+  }
+
   void _removeLimit() {
     showDialog(
       context: context,
@@ -390,7 +419,7 @@ class _AppDetailScreenState extends ConsumerState<AppDetailScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text(AppStrings.cancel),
+            child: const Text(AppStrings.cancel, style: TextStyle(color: AppColors.textPrimaryDark),),
           ),
           ElevatedButton(
             onPressed: () {
@@ -452,8 +481,8 @@ class _TimeLimitPickerState extends State<_TimeLimitPicker> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      decoration: const BoxDecoration(
-        color: Color(0xFF1C1C1E),
+      decoration: BoxDecoration(
+        color: AppColors.getSurface(context),
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
       child: Column(
@@ -465,19 +494,19 @@ class _TimeLimitPickerState extends State<_TimeLimitPicker> {
             width: 36,
             height: 5,
             decoration: BoxDecoration(
-              color: Colors.grey[600],
+              color: AppColors.primary,
               borderRadius: BorderRadius.circular(2.5),
             ),
           ),
           // Title
-          const Padding(
+          Padding(
             padding: EdgeInsets.all(20),
             child: Text(
-              'Set App Limits',
+              AppStrings.setAppLimits,
               style: TextStyle(
                 fontSize: 22,
                 fontWeight: FontWeight.bold,
-                color: Colors.white,
+                color: AppColors.getTextPrimary(context),
               ),
             ),
           ),
@@ -486,7 +515,7 @@ class _TimeLimitPickerState extends State<_TimeLimitPicker> {
             margin: const EdgeInsets.symmetric(horizontal: 20),
             padding: const EdgeInsets.symmetric(vertical: 8),
             decoration: BoxDecoration(
-              color: const Color(0xFF2C2C2E),
+              color: AppColors.getSurface(context),
               borderRadius: BorderRadius.circular(12),
             ),
             child: SizedBox(
@@ -499,7 +528,7 @@ class _TimeLimitPickerState extends State<_TimeLimitPicker> {
                       height: 40,
                       margin: const EdgeInsets.symmetric(horizontal: 12),
                       decoration: BoxDecoration(
-                        color: const Color(0xFF3A3A3C),
+                        color: AppColors.primaryLight.withOpacity(0.15),
                         borderRadius: BorderRadius.circular(8),
                       ),
                     ),
@@ -529,10 +558,10 @@ class _TimeLimitPickerState extends State<_TimeLimitPicker> {
                               return Center(
                                 child: Text(
                                   '$index ${index == 1 ? 'hour' : 'hours'}',
-                                  style: const TextStyle(
+                                  style: TextStyle(
                                     fontSize: 18,
                                     fontWeight: FontWeight.w500,
-                                    color: Colors.white,
+                                    color: AppColors.getTextSecondary(context),
                                   ),
                                 ),
                               );
@@ -541,12 +570,12 @@ class _TimeLimitPickerState extends State<_TimeLimitPicker> {
                         ),
                       ),
                       // Separator
-                      const Text(
+                      Text(
                         ':',
                         style: TextStyle(
                           fontSize: 24,
                           fontWeight: FontWeight.bold,
-                          color: Colors.white,
+                          color: AppColors.getTextSecondary(context),
                         ),
                       ),
                       // Minutes picker
@@ -571,10 +600,10 @@ class _TimeLimitPickerState extends State<_TimeLimitPicker> {
                               return Center(
                                 child: Text(
                                   '$index ${index == 1 ? 'minute' : 'minutes'}',
-                                  style: const TextStyle(
+                                  style: TextStyle(
                                     fontSize: 18,
                                     fontWeight: FontWeight.w500,
-                                    color: Colors.white,
+                                    color: AppColors.getTextSecondary(context),
                                   ),
                                 ),
                               );
@@ -643,14 +672,14 @@ class _TimeLimitPickerState extends State<_TimeLimitPicker> {
                           },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppColors.primary,
-                      disabledBackgroundColor: Colors.grey[700],
+                      disabledBackgroundColor: Colors.grey.withOpacity(0.1),
                       padding: const EdgeInsets.symmetric(vertical: 16),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
                       ),
                     ),
                     child: const Text(
-                      'Set Limit',
+                      AppStrings.setLimit,
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w600,
@@ -698,20 +727,211 @@ class _TimeLimitPickerState extends State<_TimeLimitPicker> {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
         decoration: BoxDecoration(
-          color: isSelected ? AppColors.primary : const Color(0xFF2C2C2E),
+          color: isSelected ? AppColors.primary : AppColors.primaryLight.withOpacity(0.15),
           borderRadius: BorderRadius.circular(20),
           border: isSelected
               ? null
-              : Border.all(color: const Color(0xFF3A3A3C)),
+              : Border.all(color: AppColors.primaryLight.withOpacity(0.1)),
         ),
         child: Text(
           label,
           style: TextStyle(
             fontSize: 14,
             fontWeight: FontWeight.w500,
-            color: isSelected ? Colors.white : Colors.grey[400],
+            color: isSelected ? Colors.white : AppColors.textSecondary,
           ),
         ),
+      ),
+    );
+  }
+}
+
+class _WarningThresholdPicker extends StatefulWidget {
+  final int initialPercentage;
+
+  const _WarningThresholdPicker({
+    required this.initialPercentage,
+  });
+
+  @override
+  State<_WarningThresholdPicker> createState() => _WarningThresholdPickerState();
+}
+
+class _WarningThresholdPickerState extends State<_WarningThresholdPicker> {
+  late FixedExtentScrollController _percentageController;
+  late int _selectedPercentage;
+
+  // Percentages from 50% to 95% in steps of 5
+  static const List<int> _percentages = [50, 55, 60, 65, 70, 75, 80, 85, 90, 95];
+
+  @override
+  void initState() {
+    super.initState();
+    _selectedPercentage = widget.initialPercentage;
+    final initialIndex = _percentages.indexOf(_selectedPercentage);
+    _percentageController = FixedExtentScrollController(
+      initialItem: initialIndex >= 0 ? initialIndex : 6, 
+    );
+  }
+
+  @override
+  void dispose() {
+    _percentageController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        color: AppColors.getSurface(context),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          // Handle bar
+          Container(
+            margin: const EdgeInsets.only(top: 12),
+            width: 36,
+            height: 5,
+            decoration: BoxDecoration(
+              color: AppColors.primary,
+              borderRadius: BorderRadius.circular(2.5),
+            ),
+          ),
+          // Title
+          Padding(
+            padding: EdgeInsets.all(20),
+            child: Text(
+              'Warning Threshold',
+              style: TextStyle(
+                fontSize: 22,
+                fontWeight: FontWeight.bold,
+                color: AppColors.getTextPrimary(context),
+              ),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 30),
+            child: Text(
+              'You will be warned when you reach this percentage of your daily limit',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 14,
+                color: AppColors.getTextSecondary(context),
+              ),
+            ),
+          ),
+          // Picker section
+          Container(
+            margin: const EdgeInsets.symmetric(horizontal: 20),
+            padding: const EdgeInsets.symmetric(vertical: 8),
+            decoration: BoxDecoration(
+              color: AppColors.getSurface(context),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: SizedBox(
+              height: 150,
+              child: Stack(
+                children: [
+                  // Selection highlight
+                  Center(
+                    child: Container(
+                      height: 40,
+                      margin: const EdgeInsets.symmetric(horizontal: 12),
+                      decoration: BoxDecoration(
+                        color: AppColors.primaryLight.withOpacity(0.15),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                    ),
+                  ),
+                  // Picker
+                  ListWheelScrollView.useDelegate(
+                    controller: _percentageController,
+                    itemExtent: 44,
+                    physics: const FixedExtentScrollPhysics(
+                      parent: BouncingScrollPhysics(),
+                    ),
+                    perspective: 0.003,
+                    diameterRatio: 1.5,
+                    useMagnifier: true,
+                    magnification: 1.1,
+                    overAndUnderCenterOpacity: 0.5,
+                    onSelectedItemChanged: (index) {
+                      setState(() => _selectedPercentage = _percentages[index]);
+                    },
+                    childDelegate: ListWheelChildBuilderDelegate(
+                      childCount: _percentages.length,
+                      builder: (context, index) {
+                        return Center(
+                          child: Text(
+                            '${_percentages[index]}%',
+                            style: TextStyle(
+                              fontSize: 24,
+                              fontWeight: FontWeight.w500,
+                              color: AppColors.getTextSecondary(context),
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          const SizedBox(height: 24),
+          // Action buttons
+          Padding(
+            padding: const EdgeInsets.fromLTRB(20, 0, 20, 32),
+            child: Row(
+              children: [
+                Expanded(
+                  child: TextButton(
+                    onPressed: () => Navigator.pop(context),
+                    style: TextButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                    child: const Text(
+                      'Cancel',
+                      style: TextStyle(
+                        fontSize: 16,
+                        color: Colors.grey,
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: ElevatedButton(
+                    onPressed: () {
+                      Navigator.pop(context, _selectedPercentage);
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.primary,
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                    child: const Text(
+                      'Save',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }

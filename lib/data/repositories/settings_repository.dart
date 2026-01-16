@@ -54,6 +54,13 @@ class SettingsRepository {
   bool get isMonitoringEnabled => settings.monitoringEnabled;
   bool get isNotificationsEnabled => settings.notificationsEnabled;
   bool get isOnboardingCompleted => settings.onboardingCompleted;
+  int get themeMode => settings.themeMode;
+
+  Future<void> setThemeMode(int mode) async {
+    final current = settings;
+    current.themeMode = mode;
+    await current.save();
+  }
 
   // Parental Settings
   Future<void> setParentalEnabled(bool enabled) async {
