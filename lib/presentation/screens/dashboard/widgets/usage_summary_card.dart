@@ -79,8 +79,8 @@ class UsageSummaryCard extends StatelessWidget {
         Row(
           children: [
             Container(
-              width: 32,
-              height: 32,
+              width: 28,
+              height: 28,
               decoration: BoxDecoration(
                 color: Colors.white.withValues(alpha: 0.2),
                 borderRadius: BorderRadius.circular(8),
@@ -88,17 +88,17 @@ class UsageSummaryCard extends StatelessWidget {
               child: const Icon(
                 Icons.phone_android,
                 color: Colors.white,
-                size: 18,
+                size: 16,
               ),
             ),
-            const SizedBox(width: 8),
+            const SizedBox(width: 6),
             Expanded(
               child: Text(
-              AppStrings.todayUsage,
-              style: TextStyle(
-                fontSize: 13,
-                color: Colors.white.withValues(alpha: 0.9),
-              ),
+                AppStrings.todayUsage,
+                style: TextStyle(
+                  fontSize: 13,
+                  color: Colors.white.withValues(alpha: 0.9),
+                ),
               ),
             ),
           ],

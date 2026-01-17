@@ -3,7 +3,7 @@ import '../../domain/entities/routine.dart';
 
 part 'routine_model.g.dart';
 
-@HiveType(typeId: 2)
+@HiveType(typeId: 3)
 class RoutineModel extends HiveObject {
   @HiveField(0)
   String id;

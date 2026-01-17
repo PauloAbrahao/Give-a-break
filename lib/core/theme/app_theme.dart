@@ -16,6 +16,9 @@ class AppTheme {
   static const Color _darkSurface = Color(0xFF1E293B);
   static const Color _darkSurfaceVariant = Color(0xFF334155);
   static const Color _darkTextPrimary = Color(0xFFF1F5F9);
+
+  // General Colors
+  static const Color success = Color(0xFF22C55E);
   
   static ThemeData lightTheme = ThemeData(
     useMaterial3: true,
@@ -86,7 +89,7 @@ class AppTheme {
       }),
       trackColor: WidgetStateProperty.resolveWith((states) {
         if (states.contains(WidgetState.selected)) {
-          return _lightPrimary.withOpacity(0.5);
+          return success.withOpacity(0.5);
         }
         return Colors.grey.withOpacity(0.3);
       }),
@@ -165,7 +168,7 @@ class AppTheme {
       }),
       trackColor: WidgetStateProperty.resolveWith((states) {
         if (states.contains(WidgetState.selected)) {
-          return _darkPrimary.withOpacity(0.5);
+          return success.withOpacity(0.5);
         }
         return Colors.grey.withOpacity(0.3);
       }),

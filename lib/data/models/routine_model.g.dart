@@ -8,7 +8,7 @@ part of 'routine_model.dart';
 
 class RoutineModelAdapter extends TypeAdapter<RoutineModel> {
   @override
-  final typeId = 2;
+  final typeId = 3;
 
   @override
   RoutineModel read(BinaryReader reader) {

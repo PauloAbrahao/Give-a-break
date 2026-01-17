@@ -51,6 +51,7 @@ class LimitSection extends StatelessWidget {
                     return Switch(
                       value: appLimit.isEnabled,
                       onChanged: onToggleLimit,
+                      activeThumbColor: AppColors.success,
                     );
                   }
                   return const SizedBox.shrink();

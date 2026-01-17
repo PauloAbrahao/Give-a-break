@@ -35,6 +35,11 @@ class RoutinesScreen extends ConsumerWidget {
           ),
         ),
       ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () => _showCreateRoutineDialog(context, null),
+        backgroundColor: AppColors.primary,
+        child: const Icon(Icons.add, color: Colors.white),
+      ),
     );
   }
 
@@ -46,7 +51,7 @@ class RoutinesScreen extends ConsumerWidget {
           Icon(
             Icons.schedule,
             size: 64,
-            color: AppColors.getTextSecondary(context).withOpacity(0.5),
+            color: AppColors.getTextSecondary(context).withValues(alpha: 0.5),
           ),
           const SizedBox(height: 16),
           Text(

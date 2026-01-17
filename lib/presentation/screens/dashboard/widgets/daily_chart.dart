@@ -54,7 +54,7 @@ class DailyChart extends StatelessWidget {
                       return BarTooltipItem(
                         summary.totalScreenTime.toReadableString(),
                         const TextStyle(
-                          color: Colors.white,
+                          color: Colors.black,
                           fontWeight: FontWeight.bold,
                         ),
                       );

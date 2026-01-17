@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:give_a_break/core/constants/app_strings.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../domain/entities/routine.dart';
 import '../../../providers/routine_provider.dart';
@@ -12,7 +13,7 @@ class CreateRoutineDialog extends ConsumerStatefulWidget {
 
   const CreateRoutineDialog({
     super.key,
-    this.existingRoutine,
+    required this.existingRoutine,
   });
 
   @override
@@ -25,6 +26,7 @@ class _CreateRoutineDialogState extends ConsumerState<CreateRoutineDialog> {
   final _descriptionController = TextEditingController();
   Set<int> _selectedDays = {0, 1, 2, 3, 4, 5, 6};
   Set<String> _selectedApps = {};
+  bool _isEnabled = true;
 
   bool get _isEditing => widget.existingRoutine != null;
 
@@ -36,6 +38,7 @@ class _CreateRoutineDialogState extends ConsumerState<CreateRoutineDialog> {
       _descriptionController.text = widget.existingRoutine!.description ?? '';
       _selectedDays = Set.from(widget.existingRoutine!.days);
       _selectedApps = Set.from(widget.existingRoutine!.appPackages);
+      _isEnabled = widget.existingRoutine!.isEnabled;
     }
   }
 
@@ -77,6 +80,8 @@ class _CreateRoutineDialogState extends ConsumerState<CreateRoutineDialog> {
                     selectedPackages: _selectedApps,
                     onTap: _openAppSelector,
                   ),
+                  const SizedBox(height: 24),
+                  _buildEnabledSwitch(context),
                   const SizedBox(height: 32),
                   _buildActionButtons(context),
                 ],
@@ -104,6 +109,7 @@ class _CreateRoutineDialogState extends ConsumerState<CreateRoutineDialog> {
     return Padding(
       padding: const EdgeInsets.all(20),
       child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Text(
             _isEditing ? 'Edit Routine' : 'New Routine',
@@ -113,6 +119,27 @@ class _CreateRoutineDialogState extends ConsumerState<CreateRoutineDialog> {
               color: AppColors.getTextPrimary(context),
             ),
           ),
+          if (_isEditing)
+            Container(
+              width: 40,
+              height: 40,
+              decoration: BoxDecoration(
+                color: AppColors.error.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: IconButton(
+                onPressed: _deleteRoutine,
+                icon: Icon(
+                  Icons.delete_outline,
+                  size: 20,
+                  color: AppColors.error,
+                ),
+                style: IconButton.styleFrom(
+                  padding: const EdgeInsets.all(8),
+                  minimumSize: const Size(36, 36),
+                ),
+              ),
+            ),
         ],
       ),
     );
@@ -135,7 +162,7 @@ class _CreateRoutineDialogState extends ConsumerState<CreateRoutineDialog> {
           controller: _nameController,
           onChanged: (_) => setState(() {}),
           decoration: InputDecoration(
-            hintText: 'Enter routine name',
+            hintText: 'Routine name',
             filled: true,
             fillColor: AppColors.getSurfaceVariant(context),
             border: OutlineInputBorder(
@@ -157,7 +184,7 @@ class _CreateRoutineDialogState extends ConsumerState<CreateRoutineDialog> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Description (optional)',
+          'Description',
           style: TextStyle(
             fontSize: 14,
             fontWeight: FontWeight.w600,
@@ -169,7 +196,7 @@ class _CreateRoutineDialogState extends ConsumerState<CreateRoutineDialog> {
           controller: _descriptionController,
           maxLines: 2,
           decoration: InputDecoration(
-            hintText: 'Enter description',
+            hintText: 'Description',
             filled: true,
             fillColor: AppColors.getSurfaceVariant(context),
             border: OutlineInputBorder(
@@ -183,6 +210,34 @@ class _CreateRoutineDialogState extends ConsumerState<CreateRoutineDialog> {
           ),
         ),
       ],
+    );
+  }
+
+  Widget _buildEnabledSwitch(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      decoration: BoxDecoration(
+        color: AppColors.getSurfaceVariant(context),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            'Enable routine',
+            style: TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.w600,
+              color: AppColors.getTextPrimary(context),
+            ),
+          ),
+          Switch(
+            value: _isEnabled,
+            onChanged: (value) => setState(() => _isEnabled = value),
+            activeThumbColor : AppColors.success,
+          ),
+        ],
+      ),
     );
   }
 
@@ -239,23 +294,27 @@ class _CreateRoutineDialogState extends ConsumerState<CreateRoutineDialog> {
         _selectedApps.isNotEmpty;
   }
 
-  void _saveRoutine() {
-    final notifier = ref.read(routineNotifierProvider.notifier);
+  Future<void> _saveRoutine() async {
+    final repo = await ref.read(routineRepositoryProvider.future);
 
     final routine = Routine(
-      id: widget.existingRoutine?.id ?? notifier.generateId(),
+      id: widget.existingRoutine?.id ?? repo.generateId(),
       name: _nameController.text.trim(),
       description: _descriptionController.text.trim().isEmpty
           ? null
           : _descriptionController.text.trim(),
       days: _selectedDays,
       appPackages: _selectedApps,
-      isEnabled: widget.existingRoutine?.isEnabled ?? true,
+      isEnabled: _isEnabled,
       createdAt: widget.existingRoutine?.createdAt ?? DateTime.now(),
     );
 
-    notifier.saveRoutine(routine);
-    Navigator.pop(context);
+    await repo.saveRoutine(routine);
+    ref.invalidate(allRoutinesProvider);
+
+    if (mounted) {
+      Navigator.pop(context);
+    }
   }
 
   Future<void> _openAppSelector() async {
@@ -270,6 +329,42 @@ class _CreateRoutineDialogState extends ConsumerState<CreateRoutineDialog> {
 
     if (result != null) {
       setState(() => _selectedApps = result);
+    }
+  }
+
+  void _deleteRoutine() async {
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Delete Routine'),
+        content: const Text('Are you sure you want to remove this routine?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: Text(
+              AppStrings.cancel,
+              style: TextStyle(color: AppColors.getTextPrimary(context)),
+            ),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(context, true),
+            style: ElevatedButton.styleFrom(backgroundColor: AppColors.error),
+            child: const Text('Delete'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirm != true) return;
+
+    final repo = await ref.read(routineRepositoryProvider.future);
+
+    await repo.deleteRoutine(widget.existingRoutine!.id);
+
+    ref.invalidate(allRoutinesProvider);
+
+    if (mounted) {
+      Navigator.pop(context);
     }
   }
 }

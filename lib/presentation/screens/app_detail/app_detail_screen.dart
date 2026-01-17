@@ -129,11 +129,11 @@ class _AppDetailScreenState extends ConsumerState<AppDetailScreen> {
       barrierColor: Colors.black.withValues(alpha: 0.8),
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Remove Limit'),
+        title: const Text('Delete Limit'),
         content: const Text('Are you sure you want to remove this limit?'),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(context),
+            onPressed: () => Navigator.pop(context, false),
             child: Text(
               AppStrings.cancel,
               style: TextStyle(color: AppColors.getTextPrimary(context)),
@@ -149,7 +149,7 @@ class _AppDetailScreenState extends ConsumerState<AppDetailScreen> {
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColors.error,
             ),
-            child: const Text('Remove'),
+            child: const Text('Delete'),
           ),
         ],
       ),

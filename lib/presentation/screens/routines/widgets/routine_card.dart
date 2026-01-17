@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../domain/entities/routine.dart';
 import '../../../providers/installed_apps_provider.dart';
-import '../../../providers/routine_provider.dart';
+import 'days_display.dart';
 
 class RoutineCard extends ConsumerWidget {
   final Routine routine;
@@ -14,8 +14,6 @@ class RoutineCard extends ConsumerWidget {
     required this.routine,
     required this.onEdit,
   });
-
-  static const List<String> _dayLabels = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -28,7 +26,6 @@ class RoutineCard extends ConsumerWidget {
       child: Material(
         color: Colors.transparent,
         child: InkWell(
-          onTap: onEdit,
           borderRadius: BorderRadius.circular(16),
           child: Padding(
             padding: const EdgeInsets.all(16),
@@ -49,7 +46,7 @@ class RoutineCard extends ConsumerWidget {
                   ),
                 ],
                 const SizedBox(height: 12),
-                _buildDaysRow(context),
+                DaysDisplay(selectedDays: routine.days),
                 const SizedBox(height: 12),
                 _buildAppsRow(context, ref),
               ],
@@ -63,6 +60,15 @@ class RoutineCard extends ConsumerWidget {
   Widget _buildHeader(BuildContext context, WidgetRef ref) {
     return Row(
       children: [
+        Container(
+          width: 8,
+          height: 8,
+          margin: const EdgeInsets.only(right: 10),
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: routine.isEnabled ? AppColors.success : Colors.grey,
+          ),
+        ),
         Expanded(
           child: Text(
             routine.name,
@@ -73,46 +79,27 @@ class RoutineCard extends ConsumerWidget {
             ),
           ),
         ),
-        Switch(
-          value: routine.isEnabled,
-          onChanged: (enabled) {
-            ref
-                .read(routineNotifierProvider.notifier)
-                .toggleRoutine(routine.id, enabled);
-          },
+        Container(
+          width: 40,
+          height: 40,
+          decoration: BoxDecoration(
+            color: AppColors.success.withValues(alpha: 0.1),
+            borderRadius: BorderRadius.circular(10),
+          ),
+          child: IconButton(
+          onPressed: onEdit,
+          icon: Icon(
+            Icons.edit_outlined,
+            size: 20,
+            color: AppColors.success,
+          ),
+          style: IconButton.styleFrom(
+            padding: const EdgeInsets.all(8),
+            minimumSize: const Size(36, 36),
+          ),
+        ),
         ),
       ],
-    );
-  }
-
-  Widget _buildDaysRow(BuildContext context) {
-    return Row(
-      children: List.generate(7, (index) {
-        final isSelected = routine.days.contains(index);
-        return Container(
-          width: 28,
-          height: 28,
-          margin: const EdgeInsets.only(right: 6),
-          decoration: BoxDecoration(
-            color: isSelected
-                ? AppColors.primary.withOpacity(0.15)
-                : AppColors.getSurfaceVariant(context),
-            borderRadius: BorderRadius.circular(14),
-          ),
-          child: Center(
-            child: Text(
-              _dayLabels[index],
-              style: TextStyle(
-                fontSize: 11,
-                fontWeight: FontWeight.w600,
-                color: isSelected
-                    ? AppColors.primary
-                    : AppColors.getTextSecondary(context),
-              ),
-            ),
-          ),
-        );
-      }),
     );
   }
 
@@ -133,7 +120,7 @@ class RoutineCard extends ConsumerWidget {
             width: 28,
             height: 28,
             decoration: BoxDecoration(
-              color: AppColors.primary.withOpacity(0.1),
+              color: AppColors.primary.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(6),
             ),
             child: Center(
@@ -194,7 +181,7 @@ class _AppIconSmall extends ConsumerWidget {
       width: 28,
       height: 28,
       decoration: BoxDecoration(
-        color: AppColors.primary.withOpacity(0.1),
+        color: AppColors.primary.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(6),
       ),
       child: const Icon(
