@@ -337,7 +337,7 @@ class _CreateRoutineDialogState extends ConsumerState<CreateRoutineDialog> {
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Delete Routine'),
-        content: const Text('Are you sure you want to remove this routine?'),
+        content: const Text('Are you sure you want to delete this routine?'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),

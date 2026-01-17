@@ -23,11 +23,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
   }
 
   Future<void> _initializeApp() async {
-    // Check permissions
     await ref.read(permissionProvider.notifier).checkAllPermissions();
-
-    // Small delay for splash effect
-    await Future.delayed(const Duration(seconds: 1));
 
     if (!mounted) return;
 
@@ -40,17 +36,14 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
     final permissions = ref.read(permissionProvider);
 
     if (onboardingCompleted && permissions.coreGranted) {
-      // Start monitoring automatically
       await ref.read(monitoringProvider.notifier).startMonitoring();
 
       if (!mounted) return;
 
-      // Go to dashboard
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(builder: (_) => const DashboardScreen()),
       );
     } else {
-      // Go to onboarding
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(builder: (_) => const OnboardingScreen()),
       );
@@ -60,7 +53,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.primary,
+      backgroundColor: AppColors.primaryDark,
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -94,10 +87,6 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
                 fontSize: 14,
                 color: Colors.white.withValues(alpha: 0.8),
               ),
-            ),
-            const SizedBox(height: 48),
-            const CircularProgressIndicator(
-              valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
             ),
           ],
         ),

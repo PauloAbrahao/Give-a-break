@@ -48,13 +48,13 @@ class DailyChart extends StatelessWidget {
                 barTouchData: BarTouchData(
                   enabled: true,
                   touchTooltipData: BarTouchTooltipData(
-                    getTooltipColor: (_) => AppColors.getTextPrimary(context),
+                    getTooltipColor: (_) => AppColors.primaryLight,
                     getTooltipItem: (group, groupIndex, rod, rodIndex) {
                       final summary = summaries[group.x.toInt()];
                       return BarTooltipItem(
                         summary.totalScreenTime.toReadableString(),
                         const TextStyle(
-                          color: Colors.black,
+                          color: Colors.white,
                           fontWeight: FontWeight.bold,
                         ),
                       );

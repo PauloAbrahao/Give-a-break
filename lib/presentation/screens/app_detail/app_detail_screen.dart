@@ -130,7 +130,7 @@ class _AppDetailScreenState extends ConsumerState<AppDetailScreen> {
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Delete Limit'),
-        content: const Text('Are you sure you want to remove this limit?'),
+        content: const Text('Are you sure you want to delete this limit?'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),

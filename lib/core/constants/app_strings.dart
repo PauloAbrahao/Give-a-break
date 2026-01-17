@@ -48,7 +48,7 @@ class AppStrings {
   static const String dailyLimit = 'Daily Limit';
   static const String noLimitSet = 'No limit set';
   static const String setLimit = 'Set Limit';
-  static const String removeLimit = 'Remove Limit';
+  static const String removeLimit = 'Delete Limit';
   static const String usageHistory = 'Usage History';
   static const String warningThreshold = 'Warning at';
   static const String setAppLimits = 'Set App Limits';
