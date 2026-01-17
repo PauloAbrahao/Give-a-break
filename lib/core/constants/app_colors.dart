@@ -94,4 +94,10 @@ class AppColors {
         ? dividerDark
         : dividerLight;
   }
+
+  static Color getDialogColor(BuildContext context) {
+    return Theme.of(context).brightness == Brightness.dark
+        ? surfaceDark
+        : surfaceLight;
+  }
 }

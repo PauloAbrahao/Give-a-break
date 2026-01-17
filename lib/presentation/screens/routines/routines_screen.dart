@@ -109,14 +109,10 @@ class RoutinesScreen extends ConsumerWidget {
   void _showCreateRoutineDialog(BuildContext context, Routine? routine) {
     showModalBottomSheet(
       context: context,
+      barrierColor: Colors.black.withValues(alpha: 0.8),
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (context) => Padding(
-        padding: EdgeInsets.only(
-          bottom: MediaQuery.of(context).viewInsets.bottom,
-        ),
-        child: CreateRoutineDialog(existingRoutine: routine),
-      ),
+      builder: (context) => CreateRoutineDialog(existingRoutine: routine),  
     );
   }
 }

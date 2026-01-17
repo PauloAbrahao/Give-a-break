@@ -161,8 +161,9 @@ class _CreateRoutineDialogState extends ConsumerState<CreateRoutineDialog> {
         TextField(
           controller: _nameController,
           onChanged: (_) => setState(() {}),
+          maxLength: 20,
           decoration: InputDecoration(
-            hintText: 'Routine name',
+            hintText: 'Routine Name',
             filled: true,
             fillColor: AppColors.getSurfaceVariant(context),
             border: OutlineInputBorder(
@@ -173,6 +174,7 @@ class _CreateRoutineDialogState extends ConsumerState<CreateRoutineDialog> {
               horizontal: 16,
               vertical: 12,
             ),
+            counterText: '',
           ),
         ),
       ],
@@ -195,8 +197,9 @@ class _CreateRoutineDialogState extends ConsumerState<CreateRoutineDialog> {
         TextField(
           controller: _descriptionController,
           maxLines: 2,
+          maxLength: 90,
           decoration: InputDecoration(
-            hintText: 'Description',
+            hintText: 'Routine Description',
             filled: true,
             fillColor: AppColors.getSurfaceVariant(context),
             border: OutlineInputBorder(

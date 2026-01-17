@@ -36,10 +36,6 @@ class RoutineRepository {
     }
   }
 
-  bool hasRoutine(String id) {
-    return _box.containsKey(id);
-  }
-
   String generateId() {
     return DateTime.now().millisecondsSinceEpoch.toString();
   }

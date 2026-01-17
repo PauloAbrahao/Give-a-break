@@ -56,7 +56,6 @@ class _TimeLimitPickerState extends State<TimeLimitPicker> {
           _buildTitle(context),
           _buildPicker(context),
           const SizedBox(height: 20),
-          _buildQuickSelectButtons(),
           const SizedBox(height: 24),
           _buildActionButtons(context),
         ],
@@ -99,7 +98,7 @@ class _TimeLimitPickerState extends State<TimeLimitPicker> {
         borderRadius: BorderRadius.circular(12),
       ),
       child: SizedBox(
-        height: 150,
+        height: 160,
         child: Stack(
           children: [
             _buildSelectionHighlight(),
@@ -199,73 +198,6 @@ class _TimeLimitPickerState extends State<TimeLimitPicker> {
           ),
         ),
       ],
-    );
-  }
-
-  Widget _buildQuickSelectButtons() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
-      child: Wrap(
-        spacing: 8,
-        runSpacing: 8,
-        children: [
-          _buildQuickSelectButton(0, 15),
-          _buildQuickSelectButton(0, 30),
-          _buildQuickSelectButton(1, 0),
-          _buildQuickSelectButton(2, 0),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildQuickSelectButton(int hours, int minutes) {
-    final isSelected = _selectedHours == hours && _selectedMinutes == minutes;
-    String label;
-    if (hours == 0) {
-      label = '$minutes min';
-    } else if (minutes == 0) {
-      label = '$hours ${hours == 1 ? 'hour' : 'hours'}';
-    } else {
-      label = '${hours}h ${minutes}m';
-    }
-
-    return GestureDetector(
-      onTap: () {
-        setState(() {
-          _selectedHours = hours;
-          _selectedMinutes = minutes;
-        });
-        _hoursController.animateToItem(
-          hours,
-          duration: const Duration(milliseconds: 300),
-          curve: Curves.easeInOut,
-        );
-        _minutesController.animateToItem(
-          minutes,
-          duration: const Duration(milliseconds: 300),
-          curve: Curves.easeInOut,
-        );
-      },
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-        decoration: BoxDecoration(
-          color: isSelected
-              ? AppColors.primary
-              : AppColors.primaryLight.withOpacity(0.15),
-          borderRadius: BorderRadius.circular(20),
-          border: isSelected
-              ? null
-              : Border.all(color: AppColors.primaryLight.withOpacity(0.1)),
-        ),
-        child: Text(
-          label,
-          style: TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.w500,
-            color: isSelected ? Colors.white : AppColors.textSecondary,
-          ),
-        ),
-      ),
     );
   }
 

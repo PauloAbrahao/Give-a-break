@@ -79,6 +79,7 @@ class _AppDetailScreenState extends ConsumerState<AppDetailScreen> {
 
     final result = await showModalBottomSheet<Duration>(
       context: context,
+      barrierColor: Colors.black.withValues(alpha: 0.8),
       backgroundColor: Colors.transparent,
       isScrollControlled: true,
       builder: (context) => TimeLimitPicker(
@@ -105,6 +106,7 @@ class _AppDetailScreenState extends ConsumerState<AppDetailScreen> {
 
     final result = await showModalBottomSheet<int>(
       context: context,
+      barrierColor: Colors.black.withValues(alpha: 0.8),
       backgroundColor: Colors.transparent,
       isScrollControlled: true,
       builder: (context) => WarningThresholdPicker(
@@ -130,6 +132,7 @@ class _AppDetailScreenState extends ConsumerState<AppDetailScreen> {
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Delete Limit'),
+        backgroundColor: AppColors.getDialogColor(context),
         content: const Text('Are you sure you want to delete this limit?'),
         actions: [
           TextButton(
