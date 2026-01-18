@@ -95,7 +95,7 @@ class _AppDetailScreenState extends ConsumerState<AppDetailScreen> {
         warningThreshold: existingLimit?.warningThreshold ?? 0.8,
         cooldownPeriod:
             existingLimit?.cooldownPeriod ?? const Duration(minutes: 5),
-        isEnabled: true,
+        isEnabled: existingLimit?.isEnabled ?? true,
       );
       ref.read(appLimitNotifierProvider.notifier).setLimit(newLimit);
     }

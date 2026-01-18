@@ -7,6 +7,13 @@ import '../../providers/permission_provider.dart';
 import '../../providers/settings_provider.dart';
 import '../../providers/monitoring_provider.dart';
 
+import 'widgets/section_header.dart';
+import 'widgets/monitoring_tile.dart';
+import 'widgets/settings_row_tile.dart';
+import 'widgets/permission_tile.dart';
+import 'widgets/about_tile.dart';
+import 'widgets/theme_picker.dart';
+
 class SettingsScreen extends ConsumerStatefulWidget {
   const SettingsScreen({super.key});
 
@@ -55,7 +62,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen>
         padding: const EdgeInsets.all(16),
         children: [
           // Application Section
-          _buildSectionHeader(context, AppStrings.application),
+          const SectionHeader(title: AppStrings.application),
           const SizedBox(height: 12),
           Container(
             decoration: BoxDecoration(
@@ -65,109 +72,47 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen>
             child: Column(
               children: [
                 // App Monitoring
-                ListTile(
-                  leading: Container(
-                    width: 40,
-                    height: 40,
-                    decoration: BoxDecoration(
-                      color:
-                          (monitoring.isRunning
-                                  ? AppColors.success
-                                  : AppColors.warning)
-                              .withValues(alpha: 0.1),
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: Icon(
-                      monitoring.isRunning
-                          ? Icons.visibility
-                          : Icons.visibility_off,
-                      color: monitoring.isRunning
-                          ? AppColors.success
-                          : AppColors.warning,
-                    ),
-                  ),
-                  title: const Text('App Monitoring'),
-                  subtitle: Text(
-                    monitoring.isRunning ? 'Active' : 'Starting...',
-                    style: TextStyle(
-                      color: monitoring.isRunning
-                          ? AppColors.success
-                          : AppColors.warning,
-                    ),
-                  ),
-                  trailing: monitoring.isRunning
-                      ? const Icon(Icons.check_circle, color: AppColors.success)
-                      : const SizedBox(
-                          width: 20,
-                          height: 20,
-                          child: CircularProgressIndicator(strokeWidth: 2),
-                        ),
-                  onTap: !monitoring.isRunning
-                      ? () async {
-                          await ref
-                              .read(monitoringProvider.notifier)
-                              .startMonitoring();
-                        }
-                      : null,
+                MonitoringTile(
+                  isRunning: monitoring.isRunning,
+                  onTap: () async {
+                    await ref
+                        .read(monitoringProvider.notifier)
+                        .startMonitoring();
+                  },
                 ),
                 Divider(height: 1, color: AppColors.getDivider(context)),
                 // Import
-                _buildRowTile(
-                  context: context,
+                SettingsRowTile(
                   title: AppStrings.import,
                   subtitle: AppStrings.importSubtitle,
                   icon: Icons.download,
                   rightIcon: Icons.chevron_right,
-                  onTap: () =>  Navigator.of(context).push(
+                  onTap: () => Navigator.of(context).push(
                     MaterialPageRoute(
                       builder: (_) => const DataImportExportScreen(),
                     ),
-                  )
+                  ),
+                ),
+                Divider(height: 1, color: AppColors.getDivider(context)),
+                // Theme
+                SettingsRowTile(
+                  title: AppStrings.theme,
+                  subtitle: themeMode.when(
+                    data: (mode) => _getThemeModeName(mode),
+                    loading: () => 'Loading...',
+                    error: (_, __) => 'System',
+                  ),
+                  icon: Icons.palette_outlined,
+                  rightIcon: Icons.chevron_right,
+                  onTap: () => _showThemePicker(context, themeMode.valueOrNull ?? 0),
                 ),
               ],
-            ),
-          ), 
-          const SizedBox(height: 24),
-          // Appearance Section
-          _buildSectionHeader(context, 'Appearance'),
-          const SizedBox(height: 12),
-          Container(
-            decoration: BoxDecoration(
-              color: AppColors.getSurface(context),
-              borderRadius: BorderRadius.circular(16),
-            ),
-            child: ListTile(
-              leading: Container(
-                width: 40,
-                height: 40,
-                decoration: BoxDecoration(
-                  color: AppColors.success.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: const Icon(
-                  Icons.palette_outlined,
-                  color: AppColors.success,
-                ),
-              ),
-              title: const Text('Theme'),
-              subtitle: Text(
-                themeMode.when(
-                  data: (mode) => _getThemeModeName(mode),
-                  loading: () => 'Loading...',
-                  error: (_, __) => 'System',
-                ),
-                style: TextStyle(
-                  color: AppColors.getTextSecondary(context),
-                ),
-              ),
-              trailing: const Icon(Icons.chevron_right),
-              onTap: () => _showThemePicker(context, themeMode.valueOrNull ?? 0),
             ),
           ),
           const SizedBox(height: 24),
 
           // Permissions Section
-          _buildSectionHeader(context, AppStrings.permissions),
+          const SectionHeader(title: AppStrings.permissions),
           const SizedBox(height: 12),
           Container(
             decoration: BoxDecoration(
@@ -176,12 +121,10 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen>
             ),
             child: Column(
               children: [
-                _buildPermissionTile(
-                  context: context,
+                PermissionTile(
                   title: AppStrings.permissionUsageStatsTitle,
                   subtitle: AppStrings.permissionUsageStatsDesc,
                   icon: Icons.bar_chart,
-                  rightIcon: Icons.check_circle,
                   isGranted: permissions.usageStatsGranted,
                   onTap: () {
                     ref
@@ -190,12 +133,10 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen>
                   },
                 ),
                 Divider(height: 1, color: AppColors.getDivider(context)),
-                _buildPermissionTile(
-                  context: context,
+                PermissionTile(
                   title: AppStrings.permissionOverlayTitle,
                   subtitle: AppStrings.permissionOverlayDesc,
                   icon: Icons.layers,
-                  rightIcon: Icons.check_circle,
                   isGranted: permissions.overlayGranted,
                   onTap: () {
                     ref
@@ -204,12 +145,10 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen>
                   },
                 ),
                 Divider(height: 1, color: AppColors.getDivider(context)),
-                _buildPermissionTile(
-                  context: context,
+                PermissionTile(
                   title: AppStrings.permissionNotificationTitle,
                   subtitle: AppStrings.permissionNotificationDesc,
                   icon: Icons.notifications,
-                  rightIcon: Icons.check_circle,
                   isGranted: permissions.notificationGranted,
                   onTap: () {
                     ref
@@ -221,118 +160,21 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen>
             ),
           ),
           const SizedBox(height: 24),
-
-          // About Section
-          _buildSectionHeader(context, AppStrings.about),
+          const SectionHeader(title: AppStrings.about),
           const SizedBox(height: 12),
           Container(
             decoration: BoxDecoration(
               color: AppColors.getSurface(context),
               borderRadius: BorderRadius.circular(16),
             ),
-            child: Column(
+            child: const Column(
               children: [
-                ListTile(
-                  leading: Container(
-                    width: 40,
-                    height: 40,
-                    decoration: BoxDecoration(
-                      color: AppColors.success.withValues(alpha: 0.1),
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: const Icon(
-                      Icons.info_outline,
-                      color: AppColors.success,
-                    ),
-                  ),
-                  title: const Text(AppStrings.appName),
-                  subtitle: const Text('Version 1.0.0'),
-                ),
+                AboutTile(),
               ],
             ),
           ),
         ],
       ),
-    );
-  }
-
-  Widget _buildSectionHeader(BuildContext context, String title) {
-    return Text(
-      title,
-      style: TextStyle(
-        fontSize: 14,
-        fontWeight: FontWeight.w600,
-        color: AppColors.getTextSecondary(context),
-      ),
-    );
-  }
-
-  Widget _buildPermissionTile({
-    required BuildContext context,
-    required String title,
-    required String subtitle,
-    required IconData icon,
-    required IconData rightIcon,
-    required bool isGranted,
-    required VoidCallback onTap,
-  }) {
-    return ListTile(
-      leading: Container(
-        width: 40,
-        height: 40,
-        decoration: BoxDecoration(
-          color: (isGranted ? AppColors.success : AppColors.primary)
-              .withValues(alpha: 0.1),
-          borderRadius: BorderRadius.circular(10),
-        ),
-        child: Icon(
-          icon,
-          color: isGranted ? AppColors.success : AppColors.primary,
-        ),
-      ),
-      title: Text(title),
-      subtitle: Text(
-        subtitle,
-        style: TextStyle(
-          fontSize: 12,
-          color: AppColors.getTextSecondary(context),
-        ),
-      ),
-      trailing: isGranted
-          ? Icon(rightIcon, color: AppColors.success)
-          : TextButton(onPressed: onTap, child: const Text('Grant')),
-      onTap: isGranted ? null : onTap,
-    );
-  }
-
-  Widget _buildRowTile({
-    required BuildContext context,
-    required String title,
-    required String subtitle,
-    required IconData icon,
-    required IconData rightIcon,
-    required VoidCallback onTap,
-  }) {
-    return ListTile(
-      leading: Container(
-        width: 40,
-        height: 40,
-        decoration: BoxDecoration(
-          color: AppColors.success.withValues(alpha: 0.1),
-          borderRadius: BorderRadius.circular(10),
-        ),
-        child: Icon(icon, color: AppColors.success),
-      ),
-      title: Text(title),
-      subtitle: Text(
-        subtitle,
-        style: TextStyle(
-          fontSize: 12,
-          color: AppColors.getTextSecondary(context),
-        ),
-      ),
-      trailing: Icon(rightIcon),
-      onTap: onTap,
     );
   }
 
@@ -352,108 +194,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen>
       context: context,
       barrierColor: Colors.black.withValues(alpha: 0.8),
       backgroundColor: Colors.transparent,
-      builder: (context) => Container(
-        decoration: BoxDecoration(
-          color: AppColors.getSurface(context),
-          borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-              margin: const EdgeInsets.only(top: 12),
-              width: 36,
-              height: 5,
-              decoration: BoxDecoration(
-                color: AppColors.primary,
-                borderRadius: BorderRadius.circular(2.5),
-              ),
-            ),
-            const Padding(
-              padding: EdgeInsets.all(20),
-              child: Text(
-                'Choose Theme',
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
-            _buildThemeOption(
-              context: context,
-              icon: Icons.brightness_auto,
-              title: 'System',
-              subtitle: 'Follow system settings',
-              mode: 0,
-              currentMode: currentMode,
-            ),
-            _buildThemeOption(
-              context: context,
-              icon: Icons.light_mode,
-              title: 'Light',
-              subtitle: 'Always use light theme',
-              mode: 1,
-              currentMode: currentMode,
-            ),
-            _buildThemeOption(
-              context: context,
-              icon: Icons.dark_mode,
-              title: 'Dark',
-              subtitle: 'Always use dark theme',
-              mode: 2,
-              currentMode: currentMode,
-            ),
-            const SizedBox(height: 32),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildThemeOption({
-    required BuildContext context,
-    required IconData icon,
-    required String title,
-    required String subtitle,
-    required int mode,
-    required int currentMode,
-  }) {
-    final isSelected = mode == currentMode;
-    return ListTile(
-      leading: Container(
-        width: 40,
-        height: 40,
-        decoration: BoxDecoration(
-          color: (isSelected ? AppColors.success : AppColors.getTextSecondary(context))
-              .withValues(alpha: 0.1),
-          borderRadius: BorderRadius.circular(10),
-        ),
-        child: Icon(
-          icon,
-          color: isSelected ? AppColors.success : AppColors.getTextSecondary(context),
-        ),
-      ),
-      title: Text(
-        title,
-        style: TextStyle(
-          fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
-          color: isSelected ? AppColors.success : null,
-        ),
-      ),
-      subtitle: Text(
-        subtitle,
-        style: TextStyle(
-          fontSize: 12,
-          color: AppColors.getTextSecondary(context),
-        ),
-      ),
-      trailing: isSelected
-          ? const Icon(Icons.check_circle, color: AppColors.success)
-          : null,
-      onTap: () {
-        ref.read(settingsNotifierProvider.notifier).setThemeMode(mode);
-        Navigator.pop(context);
-      },
+      builder: (context) => ThemePicker(currentMode: currentMode),
     );
   }
 }

@@ -55,6 +55,7 @@ class AppStrings {
   // Settings
   static const String settings = 'Settings';
   static const String application = 'Application';
+  static const String theme = 'Theme';
   static const String import = 'Data Import/ Export';
   static const String importSubtitle =
       'Import and export routines and settings';
@@ -62,6 +63,14 @@ class AppStrings {
   static const String stopMonitoring = 'Stop Monitoring';
   static const String permissions = 'Permissions';
   static const String about = 'About';
+
+  // Data Transfer
+  static const String exportTitle = 'Export';
+  static const String exportDescription =
+      'Back up your limits, routines and settings to restore them later';
+  static const String importTitle = 'Import';
+  static const String importDescription =
+      'Restore previously exported data to get your limits and routines back';
 
   // General
   static const String next = 'Next';
