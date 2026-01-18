@@ -49,21 +49,15 @@ class AppStrings {
   static const String noLimitSet = 'No limit set';
   static const String setLimit = 'Set Limit';
   static const String removeLimit = 'Delete Limit';
-  static const String usageHistory = 'Usage History';
   static const String warningThreshold = 'Warning at';
   static const String setAppLimits = 'Set App Limits';
 
-  // Overlay Warning
-  static const String timeIsUp = 'Time\'s Up!';
-  static const String limitReached = 'You\'ve reached your daily limit for';
-  static const String takeABreak = 'Take a Break';
-  static const String continueAnyway = 'Continue Anyway';
-  static const String usedToday = 'Used today';
-  static const String dailyLimitLabel = 'Daily limit';
-
   // Settings
   static const String settings = 'Settings';
-  static const String monitoring = 'Monitoring';
+  static const String application = 'Application';
+  static const String import = 'Data Import/ Export';
+  static const String importSubtitle =
+      'Import and export routines and settings';
   static const String startMonitoring = 'Start Monitoring';
   static const String stopMonitoring = 'Stop Monitoring';
   static const String permissions = 'Permissions';
@@ -74,8 +68,4 @@ class AppStrings {
   static const String skip = 'Skip';
   static const String done = 'Done';
   static const String cancel = 'Cancel';
-  static const String save = 'Save';
-  static const String enable = 'Enable';
-  static const String disable = 'Disable';
-  static const String grantPermission = 'Grant Permission';
 }
