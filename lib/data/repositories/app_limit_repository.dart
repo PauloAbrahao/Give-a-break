@@ -35,15 +35,6 @@ class AppLimitRepository {
     await _syncToSharedPreferences();
   }
 
-  Future<void> updateLastWarning(String packageName, DateTime time) async {
-    final model = _box.get(packageName);
-    if (model != null) {
-      model.lastWarningShown = time;
-      await model.save();
-      await _syncToSharedPreferences();
-    }
-  }
-
   Future<void> toggleLimit(String packageName, bool enabled) async {
     final model = _box.get(packageName);
     if (model != null) {
@@ -71,8 +62,6 @@ class AppLimitRepository {
         'dailyLimitMinutes': limit.dailyLimit.inMinutes,
         'isEnabled': limit.isEnabled,
         'warningThreshold': limit.warningThreshold,
-        'cooldownMinutes': limit.cooldownPeriod.inMinutes,
-        'lastWarningShown': limit.lastWarningShown?.millisecondsSinceEpoch,
       }).toList();
       await prefs.setString(_sharedPrefsKey, jsonEncode(limitsJson));
     } catch (e) {

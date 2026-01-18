@@ -14,7 +14,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$AppLimit {
 
- String get packageName; Duration get dailyLimit; double get warningThreshold; Duration get cooldownPeriod; bool get isEnabled; DateTime? get lastWarningShown;
+ String get packageName; Duration get dailyLimit; double get warningThreshold; bool get isEnabled;
 /// Create a copy of AppLimit
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -25,16 +25,16 @@ $AppLimitCopyWith<AppLimit> get copyWith => _$AppLimitCopyWithImpl<AppLimit>(thi
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is AppLimit&&(identical(other.packageName, packageName) || other.packageName == packageName)&&(identical(other.dailyLimit, dailyLimit) || other.dailyLimit == dailyLimit)&&(identical(other.warningThreshold, warningThreshold) || other.warningThreshold == warningThreshold)&&(identical(other.cooldownPeriod, cooldownPeriod) || other.cooldownPeriod == cooldownPeriod)&&(identical(other.isEnabled, isEnabled) || other.isEnabled == isEnabled)&&(identical(other.lastWarningShown, lastWarningShown) || other.lastWarningShown == lastWarningShown));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is AppLimit&&(identical(other.packageName, packageName) || other.packageName == packageName)&&(identical(other.dailyLimit, dailyLimit) || other.dailyLimit == dailyLimit)&&(identical(other.warningThreshold, warningThreshold) || other.warningThreshold == warningThreshold)&&(identical(other.isEnabled, isEnabled) || other.isEnabled == isEnabled));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,packageName,dailyLimit,warningThreshold,cooldownPeriod,isEnabled,lastWarningShown);
+int get hashCode => Object.hash(runtimeType,packageName,dailyLimit,warningThreshold,isEnabled);
 
 @override
 String toString() {
-  return 'AppLimit(packageName: $packageName, dailyLimit: $dailyLimit, warningThreshold: $warningThreshold, cooldownPeriod: $cooldownPeriod, isEnabled: $isEnabled, lastWarningShown: $lastWarningShown)';
+  return 'AppLimit(packageName: $packageName, dailyLimit: $dailyLimit, warningThreshold: $warningThreshold, isEnabled: $isEnabled)';
 }
 
 
@@ -45,7 +45,7 @@ abstract mixin class $AppLimitCopyWith<$Res>  {
   factory $AppLimitCopyWith(AppLimit value, $Res Function(AppLimit) _then) = _$AppLimitCopyWithImpl;
 @useResult
 $Res call({
- String packageName, Duration dailyLimit, double warningThreshold, Duration cooldownPeriod, bool isEnabled, DateTime? lastWarningShown
+ String packageName, Duration dailyLimit, double warningThreshold, bool isEnabled
 });
 
 
@@ -62,15 +62,13 @@ class _$AppLimitCopyWithImpl<$Res>
 
 /// Create a copy of AppLimit
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? packageName = null,Object? dailyLimit = null,Object? warningThreshold = null,Object? cooldownPeriod = null,Object? isEnabled = null,Object? lastWarningShown = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? packageName = null,Object? dailyLimit = null,Object? warningThreshold = null,Object? isEnabled = null,}) {
   return _then(_self.copyWith(
 packageName: null == packageName ? _self.packageName : packageName // ignore: cast_nullable_to_non_nullable
 as String,dailyLimit: null == dailyLimit ? _self.dailyLimit : dailyLimit // ignore: cast_nullable_to_non_nullable
 as Duration,warningThreshold: null == warningThreshold ? _self.warningThreshold : warningThreshold // ignore: cast_nullable_to_non_nullable
-as double,cooldownPeriod: null == cooldownPeriod ? _self.cooldownPeriod : cooldownPeriod // ignore: cast_nullable_to_non_nullable
-as Duration,isEnabled: null == isEnabled ? _self.isEnabled : isEnabled // ignore: cast_nullable_to_non_nullable
-as bool,lastWarningShown: freezed == lastWarningShown ? _self.lastWarningShown : lastWarningShown // ignore: cast_nullable_to_non_nullable
-as DateTime?,
+as double,isEnabled: null == isEnabled ? _self.isEnabled : isEnabled // ignore: cast_nullable_to_non_nullable
+as bool,
   ));
 }
 
@@ -152,10 +150,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String packageName,  Duration dailyLimit,  double warningThreshold,  Duration cooldownPeriod,  bool isEnabled,  DateTime? lastWarningShown)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String packageName,  Duration dailyLimit,  double warningThreshold,  bool isEnabled)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _AppLimit() when $default != null:
-return $default(_that.packageName,_that.dailyLimit,_that.warningThreshold,_that.cooldownPeriod,_that.isEnabled,_that.lastWarningShown);case _:
+return $default(_that.packageName,_that.dailyLimit,_that.warningThreshold,_that.isEnabled);case _:
   return orElse();
 
 }
@@ -173,10 +171,10 @@ return $default(_that.packageName,_that.dailyLimit,_that.warningThreshold,_that.
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String packageName,  Duration dailyLimit,  double warningThreshold,  Duration cooldownPeriod,  bool isEnabled,  DateTime? lastWarningShown)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String packageName,  Duration dailyLimit,  double warningThreshold,  bool isEnabled)  $default,) {final _that = this;
 switch (_that) {
 case _AppLimit():
-return $default(_that.packageName,_that.dailyLimit,_that.warningThreshold,_that.cooldownPeriod,_that.isEnabled,_that.lastWarningShown);}
+return $default(_that.packageName,_that.dailyLimit,_that.warningThreshold,_that.isEnabled);}
 }
 /// A variant of `when` that fallback to returning `null`
 ///
@@ -190,10 +188,10 @@ return $default(_that.packageName,_that.dailyLimit,_that.warningThreshold,_that.
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String packageName,  Duration dailyLimit,  double warningThreshold,  Duration cooldownPeriod,  bool isEnabled,  DateTime? lastWarningShown)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String packageName,  Duration dailyLimit,  double warningThreshold,  bool isEnabled)?  $default,) {final _that = this;
 switch (_that) {
 case _AppLimit() when $default != null:
-return $default(_that.packageName,_that.dailyLimit,_that.warningThreshold,_that.cooldownPeriod,_that.isEnabled,_that.lastWarningShown);case _:
+return $default(_that.packageName,_that.dailyLimit,_that.warningThreshold,_that.isEnabled);case _:
   return null;
 
 }
@@ -205,15 +203,13 @@ return $default(_that.packageName,_that.dailyLimit,_that.warningThreshold,_that.
 
 
 class _AppLimit implements AppLimit {
-  const _AppLimit({required this.packageName, required this.dailyLimit, this.warningThreshold = 0.8, this.cooldownPeriod = const Duration(minutes: 5), this.isEnabled = true, this.lastWarningShown});
+  const _AppLimit({required this.packageName, required this.dailyLimit, this.warningThreshold = 0.8, this.isEnabled = true});
   
 
 @override final  String packageName;
 @override final  Duration dailyLimit;
 @override@JsonKey() final  double warningThreshold;
-@override@JsonKey() final  Duration cooldownPeriod;
 @override@JsonKey() final  bool isEnabled;
-@override final  DateTime? lastWarningShown;
 
 /// Create a copy of AppLimit
 /// with the given fields replaced by the non-null parameter values.
@@ -225,16 +221,16 @@ _$AppLimitCopyWith<_AppLimit> get copyWith => __$AppLimitCopyWithImpl<_AppLimit>
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _AppLimit&&(identical(other.packageName, packageName) || other.packageName == packageName)&&(identical(other.dailyLimit, dailyLimit) || other.dailyLimit == dailyLimit)&&(identical(other.warningThreshold, warningThreshold) || other.warningThreshold == warningThreshold)&&(identical(other.cooldownPeriod, cooldownPeriod) || other.cooldownPeriod == cooldownPeriod)&&(identical(other.isEnabled, isEnabled) || other.isEnabled == isEnabled)&&(identical(other.lastWarningShown, lastWarningShown) || other.lastWarningShown == lastWarningShown));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _AppLimit&&(identical(other.packageName, packageName) || other.packageName == packageName)&&(identical(other.dailyLimit, dailyLimit) || other.dailyLimit == dailyLimit)&&(identical(other.warningThreshold, warningThreshold) || other.warningThreshold == warningThreshold)&&(identical(other.isEnabled, isEnabled) || other.isEnabled == isEnabled));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,packageName,dailyLimit,warningThreshold,cooldownPeriod,isEnabled,lastWarningShown);
+int get hashCode => Object.hash(runtimeType,packageName,dailyLimit,warningThreshold,isEnabled);
 
 @override
 String toString() {
-  return 'AppLimit(packageName: $packageName, dailyLimit: $dailyLimit, warningThreshold: $warningThreshold, cooldownPeriod: $cooldownPeriod, isEnabled: $isEnabled, lastWarningShown: $lastWarningShown)';
+  return 'AppLimit(packageName: $packageName, dailyLimit: $dailyLimit, warningThreshold: $warningThreshold, isEnabled: $isEnabled)';
 }
 
 
@@ -245,7 +241,7 @@ abstract mixin class _$AppLimitCopyWith<$Res> implements $AppLimitCopyWith<$Res>
   factory _$AppLimitCopyWith(_AppLimit value, $Res Function(_AppLimit) _then) = __$AppLimitCopyWithImpl;
 @override @useResult
 $Res call({
- String packageName, Duration dailyLimit, double warningThreshold, Duration cooldownPeriod, bool isEnabled, DateTime? lastWarningShown
+ String packageName, Duration dailyLimit, double warningThreshold, bool isEnabled
 });
 
 
@@ -262,15 +258,13 @@ class __$AppLimitCopyWithImpl<$Res>
 
 /// Create a copy of AppLimit
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? packageName = null,Object? dailyLimit = null,Object? warningThreshold = null,Object? cooldownPeriod = null,Object? isEnabled = null,Object? lastWarningShown = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? packageName = null,Object? dailyLimit = null,Object? warningThreshold = null,Object? isEnabled = null,}) {
   return _then(_AppLimit(
 packageName: null == packageName ? _self.packageName : packageName // ignore: cast_nullable_to_non_nullable
 as String,dailyLimit: null == dailyLimit ? _self.dailyLimit : dailyLimit // ignore: cast_nullable_to_non_nullable
 as Duration,warningThreshold: null == warningThreshold ? _self.warningThreshold : warningThreshold // ignore: cast_nullable_to_non_nullable
-as double,cooldownPeriod: null == cooldownPeriod ? _self.cooldownPeriod : cooldownPeriod // ignore: cast_nullable_to_non_nullable
-as Duration,isEnabled: null == isEnabled ? _self.isEnabled : isEnabled // ignore: cast_nullable_to_non_nullable
-as bool,lastWarningShown: freezed == lastWarningShown ? _self.lastWarningShown : lastWarningShown // ignore: cast_nullable_to_non_nullable
-as DateTime?,
+as double,isEnabled: null == isEnabled ? _self.isEnabled : isEnabled // ignore: cast_nullable_to_non_nullable
+as bool,
   ));
 }
 

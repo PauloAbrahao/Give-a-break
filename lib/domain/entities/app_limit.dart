@@ -8,8 +8,6 @@ sealed class AppLimit with _$AppLimit {
     required String packageName,
     required Duration dailyLimit,
     @Default(0.8) double warningThreshold,
-    @Default(Duration(minutes: 5)) Duration cooldownPeriod,
     @Default(true) bool isEnabled,
-    DateTime? lastWarningShown,
   }) = _AppLimit;
 }

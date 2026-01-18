@@ -55,12 +55,6 @@ class AppLimitNotifier extends StateNotifier<AsyncValue<List<AppLimit>>> {
     _ref.invalidate(allLimitsProvider);
     _ref.invalidate(appLimitProvider(packageName));
   }
-
-  Future<void> updateLastWarning(String packageName) async {
-    if (_repository == null) return;
-    await _repository.updateLastWarning(packageName, DateTime.now());
-    _ref.invalidate(appLimitProvider(packageName));
-  }
 }
 
 final appLimitNotifierProvider =

@@ -28,13 +28,12 @@ class AppMonitorService : Service() {
     private var lastForegroundPackage: String? = null
     private var lastOverlayShownTime: Long = 0
     private var lastOverlayShownPackage: String? = null
-    private val cooldownMs = 30000L // 30 seconds cooldown only for same app (after "Continue anyway")
 
     companion object {
         private const val TAG = "AppMonitorService"
         private const val NOTIFICATION_ID = 1001
         private const val CHANNEL_ID = "app_monitor_channel"
-        private const val MONITOR_INTERVAL = 300L // 300ms for faster detection
+        private const val MONITOR_INTERVAL = 100L // 100ms for fast detection
         private const val PREFS_NAME = "FlutterSharedPreferences"
         private const val LIMITS_KEY = "flutter.app_limits_json"
 
@@ -123,7 +122,10 @@ class AppMonitorService : Service() {
             val limit = getAppLimit(foregroundPackage)
             if (limit != null && limit.isEnabled) {
                 val usageToday = getAppUsageToday(foregroundPackage)
-                if (usageToday >= limit.dailyLimitMinutes) {
+                // Calculate warning time based on threshold (e.g., 80% of daily limit)
+                val warningTimeMinutes = (limit.dailyLimitMinutes * limit.warningThreshold).toInt()
+
+                if (usageToday >= warningTimeMinutes) {
                     val now = System.currentTimeMillis()
 
                     // Get the actual RESUMED event time from the system
@@ -131,13 +133,11 @@ class AppMonitorService : Service() {
 
                     // Show overlay if:
                     // 1. App was resumed AFTER our last overlay (user left and came back), OR
-                    // 2. It's a different app than last overlay shown, OR
-                    // 3. Cooldown expired (user clicked "Continue anyway" and kept using)
-                    val appResumedAfterLastOverlay = lastResumeTime > lastOverlayShownTime + 1000 // 1s buffer
+                    // 2. It's a different app than last overlay shown
+                    val appResumedAfterLastOverlay = lastResumeTime > lastOverlayShownTime + 200 // 200ms buffer
                     val isDifferentApp = foregroundPackage != lastOverlayShownPackage
-                    val cooldownExpired = now - lastOverlayShownTime > cooldownMs
 
-                    if (appResumedAfterLastOverlay || isDifferentApp || cooldownExpired) {
+                    if (appResumedAfterLastOverlay || isDifferentApp) {
                         lastOverlayShownTime = now
                         lastOverlayShownPackage = foregroundPackage
                         showOverlay(foregroundPackage, usageToday, limit.dailyLimitMinutes)
@@ -184,7 +184,8 @@ class AppMonitorService : Service() {
                     return AppLimit(
                         packageName = obj.getString("packageName"),
                         dailyLimitMinutes = obj.getInt("dailyLimitMinutes"),
-                        isEnabled = obj.getBoolean("isEnabled")
+                        isEnabled = obj.getBoolean("isEnabled"),
+                        warningThreshold = obj.optDouble("warningThreshold", 0.8)
                     )
                 }
             }
@@ -361,6 +362,7 @@ class AppMonitorService : Service() {
     data class AppLimit(
         val packageName: String,
         val dailyLimitMinutes: Int,
-        val isEnabled: Boolean
+        val isEnabled: Boolean,
+        val warningThreshold: Double = 0.8
     )
 }

@@ -93,8 +93,6 @@ class _AppDetailScreenState extends ConsumerState<AppDetailScreen> {
         packageName: widget.packageName,
         dailyLimit: result,
         warningThreshold: existingLimit?.warningThreshold ?? 0.8,
-        cooldownPeriod:
-            existingLimit?.cooldownPeriod ?? const Duration(minutes: 5),
         isEnabled: existingLimit?.isEnabled ?? true,
       );
       ref.read(appLimitNotifierProvider.notifier).setLimit(newLimit);
@@ -119,7 +117,6 @@ class _AppDetailScreenState extends ConsumerState<AppDetailScreen> {
         packageName: widget.packageName,
         dailyLimit: existingLimit.dailyLimit,
         warningThreshold: result / 100.0,
-        cooldownPeriod: existingLimit.cooldownPeriod,
         isEnabled: existingLimit.isEnabled,
       );
       ref.read(appLimitNotifierProvider.notifier).setLimit(newLimit);

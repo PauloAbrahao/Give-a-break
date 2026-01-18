@@ -168,19 +168,6 @@ class OverlayService : Service() {
         }
         mainLayout.addView(breakButton)
 
-        addSpacer(mainLayout, 16)
-
-        // Continue button
-        val continueButton = TextView(this).apply {
-            text = "Continue anyway"
-            textSize = 14f
-            setTextColor(Color.parseColor("#80FFFFFF"))
-            gravity = Gravity.CENTER
-            setPadding(dp(16), dp(12), dp(16), dp(12))
-            setOnClickListener { dismiss() }
-        }
-        mainLayout.addView(continueButton)
-
         return mainLayout
     }
 
@@ -212,11 +199,6 @@ class OverlayService : Service() {
     }
 
     private fun dp(value: Int): Int = (value * resources.displayMetrics.density).toInt()
-
-    private fun dismiss() {
-        removeOverlay()
-        stopSelf()
-    }
 
     private fun takeABreak() {
         removeOverlay()

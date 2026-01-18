@@ -72,7 +72,7 @@ class _WarningThresholdPickerState extends State<WarningThresholdPicker> {
     return Padding(
       padding: const EdgeInsets.all(20),
       child: Text(
-        'Warning Threshold',
+        'Warning',
         style: TextStyle(
           fontSize: 22,
           fontWeight: FontWeight.bold,
