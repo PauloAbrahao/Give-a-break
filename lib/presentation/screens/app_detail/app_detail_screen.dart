@@ -109,6 +109,7 @@ class _AppDetailScreenState extends ConsumerState<AppDetailScreen> {
       isScrollControlled: true,
       builder: (context) => WarningThresholdPicker(
         initialPercentage: initialPercentage,
+        dailyLimit: existingLimit.dailyLimit,
       ),
     );
 

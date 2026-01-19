@@ -22,17 +22,22 @@ class _TimeLimitPickerState extends State<TimeLimitPicker> {
   late int _selectedHours;
   late int _selectedMinutes;
 
-  static const int _maxHours = 12;
-  static const int _maxMinutes = 59;
+  static const int _hoursCount = 13; // 0-12
+  static const int _minutesCount = 60; // 0-59
+
+  static const int _loopMultiplier = 100;
 
   @override
   void initState() {
     super.initState();
-    _selectedHours = widget.initialHours.clamp(0, _maxHours);
-    _selectedMinutes = widget.initialMinutes.clamp(0, _maxMinutes);
-    _hoursController = FixedExtentScrollController(initialItem: _selectedHours);
-    _minutesController =
-        FixedExtentScrollController(initialItem: _selectedMinutes);
+    _selectedHours = widget.initialHours.clamp(0, _hoursCount - 1);
+    _selectedMinutes = widget.initialMinutes.clamp(0, _minutesCount - 1);
+
+    final hoursMiddle = (_loopMultiplier ~/ 2) * _hoursCount + _selectedHours;
+    final minutesMiddle = (_loopMultiplier ~/ 2) * _minutesCount + _selectedMinutes;
+
+    _hoursController = FixedExtentScrollController(initialItem: hoursMiddle);
+    _minutesController = FixedExtentScrollController(initialItem: minutesMiddle);
   }
 
   @override
@@ -123,6 +128,15 @@ class _TimeLimitPickerState extends State<TimeLimitPicker> {
   }
 
   Widget _buildWheelPickers(BuildContext context) {
+    final hoursList = List.generate(
+      _hoursCount,
+      (index) => '$index ${index == 1 ? 'hour' : 'hours'}',
+    );
+    final minutesList = List.generate(
+      _minutesCount,
+      (index) => '$index ${index == 1 ? 'minute' : 'minutes'}',
+    );
+
     return Row(
       children: [
         Expanded(
@@ -138,14 +152,13 @@ class _TimeLimitPickerState extends State<TimeLimitPicker> {
             magnification: 1.1,
             overAndUnderCenterOpacity: 0.5,
             onSelectedItemChanged: (index) {
-              setState(() => _selectedHours = index);
+              setState(() => _selectedHours = index % _hoursCount);
             },
-            childDelegate: ListWheelChildBuilderDelegate(
-              childCount: _maxHours + 1,
-              builder: (context, index) {
+            childDelegate: ListWheelChildLoopingListDelegate(
+              children: hoursList.map((text) {
                 return Center(
                   child: Text(
-                    '$index ${index == 1 ? 'hour' : 'hours'}',
+                    text,
                     style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.w500,
@@ -153,7 +166,7 @@ class _TimeLimitPickerState extends State<TimeLimitPicker> {
                     ),
                   ),
                 );
-              },
+              }).toList(),
             ),
           ),
         ),
@@ -178,14 +191,13 @@ class _TimeLimitPickerState extends State<TimeLimitPicker> {
             magnification: 1.1,
             overAndUnderCenterOpacity: 0.5,
             onSelectedItemChanged: (index) {
-              setState(() => _selectedMinutes = index);
+              setState(() => _selectedMinutes = index % _minutesCount);
             },
-            childDelegate: ListWheelChildBuilderDelegate(
-              childCount: _maxMinutes + 1,
-              builder: (context, index) {
+            childDelegate: ListWheelChildLoopingListDelegate(
+              children: minutesList.map((text) {
                 return Center(
                   child: Text(
-                    '$index ${index == 1 ? 'minute' : 'minutes'}',
+                    text,
                     style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.w500,
@@ -193,7 +205,7 @@ class _TimeLimitPickerState extends State<TimeLimitPicker> {
                     ),
                   ),
                 );
-              },
+              }).toList(),
             ),
           ),
         ),

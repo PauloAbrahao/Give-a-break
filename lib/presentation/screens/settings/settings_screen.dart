@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:give_a_break/presentation/screens/import_settings/import_settings.dart';
+import 'package:give_a_break/presentation/screens/onboarding/onboarding_screen.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_strings.dart';
 import '../../providers/permission_provider.dart';
@@ -109,6 +110,32 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen>
               ],
             ),
           ),
+          const SizedBox(height: 24),
+
+          const SectionHeader(title: AppStrings.help),
+          Container(
+            decoration: BoxDecoration(
+              color: AppColors.getSurface(context),
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: Column(
+              children: [
+                // Help
+                SettingsRowTile(
+                  title: AppStrings.onboarding,
+                  subtitle: 'Show the onboarding screens again',
+                  icon: Icons.map_outlined,
+                  rightIcon: Icons.chevron_right,
+                  onTap: () => Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (_) => const OnboardingScreen(fromSettings: true),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+
           const SizedBox(height: 24),
 
           // Permissions Section

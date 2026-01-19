@@ -55,6 +55,8 @@ class AppStrings {
   // Settings
   static const String settings = 'Settings';
   static const String application = 'Application';
+  static const String help = 'Help';
+  static const String onboarding = 'Show Onboarding';
   static const String theme = 'Theme';
   static const String import = 'Data Import/ Export';
   static const String importSubtitle =

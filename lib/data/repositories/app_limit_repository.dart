@@ -59,7 +59,7 @@ class AppLimitRepository {
       final limits = getAllLimits();
       final limitsJson = limits.map((limit) => {
         'packageName': limit.packageName,
-        'dailyLimitMinutes': limit.dailyLimit.inMinutes,
+        'dailyLimitSeconds': limit.dailyLimit.inSeconds,
         'isEnabled': limit.isEnabled,
         'warningThreshold': limit.warningThreshold,
       }).toList();

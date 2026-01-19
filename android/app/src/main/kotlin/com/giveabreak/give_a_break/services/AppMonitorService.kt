@@ -28,6 +28,8 @@ class AppMonitorService : Service() {
     private var lastForegroundPackage: String? = null
     private var lastOverlayShownTime: Long = 0
     private var lastOverlayShownPackage: String? = null
+    private var lastWarningShownTime: Long = 0
+    private var lastWarningShownPackage: String? = null
 
     companion object {
         private const val TAG = "AppMonitorService"
@@ -121,26 +123,34 @@ class AppMonitorService : Service() {
         if (foregroundPackage != packageName) {
             val limit = getAppLimit(foregroundPackage)
             if (limit != null && limit.isEnabled) {
-                val usageToday = getAppUsageToday(foregroundPackage)
+                val usageTodaySeconds = getAppUsageToday(foregroundPackage)
+                val dailyLimitSeconds = limit.dailyLimitSeconds
                 // Calculate warning time based on threshold (e.g., 80% of daily limit)
-                val warningTimeMinutes = (limit.dailyLimitMinutes * limit.warningThreshold).toInt()
+                val warningTimeSeconds = (dailyLimitSeconds * limit.warningThreshold).toInt()
 
-                if (usageToday >= warningTimeMinutes) {
-                    val now = System.currentTimeMillis()
+                val now = System.currentTimeMillis()
+                val lastResumeTime = getLastResumeTime(foregroundPackage)
 
-                    // Get the actual RESUMED event time from the system
-                    val lastResumeTime = getLastResumeTime(foregroundPackage)
-
-                    // Show overlay if:
-                    // 1. App was resumed AFTER our last overlay (user left and came back), OR
-                    // 2. It's a different app than last overlay shown
-                    val appResumedAfterLastOverlay = lastResumeTime > lastOverlayShownTime + 200 // 200ms buffer
+                // Check if limit is exceeded (100%) - show blocking overlay
+                if (usageTodaySeconds >= dailyLimitSeconds) {
+                    val appResumedAfterLastOverlay = lastResumeTime > lastOverlayShownTime + 200
                     val isDifferentApp = foregroundPackage != lastOverlayShownPackage
 
                     if (appResumedAfterLastOverlay || isDifferentApp) {
                         lastOverlayShownTime = now
                         lastOverlayShownPackage = foregroundPackage
-                        showOverlay(foregroundPackage, usageToday, limit.dailyLimitMinutes)
+                        showOverlay(foregroundPackage, usageTodaySeconds, dailyLimitSeconds)
+                    }
+                }
+                // Check if warning threshold reached but not yet at limit - show warning notification
+                else if (usageTodaySeconds >= warningTimeSeconds) {
+                    val appResumedAfterLastWarning = lastResumeTime > lastWarningShownTime + 200
+                    val isDifferentApp = foregroundPackage != lastWarningShownPackage
+
+                    if (appResumedAfterLastWarning || isDifferentApp) {
+                        lastWarningShownTime = now
+                        lastWarningShownPackage = foregroundPackage
+                        showWarningNotification(foregroundPackage, usageTodaySeconds, dailyLimitSeconds)
                     }
                 }
             }
@@ -183,7 +193,7 @@ class AppMonitorService : Service() {
                 if (obj.getString("packageName") == packageName) {
                     return AppLimit(
                         packageName = obj.getString("packageName"),
-                        dailyLimitMinutes = obj.getInt("dailyLimitMinutes"),
+                        dailyLimitSeconds = obj.getInt("dailyLimitSeconds"),
                         isEnabled = obj.getBoolean("isEnabled"),
                         warningThreshold = obj.optDouble("warningThreshold", 0.8)
                     )
@@ -238,10 +248,11 @@ class AppMonitorService : Service() {
             totalTime += endTime - resumeTime
         }
 
-        return (totalTime / 60000).toInt()
+        // Return seconds instead of minutes for precision
+        return (totalTime / 1000).toInt()
     }
 
-    private fun showOverlay(packageName: String, usedMinutes: Int, limitMinutes: Int) {
+    private fun showOverlay(packageName: String, usedSeconds: Int, limitSeconds: Int) {
         // Get app name from package manager
         val appName = try {
             val pm = applicationContext.packageManager
@@ -251,19 +262,19 @@ class AppMonitorService : Service() {
             packageName.split(".").last()
         }
 
-        val usedTime = formatMinutes(usedMinutes)
-        val limitTime = formatMinutes(limitMinutes)
+        val usedTime = formatSeconds(usedSeconds)
+        val limitTime = formatSeconds(limitSeconds)
 
         // Show native overlay if permission granted
         if (Settings.canDrawOverlays(this)) {
             OverlayService.show(this, appName, usedTime, limitTime, packageName)
         } else {
             // Fallback to notification
-            showHeadsUpNotification(appName, usedMinutes, limitMinutes)
+            showHeadsUpNotification(appName, usedSeconds, limitSeconds)
         }
     }
 
-    private fun showHeadsUpNotification(appName: String, usedMinutes: Int, limitMinutes: Int) {
+    private fun showHeadsUpNotification(appName: String, usedSeconds: Int, limitSeconds: Int) {
         val notificationManager = getSystemService(NotificationManager::class.java)
 
         // Create high priority notification channel
@@ -293,7 +304,7 @@ class AppMonitorService : Service() {
 
         val notification = NotificationCompat.Builder(this, "app_limit_warning")
             .setContentTitle("⏰ Time's up for $appName!")
-            .setContentText("Used: ${formatMinutes(usedMinutes)} | Limit: ${formatMinutes(limitMinutes)}")
+            .setContentText("Used: ${formatSeconds(usedSeconds)} | Limit: ${formatSeconds(limitSeconds)}")
             .setSmallIcon(android.R.drawable.ic_dialog_alert)
             .setContentIntent(pendingIntent)
             .setAutoCancel(true)
@@ -308,13 +319,74 @@ class AppMonitorService : Service() {
         notificationManager.notify(System.currentTimeMillis().toInt(), notification)
     }
 
-    private fun formatMinutes(minutes: Int): String {
-        val hours = minutes / 60
-        val mins = minutes % 60
-        return if (hours > 0) {
-            if (mins > 0) "${hours}h ${mins}m" else "${hours}h"
-        } else {
-            "${mins}m"
+    private fun showWarningNotification(packageName: String, usedSeconds: Int, limitSeconds: Int) {
+        val notificationManager = getSystemService(NotificationManager::class.java)
+
+        // Get app name
+        val appName = try {
+            val pm = applicationContext.packageManager
+            val appInfo = pm.getApplicationInfo(packageName, 0)
+            pm.getApplicationLabel(appInfo).toString()
+        } catch (e: Exception) {
+            packageName.split(".").last()
+        }
+
+        val remainingSeconds = limitSeconds - usedSeconds
+        val remainingTime = formatSeconds(remainingSeconds)
+
+        // Create warning notification channel
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val warningChannel = NotificationChannel(
+                "app_limit_approaching",
+                "App Limit Approaching",
+                NotificationManager.IMPORTANCE_HIGH
+            ).apply {
+                description = "Notifications when approaching app usage limits"
+                enableVibration(true)
+                vibrationPattern = longArrayOf(0, 300, 150, 300)
+                setShowBadge(true)
+                lockscreenVisibility = Notification.VISIBILITY_PUBLIC
+            }
+            notificationManager.createNotificationChannel(warningChannel)
+        }
+
+        val pendingIntent = PendingIntent.getActivity(
+            this,
+            0,
+            Intent(this, MainActivity::class.java).apply {
+                flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
+            },
+            PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
+        )
+
+        val notification = NotificationCompat.Builder(this, "app_limit_approaching")
+            .setContentTitle("⚠️ $appName - Limit approaching")
+            .setContentText("$remainingTime remaining before your daily limit")
+            .setSmallIcon(android.R.drawable.ic_dialog_info)
+            .setContentIntent(pendingIntent)
+            .setAutoCancel(true)
+            .setPriority(NotificationCompat.PRIORITY_HIGH)
+            .setCategory(NotificationCompat.CATEGORY_REMINDER)
+            .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
+            .setVibrate(longArrayOf(0, 300, 150, 300))
+            .build()
+
+        notificationManager.notify(packageName.hashCode(), notification)
+    }
+
+    private fun formatSeconds(totalSeconds: Int): String {
+        val hours = totalSeconds / 3600
+        val minutes = (totalSeconds % 3600) / 60
+        val seconds = totalSeconds % 60
+
+        return when {
+            hours > 0 -> {
+                if (minutes > 0) "${hours}h ${minutes}m" else "${hours}h"
+            }
+            minutes > 0 -> {
+                if (seconds > 0) "${minutes}m ${seconds}s" else "${minutes}m"
+            }
+            else -> "${seconds}s"
         }
     }
 
@@ -361,7 +433,7 @@ class AppMonitorService : Service() {
 
     data class AppLimit(
         val packageName: String,
-        val dailyLimitMinutes: Int,
+        val dailyLimitSeconds: Int,
         val isEnabled: Boolean,
         val warningThreshold: Double = 0.8
     )
