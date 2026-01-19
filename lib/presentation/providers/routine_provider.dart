@@ -14,6 +14,16 @@ final allRoutinesProvider = FutureProvider<List<Routine>>((ref) async {
   return repo.getAllRoutines();
 });
 
+final activeRoutinesProvider = FutureProvider<List<Routine>>((ref) async {
+  final repo = await ref.watch(routineRepositoryProvider.future);
+  return repo.getActiveRoutines();
+});
+
+final archivedRoutinesProvider = FutureProvider<List<Routine>>((ref) async {
+  final repo = await ref.watch(routineRepositoryProvider.future);
+  return repo.getArchivedRoutines();
+});
+
 final routineProvider =
     FutureProvider.family<Routine?, String>((ref, id) async {
   final repo = await ref.watch(routineRepositoryProvider.future);
@@ -35,24 +45,39 @@ class RoutineNotifier extends StateNotifier<AsyncValue<List<Routine>>> {
   Future<void> saveRoutine(Routine routine) async {
     if (_repository == null) return;
     await _repository.saveRoutine(routine);
-    state = AsyncValue.data(_repository.getAllRoutines());
-    _ref.invalidate(allRoutinesProvider);
-    _ref.invalidate(routineProvider(routine.id));
+    _invalidateAll(routine.id);
   }
 
   Future<void> deleteRoutine(String id) async {
     if (_repository == null) return;
     await _repository.deleteRoutine(id);
-    state = AsyncValue.data(_repository.getAllRoutines());
-    _ref.invalidate(allRoutinesProvider);
-    _ref.invalidate(routineProvider(id));
+    _invalidateAll(id);
   }
 
   Future<void> toggleRoutine(String id, bool enabled) async {
     if (_repository == null) return;
     await _repository.toggleRoutine(id, enabled);
+    _invalidateAll(id);
+  }
+
+  Future<void> archiveRoutine(String id) async {
+    if (_repository == null) return;
+    await _repository.archiveRoutine(id);
+    _invalidateAll(id);
+  }
+
+  Future<void> restoreRoutine(String id) async {
+    if (_repository == null) return;
+    await _repository.restoreRoutine(id);
+    _invalidateAll(id);
+  }
+
+  void _invalidateAll(String id) {
+    if (_repository == null) return;
     state = AsyncValue.data(_repository.getAllRoutines());
     _ref.invalidate(allRoutinesProvider);
+    _ref.invalidate(activeRoutinesProvider);
+    _ref.invalidate(archivedRoutinesProvider);
     _ref.invalidate(routineProvider(id));
   }
 

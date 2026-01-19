@@ -11,6 +11,7 @@ sealed class Routine with _$Routine {
     required Set<int> days,
     required Set<String> appPackages,
     @Default(true) bool isEnabled,
+    @Default(false) bool isArchived,
     DateTime? createdAt,
   }) = _Routine;
 }

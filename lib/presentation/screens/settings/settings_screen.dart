@@ -128,7 +128,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen>
                   rightIcon: Icons.chevron_right,
                   onTap: () => Navigator.of(context).push(
                     MaterialPageRoute(
-                      builder: (_) => const OnboardingScreen(fromSettings: true),
+                      builder: (_) =>
+                          const OnboardingScreen(fromSettings: true),
                     ),
                   ),
                 ),

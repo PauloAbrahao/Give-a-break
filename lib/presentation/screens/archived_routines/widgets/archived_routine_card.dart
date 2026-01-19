@@ -3,16 +3,18 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../domain/entities/routine.dart';
 import '../../../providers/installed_apps_provider.dart';
-import 'days_display.dart';
+import '../../routines/widgets/days_display.dart';
 
-class RoutineCard extends ConsumerWidget {
+class ArchivedRoutineCard extends ConsumerWidget {
   final Routine routine;
-  final VoidCallback onEdit;
+  final VoidCallback onRestore;
+  final VoidCallback onDelete;
 
-  const RoutineCard({
+  const ArchivedRoutineCard({
     super.key,
     required this.routine,
-    required this.onEdit,
+    required this.onRestore,
+    required this.onDelete,
   });
 
   @override
@@ -23,52 +25,45 @@ class RoutineCard extends ConsumerWidget {
         color: AppColors.getSurface(context),
         borderRadius: BorderRadius.circular(16),
       ),
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          borderRadius: BorderRadius.circular(16),
-          child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _buildHeader(context, ref),
-                if (routine.description != null) ...[
-                  const SizedBox(height: 8),
-                  Text(
-                    routine.description!,
-                    style: TextStyle(
-                      fontSize: 13,
-                      color: AppColors.getTextSecondary(context),
-                    ),
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ],
-                const SizedBox(height: 12),
-                DaysDisplay(selectedDays: routine.days),
-                const SizedBox(height: 12),
-                _buildAppsRow(context, ref),
-              ],
-            ),
-          ),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _buildHeader(context),
+            if (routine.description != null) ...[
+              const SizedBox(height: 8),
+              Text(
+                routine.description!,
+                style: TextStyle(
+                  fontSize: 13,
+                  color: AppColors.getTextSecondary(context),
+                ),
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ],
+            const SizedBox(height: 12),
+            DaysDisplay(selectedDays: routine.days),
+            const SizedBox(height: 12),
+            _buildAppsRow(context, ref),
+            const SizedBox(height: 16),
+            _buildActions(context),
+          ],
         ),
       ),
     );
   }
 
-  Widget _buildHeader(BuildContext context, WidgetRef ref) {
+  Widget _buildHeader(BuildContext context) {
     return Row(
       children: [
-        Container(
-          width: 8,
-          height: 8,
-          margin: const EdgeInsets.only(right: 10),
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            color: routine.isEnabled ? AppColors.success : Colors.grey,
-          ),
+        Icon(
+          Icons.archive_outlined,
+          size: 18,
+          color: AppColors.getTextSecondary(context),
         ),
+        const SizedBox(width: 10),
         Expanded(
           child: Text(
             routine.name,
@@ -76,26 +71,6 @@ class RoutineCard extends ConsumerWidget {
               fontSize: 16,
               fontWeight: FontWeight.w600,
               color: AppColors.getTextPrimary(context),
-            ),
-          ),
-        ),
-        Container(
-          width: 40,
-          height: 40,
-          decoration: BoxDecoration(
-            color: AppColors.success.withValues(alpha: 0.1),
-            borderRadius: BorderRadius.circular(10),
-          ),
-          child: IconButton(
-            onPressed: onEdit,
-            icon: Icon(
-              Icons.edit_outlined,
-              size: 20,
-              color: AppColors.success,
-            ),
-            style: IconButton.styleFrom(
-              padding: const EdgeInsets.all(8),
-              minimumSize: const Size(36, 36),
             ),
           ),
         ),
@@ -140,6 +115,44 @@ class RoutineCard extends ConsumerWidget {
           style: TextStyle(
             fontSize: 12,
             color: AppColors.getTextSecondary(context),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildActions(BuildContext context) {
+    return Row(
+      children: [
+        Expanded(
+          child: OutlinedButton.icon(
+            onPressed: onDelete,
+            icon: const Icon(Icons.delete_outline, size: 18),
+            label: const Text('Delete'),
+            style: OutlinedButton.styleFrom(
+              foregroundColor: AppColors.error,
+              side: BorderSide(color: AppColors.error.withValues(alpha: 0.5)),
+              padding: const EdgeInsets.symmetric(vertical: 10),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+            ),
+          ),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: ElevatedButton.icon(
+            onPressed: onRestore,
+            icon: const Icon(Icons.restore, size: 18),
+            label: const Text('Restore'),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.primary,
+              foregroundColor: Colors.white,
+              padding: const EdgeInsets.symmetric(vertical: 10),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+            ),
           ),
         ),
       ],

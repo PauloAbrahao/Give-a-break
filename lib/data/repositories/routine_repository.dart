@@ -14,6 +14,20 @@ class RoutineRepository {
     return _box.values.map((model) => model.toEntity()).toList();
   }
 
+  List<Routine> getActiveRoutines() {
+    return _box.values
+        .where((model) => !model.isArchived)
+        .map((model) => model.toEntity())
+        .toList();
+  }
+
+  List<Routine> getArchivedRoutines() {
+    return _box.values
+        .where((model) => model.isArchived)
+        .map((model) => model.toEntity())
+        .toList();
+  }
+
   Routine? getRoutine(String id) {
     final model = _box.get(id);
     return model?.toEntity();
@@ -32,6 +46,23 @@ class RoutineRepository {
     final model = _box.get(id);
     if (model != null) {
       model.isEnabled = enabled;
+      await model.save();
+    }
+  }
+
+  Future<void> archiveRoutine(String id) async {
+    final model = _box.get(id);
+    if (model != null) {
+      model.isArchived = true;
+      model.isEnabled = false;
+      await model.save();
+    }
+  }
+
+  Future<void> restoreRoutine(String id) async {
+    final model = _box.get(id);
+    if (model != null) {
+      model.isArchived = false;
       await model.save();
     }
   }

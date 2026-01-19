@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:give_a_break/presentation/screens/settings/settings_screen.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_strings.dart';
 import '../../providers/permission_provider.dart';
@@ -50,16 +49,17 @@ class _PermissionSetupScreenState extends ConsumerState<PermissionSetupScreen>
 
     if (!mounted) return;
 
-    if (widget.fromSettings) {
-      Navigator.of(
-        context,
-      ).push(MaterialPageRoute(builder: (_) => const SettingsScreen()));
-    } else {
-      Navigator.of(context).pushAndRemoveUntil(
-        MaterialPageRoute(builder: (_) => const DashboardScreen()),
-        (route) => false,
-      );
-    }
+    // Go to Dashboard and clear the navigation stack
+    Navigator.of(context).pushAndRemoveUntil(
+      MaterialPageRoute(builder: (_) => const DashboardScreen()),
+      (route) => false,
+    );
+  }
+
+  void _goBackToSettings() {
+    Navigator.of(context)
+      ..pop()
+      ..pop();
   }
 
   @override
@@ -127,8 +127,10 @@ class _PermissionSetupScreenState extends ConsumerState<PermissionSetupScreen>
             ),
             const Spacer(),
             ElevatedButton(
-              onPressed: permissions.coreGranted ? _completeSetup : null,
-              child: const Text(AppStrings.done),
+              onPressed: widget.fromSettings
+                  ? _goBackToSettings
+                  : (permissions.coreGranted ? _completeSetup : null),
+              child: Text(widget.fromSettings ? 'Back' : AppStrings.done),
             ),
             const SizedBox(height: 8),
             if (!permissions.coreGranted)

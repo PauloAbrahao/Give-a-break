@@ -4,21 +4,20 @@ import 'package:give_a_break/presentation/widgets/dialog.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../domain/entities/routine.dart';
 import '../../../providers/routine_provider.dart';
-import 'day_selector.dart';
-import 'selected_apps_preview.dart';
 import 'app_selector_screen.dart';
+import 'day_selector.dart';
+import 'routine_dialog_header.dart';
+import 'routine_enabled_switch.dart';
+import 'routine_text_field.dart';
+import 'selected_apps_preview.dart';
 
 class CreateRoutineDialog extends ConsumerStatefulWidget {
   final Routine? existingRoutine;
 
-  const CreateRoutineDialog({
-    super.key,
-    required this.existingRoutine,
-  });
+  const CreateRoutineDialog({super.key, required this.existingRoutine});
 
   @override
-  ConsumerState<CreateRoutineDialog> createState() =>
-      _CreateRoutineDialogState();
+  ConsumerState<CreateRoutineDialog> createState() => _CreateRoutineDialogState();
 }
 
 class _CreateRoutineDialogState extends ConsumerState<CreateRoutineDialog> {
@@ -61,15 +60,30 @@ class _CreateRoutineDialogState extends ConsumerState<CreateRoutineDialog> {
           mainAxisSize: MainAxisSize.min,
           children: [
             _buildHandle(),
-            _buildTitle(context),
+            RoutineDialogHeader(
+              isEditing: _isEditing,
+              onDelete: _deleteRoutine,
+              onArchive: () => _showArchiveConfirmation(context, ref),
+            ),
             Padding(
               padding: const EdgeInsets.fromLTRB(20, 0, 20, 24),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _buildNameField(context),
+                  RoutineTextField(
+                    label: 'Name',
+                    hint: 'Routine Name',
+                    controller: _nameController,
+                    maxLength: 20,
+                  ),
                   const SizedBox(height: 16),
-                  _buildDescriptionField(context),
+                  RoutineTextField(
+                    label: 'Description',
+                    hint: 'Routine Description',
+                    controller: _descriptionController,
+                    maxLength: 90,
+                    maxLines: 2,
+                  ),
                   const SizedBox(height: 24),
                   DaySelector(
                     selectedDays: _selectedDays,
@@ -81,7 +95,10 @@ class _CreateRoutineDialogState extends ConsumerState<CreateRoutineDialog> {
                     onTap: _openAppSelector,
                   ),
                   const SizedBox(height: 24),
-                  _buildEnabledSwitch(context),
+                  RoutineEnabledSwitch(
+                    value: _isEnabled,
+                    onChanged: (value) => setState(() => _isEnabled = value),
+                  ),
                   const SizedBox(height: 32),
                   _buildActionButtons(context),
                 ],
@@ -105,145 +122,6 @@ class _CreateRoutineDialogState extends ConsumerState<CreateRoutineDialog> {
     );
   }
 
-  Widget _buildTitle(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(20),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(
-            _isEditing ? 'Edit Routine' : 'New Routine',
-            style: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-              color: AppColors.getTextPrimary(context),
-            ),
-          ),
-          if (_isEditing)
-            Container(
-              width: 40,
-              height: 40,
-              decoration: BoxDecoration(
-                color: AppColors.error.withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: IconButton(
-                onPressed: _deleteRoutine,
-                icon: Icon(
-                  Icons.delete_outline,
-                  size: 20,
-                  color: AppColors.error,
-                ),
-                style: IconButton.styleFrom(
-                  padding: const EdgeInsets.all(8),
-                  minimumSize: const Size(36, 36),
-                ),
-              ),
-            ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildNameField(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          'Name',
-          style: TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.w600,
-            color: AppColors.getTextPrimary(context),
-          ),
-        ),
-        const SizedBox(height: 8),
-        TextField(
-          controller: _nameController,
-          onChanged: (_) => setState(() {}),
-          maxLength: 20,
-          decoration: InputDecoration(
-            hintText: 'Routine Name',
-            filled: true,
-            fillColor: AppColors.getSurfaceVariant(context),
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide.none,
-            ),
-            contentPadding: const EdgeInsets.symmetric(
-              horizontal: 16,
-              vertical: 12,
-            ),
-            counterText: '',
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildDescriptionField(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          'Description',
-          style: TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.w600,
-            color: AppColors.getTextPrimary(context),
-          ),
-        ),
-        const SizedBox(height: 8),
-        TextField(
-          controller: _descriptionController,
-          maxLines: 2,
-          maxLength: 90,
-          decoration: InputDecoration(
-            hintText: 'Routine Description',
-            filled: true,
-            fillColor: AppColors.getSurfaceVariant(context),
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide.none,
-            ),
-            contentPadding: const EdgeInsets.symmetric(
-              horizontal: 16,
-              vertical: 12,
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildEnabledSwitch(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      decoration: BoxDecoration(
-        color: AppColors.getSurfaceVariant(context),
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(
-            'Enable routine',
-            style: TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.w600,
-              color: AppColors.getTextPrimary(context),
-            ),
-          ),
-          Switch(
-            value: _isEnabled,
-            onChanged: (value) => setState(() => _isEnabled = value),
-            activeThumbColor : AppColors.success,
-          ),
-        ],
-      ),
-    );
-  }
-
   Widget _buildActionButtons(BuildContext context) {
     return Row(
       children: [
@@ -252,60 +130,45 @@ class _CreateRoutineDialogState extends ConsumerState<CreateRoutineDialog> {
             onPressed: () => Navigator.pop(context),
             style: TextButton.styleFrom(
               padding: const EdgeInsets.symmetric(vertical: 16),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
             ),
-            child: const Text(
-              'Cancel',
-              style: TextStyle(
-                fontSize: 16,
-                color: Colors.grey,
-              ),
-            ),
+            child: const Text('Cancel', style: TextStyle(fontSize: 16, color: Colors.grey)),
           ),
         ),
         const SizedBox(width: 12),
         Expanded(
-          child: ElevatedButton(
-            onPressed: _canSave() ? _saveRoutine : null,
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.primary,
-              disabledBackgroundColor: Colors.grey.withOpacity(0.4),
-              padding: const EdgeInsets.symmetric(vertical: 16),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-            ),
-            child: Text(
-              _isEditing ? 'Save' : 'Create',
-              style: const TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
-                color: Colors.white,
-              ),
-            ),
+          child: ValueListenableBuilder(
+            valueListenable: _nameController,
+            builder: (context, _, __) {
+              final canSave = _nameController.text.trim().isNotEmpty &&
+                  _selectedDays.isNotEmpty &&
+                  _selectedApps.isNotEmpty;
+              return ElevatedButton(
+                onPressed: canSave ? _saveRoutine : null,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.primary,
+                  disabledBackgroundColor: Colors.grey.withOpacity(0.4),
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                ),
+                child: Text(
+                  _isEditing ? 'Save' : 'Create',
+                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: Colors.white),
+                ),
+              );
+            },
           ),
         ),
       ],
     );
   }
 
-  bool _canSave() {
-    return _nameController.text.trim().isNotEmpty &&
-        _selectedDays.isNotEmpty &&
-        _selectedApps.isNotEmpty;
-  }
-
   Future<void> _saveRoutine() async {
     final repo = await ref.read(routineRepositoryProvider.future);
-
     final routine = Routine(
       id: widget.existingRoutine?.id ?? repo.generateId(),
       name: _nameController.text.trim(),
-      description: _descriptionController.text.trim().isEmpty
-          ? null
-          : _descriptionController.text.trim(),
+      description: _descriptionController.text.trim().isEmpty ? null : _descriptionController.text.trim(),
       days: _selectedDays,
       appPackages: _selectedApps,
       isEnabled: _isEnabled,
@@ -314,28 +177,38 @@ class _CreateRoutineDialogState extends ConsumerState<CreateRoutineDialog> {
 
     await repo.saveRoutine(routine);
     ref.invalidate(allRoutinesProvider);
+    ref.invalidate(activeRoutinesProvider);
+    ref.invalidate(archivedRoutinesProvider);
 
-    if (mounted) {
-      Navigator.pop(context);
-    }
+    if (mounted) Navigator.pop(context);
   }
 
   Future<void> _openAppSelector() async {
     final result = await Navigator.push<Set<String>>(
       context,
-      MaterialPageRoute(
-        builder: (_) => AppSelectorScreen(
-          initialSelectedPackages: _selectedApps,
-        ),
-      ),
+      MaterialPageRoute(builder: (_) => AppSelectorScreen(initialSelectedPackages: _selectedApps)),
     );
-
-    if (result != null) {
-      setState(() => _selectedApps = result);
-    }
+    if (result != null) setState(() => _selectedApps = result);
   }
 
-  void _deleteRoutine() async {
+  void _showArchiveConfirmation(BuildContext context, WidgetRef ref) {
+    AppDialog.show(
+      context: context,
+      title: 'Archive Routine',
+      content: 'Are you sure you want to archive this routine?',
+      confirmText: 'Archive',
+      confirmButtonColor: AppColors.primary,
+      onConfirm: () async {
+        await ref.read(routineNotifierProvider.notifier).archiveRoutine(widget.existingRoutine!.id);
+        if (mounted) {
+          Navigator.pop(context);
+          Navigator.pop(context);
+        }
+      },
+    );
+  }
+
+  void _deleteRoutine() {
     AppDialog.show(
       context: context,
       title: 'Delete Routine',
@@ -344,12 +217,12 @@ class _CreateRoutineDialogState extends ConsumerState<CreateRoutineDialog> {
       confirmButtonColor: AppColors.error,
       onConfirm: () async {
         final repo = await ref.read(routineRepositoryProvider.future);
-
         await repo.deleteRoutine(widget.existingRoutine!.id);
-
         ref.invalidate(allRoutinesProvider);
-
+        ref.invalidate(activeRoutinesProvider);
+        ref.invalidate(archivedRoutinesProvider);
         if (mounted) {
+          Navigator.pop(context);
           Navigator.pop(context);
         }
       },

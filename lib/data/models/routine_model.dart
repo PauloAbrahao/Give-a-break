@@ -26,6 +26,9 @@ class RoutineModel extends HiveObject {
   @HiveField(6)
   DateTime? createdAt;
 
+  @HiveField(7)
+  bool isArchived;
+
   RoutineModel({
     required this.id,
     required this.name,
@@ -33,6 +36,7 @@ class RoutineModel extends HiveObject {
     required this.days,
     required this.appPackages,
     this.isEnabled = true,
+    this.isArchived = false,
     this.createdAt,
   });
 
@@ -44,6 +48,7 @@ class RoutineModel extends HiveObject {
       days: entity.days.toList(),
       appPackages: entity.appPackages.toList(),
       isEnabled: entity.isEnabled,
+      isArchived: entity.isArchived,
       createdAt: entity.createdAt,
     );
   }
@@ -56,6 +61,7 @@ class RoutineModel extends HiveObject {
       days: days.toSet(),
       appPackages: appPackages.toSet(),
       isEnabled: isEnabled,
+      isArchived: isArchived,
       createdAt: createdAt,
     );
   }
