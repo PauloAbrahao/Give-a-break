@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:give_a_break/core/constants/app_strings.dart';
+import 'package:give_a_break/presentation/widgets/dialog.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../domain/entities/routine.dart';
 import '../../../providers/routine_provider.dart';
@@ -336,38 +337,23 @@ class _CreateRoutineDialogState extends ConsumerState<CreateRoutineDialog> {
   }
 
   void _deleteRoutine() async {
-    final confirm = await showDialog<bool>(
+    AppDialog.show(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Delete Routine'),
-        content: const Text('Are you sure you want to delete this routine?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: Text(
-              AppStrings.cancel,
-              style: TextStyle(color: AppColors.getTextPrimary(context)),
-            ),
-          ),
-          ElevatedButton(
-            onPressed: () => Navigator.pop(context, true),
-            style: ElevatedButton.styleFrom(backgroundColor: AppColors.error),
-            child: const Text('Delete'),
-          ),
-        ],
-      ),
+      title: 'Delete Routine',
+      content: 'Are you sure you want to delete this routine?',
+      confirmText: 'Delete',
+      confirmButtonColor: AppColors.error,
+      onConfirm: () async {
+        final repo = await ref.read(routineRepositoryProvider.future);
+
+        await repo.deleteRoutine(widget.existingRoutine!.id);
+
+        ref.invalidate(allRoutinesProvider);
+
+        if (mounted) {
+          Navigator.pop(context);
+        }
+      },
     );
-
-    if (confirm != true) return;
-
-    final repo = await ref.read(routineRepositoryProvider.future);
-
-    await repo.deleteRoutine(widget.existingRoutine!.id);
-
-    ref.invalidate(allRoutinesProvider);
-
-    if (mounted) {
-      Navigator.pop(context);
-    }
   }
 }

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:give_a_break/presentation/widgets/dialog.dart';
 import '../../../core/constants/app_colors.dart';
-import '../../../core/constants/app_strings.dart';
 import '../../../domain/entities/app_limit.dart';
 import '../../providers/installed_apps_provider.dart';
 import '../../providers/usage_provider.dart';
@@ -124,35 +124,18 @@ class _AppDetailScreenState extends ConsumerState<AppDetailScreen> {
   }
 
   void _removeLimit() {
-    showDialog(
-      barrierColor: Colors.black.withValues(alpha: 0.8),
+    AppDialog.show(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Delete Limit'),
-        backgroundColor: AppColors.getDialogColor(context),
-        content: const Text('Are you sure you want to delete this limit?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: Text(
-              AppStrings.cancel,
-              style: TextStyle(color: AppColors.getTextPrimary(context)),
-            ),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              ref
-                  .read(appLimitNotifierProvider.notifier)
-                  .removeLimit(widget.packageName);
-              Navigator.pop(context);
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.error,
-            ),
-            child: const Text('Delete'),
-          ),
-        ],
-      ),
+      title: 'Delete Limit',
+      content: 'Are you sure you want to delete this limit?',
+      confirmText: 'Delete',
+      confirmButtonColor: AppColors.error,
+      onConfirm: () {
+        ref
+            .read(appLimitNotifierProvider.notifier)
+            .removeLimit(widget.packageName);
+        Navigator.pop(context);
+      },
     );
   }
 }

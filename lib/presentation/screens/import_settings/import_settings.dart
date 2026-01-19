@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:give_a_break/core/constants/app_colors.dart';
 import 'package:give_a_break/core/constants/app_strings.dart';
 import 'package:give_a_break/presentation/providers/data_transfer_provider.dart';
+import 'package:give_a_break/presentation/widgets/dialog.dart';
 
 import 'widgets/action_card.dart';
 import 'widgets/result_snackbar.dart';
@@ -65,13 +66,8 @@ class DataImportExportScreen extends ConsumerWidget {
                   description: AppStrings.importDescription,
                   buttonText: AppStrings.importTitle,
                   isLoading: isLoading,
-                  onPressed: () async {
-                    final result = await ref
-                        .read(dataTransferProvider.notifier)
-                        .importData();
-                    if (context.mounted) {
-                      showResultSnackBar(context, result);
-                    }
+                  onPressed: () {
+                    _dialogConfirmation(context, ref);
                   },
                 ),
               ],
@@ -86,4 +82,27 @@ class DataImportExportScreen extends ConsumerWidget {
       ),
     );
   }
+  
+  void _dialogConfirmation(BuildContext context, WidgetRef ref) {
+    AppDialog.show(
+      context: context,
+      title: 'Confirm Import',
+      content:
+          'Importing data may overwrite your current data. Are you sure you want to continue?',
+      confirmText: 'Import',
+      confirmButtonColor: AppColors.primary,
+      onConfirm: () async {
+        Navigator.pop(context);
+
+        final result = await ref
+            .read(dataTransferProvider.notifier)
+            .importData();
+
+        if (context.mounted) {
+          showResultSnackBar(context, result);
+        }
+      },
+    );
+  }
 }
+
