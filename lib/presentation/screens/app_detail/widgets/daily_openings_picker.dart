@@ -24,7 +24,7 @@ class _DailyOpeningsPickerState extends State<DailyOpeningsPicker> {
 
   void _validateInput() {
     final text = _controller.text;
-    final isValid = text.isNotEmpty && (int.tryParse(text) ?? 0) > 0;
+    final isValid = text.isNotEmpty && int.tryParse(text) != null;
     if (isValid != _isValid) {
       setState(() => _isValid = isValid);
     }

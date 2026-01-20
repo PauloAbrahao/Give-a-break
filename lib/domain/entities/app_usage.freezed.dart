@@ -14,7 +14,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$AppUsage {
 
- String get packageName; Duration get totalTimeInForeground; DateTime get lastTimeUsed; DateTime get date;
+ String get packageName; Duration get totalTimeInForeground; DateTime get lastTimeUsed; DateTime get date; int get openCount;
 /// Create a copy of AppUsage
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -25,16 +25,16 @@ $AppUsageCopyWith<AppUsage> get copyWith => _$AppUsageCopyWithImpl<AppUsage>(thi
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is AppUsage&&(identical(other.packageName, packageName) || other.packageName == packageName)&&(identical(other.totalTimeInForeground, totalTimeInForeground) || other.totalTimeInForeground == totalTimeInForeground)&&(identical(other.lastTimeUsed, lastTimeUsed) || other.lastTimeUsed == lastTimeUsed)&&(identical(other.date, date) || other.date == date));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is AppUsage&&(identical(other.packageName, packageName) || other.packageName == packageName)&&(identical(other.totalTimeInForeground, totalTimeInForeground) || other.totalTimeInForeground == totalTimeInForeground)&&(identical(other.lastTimeUsed, lastTimeUsed) || other.lastTimeUsed == lastTimeUsed)&&(identical(other.date, date) || other.date == date)&&(identical(other.openCount, openCount) || other.openCount == openCount));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,packageName,totalTimeInForeground,lastTimeUsed,date);
+int get hashCode => Object.hash(runtimeType,packageName,totalTimeInForeground,lastTimeUsed,date,openCount);
 
 @override
 String toString() {
-  return 'AppUsage(packageName: $packageName, totalTimeInForeground: $totalTimeInForeground, lastTimeUsed: $lastTimeUsed, date: $date)';
+  return 'AppUsage(packageName: $packageName, totalTimeInForeground: $totalTimeInForeground, lastTimeUsed: $lastTimeUsed, date: $date, openCount: $openCount)';
 }
 
 
@@ -45,7 +45,7 @@ abstract mixin class $AppUsageCopyWith<$Res>  {
   factory $AppUsageCopyWith(AppUsage value, $Res Function(AppUsage) _then) = _$AppUsageCopyWithImpl;
 @useResult
 $Res call({
- String packageName, Duration totalTimeInForeground, DateTime lastTimeUsed, DateTime date
+ String packageName, Duration totalTimeInForeground, DateTime lastTimeUsed, DateTime date, int openCount
 });
 
 
@@ -62,13 +62,14 @@ class _$AppUsageCopyWithImpl<$Res>
 
 /// Create a copy of AppUsage
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? packageName = null,Object? totalTimeInForeground = null,Object? lastTimeUsed = null,Object? date = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? packageName = null,Object? totalTimeInForeground = null,Object? lastTimeUsed = null,Object? date = null,Object? openCount = null,}) {
   return _then(_self.copyWith(
 packageName: null == packageName ? _self.packageName : packageName // ignore: cast_nullable_to_non_nullable
 as String,totalTimeInForeground: null == totalTimeInForeground ? _self.totalTimeInForeground : totalTimeInForeground // ignore: cast_nullable_to_non_nullable
 as Duration,lastTimeUsed: null == lastTimeUsed ? _self.lastTimeUsed : lastTimeUsed // ignore: cast_nullable_to_non_nullable
 as DateTime,date: null == date ? _self.date : date // ignore: cast_nullable_to_non_nullable
-as DateTime,
+as DateTime,openCount: null == openCount ? _self.openCount : openCount // ignore: cast_nullable_to_non_nullable
+as int,
   ));
 }
 
@@ -150,10 +151,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String packageName,  Duration totalTimeInForeground,  DateTime lastTimeUsed,  DateTime date)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String packageName,  Duration totalTimeInForeground,  DateTime lastTimeUsed,  DateTime date,  int openCount)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _AppUsage() when $default != null:
-return $default(_that.packageName,_that.totalTimeInForeground,_that.lastTimeUsed,_that.date);case _:
+return $default(_that.packageName,_that.totalTimeInForeground,_that.lastTimeUsed,_that.date,_that.openCount);case _:
   return orElse();
 
 }
@@ -171,10 +172,10 @@ return $default(_that.packageName,_that.totalTimeInForeground,_that.lastTimeUsed
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String packageName,  Duration totalTimeInForeground,  DateTime lastTimeUsed,  DateTime date)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String packageName,  Duration totalTimeInForeground,  DateTime lastTimeUsed,  DateTime date,  int openCount)  $default,) {final _that = this;
 switch (_that) {
 case _AppUsage():
-return $default(_that.packageName,_that.totalTimeInForeground,_that.lastTimeUsed,_that.date);}
+return $default(_that.packageName,_that.totalTimeInForeground,_that.lastTimeUsed,_that.date,_that.openCount);}
 }
 /// A variant of `when` that fallback to returning `null`
 ///
@@ -188,10 +189,10 @@ return $default(_that.packageName,_that.totalTimeInForeground,_that.lastTimeUsed
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String packageName,  Duration totalTimeInForeground,  DateTime lastTimeUsed,  DateTime date)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String packageName,  Duration totalTimeInForeground,  DateTime lastTimeUsed,  DateTime date,  int openCount)?  $default,) {final _that = this;
 switch (_that) {
 case _AppUsage() when $default != null:
-return $default(_that.packageName,_that.totalTimeInForeground,_that.lastTimeUsed,_that.date);case _:
+return $default(_that.packageName,_that.totalTimeInForeground,_that.lastTimeUsed,_that.date,_that.openCount);case _:
   return null;
 
 }
@@ -203,13 +204,14 @@ return $default(_that.packageName,_that.totalTimeInForeground,_that.lastTimeUsed
 
 
 class _AppUsage implements AppUsage {
-  const _AppUsage({required this.packageName, required this.totalTimeInForeground, required this.lastTimeUsed, required this.date});
+  const _AppUsage({required this.packageName, required this.totalTimeInForeground, required this.lastTimeUsed, required this.date, this.openCount = 0});
   
 
 @override final  String packageName;
 @override final  Duration totalTimeInForeground;
 @override final  DateTime lastTimeUsed;
 @override final  DateTime date;
+@override@JsonKey() final  int openCount;
 
 /// Create a copy of AppUsage
 /// with the given fields replaced by the non-null parameter values.
@@ -221,16 +223,16 @@ _$AppUsageCopyWith<_AppUsage> get copyWith => __$AppUsageCopyWithImpl<_AppUsage>
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _AppUsage&&(identical(other.packageName, packageName) || other.packageName == packageName)&&(identical(other.totalTimeInForeground, totalTimeInForeground) || other.totalTimeInForeground == totalTimeInForeground)&&(identical(other.lastTimeUsed, lastTimeUsed) || other.lastTimeUsed == lastTimeUsed)&&(identical(other.date, date) || other.date == date));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _AppUsage&&(identical(other.packageName, packageName) || other.packageName == packageName)&&(identical(other.totalTimeInForeground, totalTimeInForeground) || other.totalTimeInForeground == totalTimeInForeground)&&(identical(other.lastTimeUsed, lastTimeUsed) || other.lastTimeUsed == lastTimeUsed)&&(identical(other.date, date) || other.date == date)&&(identical(other.openCount, openCount) || other.openCount == openCount));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,packageName,totalTimeInForeground,lastTimeUsed,date);
+int get hashCode => Object.hash(runtimeType,packageName,totalTimeInForeground,lastTimeUsed,date,openCount);
 
 @override
 String toString() {
-  return 'AppUsage(packageName: $packageName, totalTimeInForeground: $totalTimeInForeground, lastTimeUsed: $lastTimeUsed, date: $date)';
+  return 'AppUsage(packageName: $packageName, totalTimeInForeground: $totalTimeInForeground, lastTimeUsed: $lastTimeUsed, date: $date, openCount: $openCount)';
 }
 
 
@@ -241,7 +243,7 @@ abstract mixin class _$AppUsageCopyWith<$Res> implements $AppUsageCopyWith<$Res>
   factory _$AppUsageCopyWith(_AppUsage value, $Res Function(_AppUsage) _then) = __$AppUsageCopyWithImpl;
 @override @useResult
 $Res call({
- String packageName, Duration totalTimeInForeground, DateTime lastTimeUsed, DateTime date
+ String packageName, Duration totalTimeInForeground, DateTime lastTimeUsed, DateTime date, int openCount
 });
 
 
@@ -258,13 +260,14 @@ class __$AppUsageCopyWithImpl<$Res>
 
 /// Create a copy of AppUsage
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? packageName = null,Object? totalTimeInForeground = null,Object? lastTimeUsed = null,Object? date = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? packageName = null,Object? totalTimeInForeground = null,Object? lastTimeUsed = null,Object? date = null,Object? openCount = null,}) {
   return _then(_AppUsage(
 packageName: null == packageName ? _self.packageName : packageName // ignore: cast_nullable_to_non_nullable
 as String,totalTimeInForeground: null == totalTimeInForeground ? _self.totalTimeInForeground : totalTimeInForeground // ignore: cast_nullable_to_non_nullable
 as Duration,lastTimeUsed: null == lastTimeUsed ? _self.lastTimeUsed : lastTimeUsed // ignore: cast_nullable_to_non_nullable
 as DateTime,date: null == date ? _self.date : date // ignore: cast_nullable_to_non_nullable
-as DateTime,
+as DateTime,openCount: null == openCount ? _self.openCount : openCount // ignore: cast_nullable_to_non_nullable
+as int,
   ));
 }
 

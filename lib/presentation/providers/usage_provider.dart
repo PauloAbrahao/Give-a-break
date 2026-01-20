@@ -57,3 +57,9 @@ final appUsageTodayProvider =
   final repo = ref.watch(usageRepositoryProvider);
   return repo.getAppUsageToday(packageName);
 });
+
+final appUsageFullTodayProvider =
+    FutureProvider.family<AppUsage?, String>((ref, packageName) async {
+  final todayUsage = await ref.watch(todayUsageProvider.future);
+  return todayUsage.where((u) => u.packageName == packageName).firstOrNull;
+});

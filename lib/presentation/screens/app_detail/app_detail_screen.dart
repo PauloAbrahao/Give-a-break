@@ -26,7 +26,7 @@ class _AppDetailScreenState extends ConsumerState<AppDetailScreen> {
   @override
   Widget build(BuildContext context) {
     final appInfo = ref.watch(appInfoProvider(widget.packageName));
-    final usageToday = ref.watch(appUsageTodayProvider(widget.packageName));
+    final usageToday = ref.watch(appUsageFullTodayProvider(widget.packageName));
     final limit = ref.watch(appLimitProvider(widget.packageName));
 
     return Scaffold(

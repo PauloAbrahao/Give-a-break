@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:give_a_break/presentation/providers/installed_apps_provider.dart';
+import 'package:give_a_break/presentation/providers/routine_provider.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_strings.dart';
 import '../../providers/usage_provider.dart';
@@ -52,10 +54,13 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
       floatingActionButton: const FloatingMenu(currentScreen: 'dashboard'),
       body: RefreshIndicator(
         onRefresh: () async {
+          ref.invalidate(todayUsageProvider);
           ref.invalidate(todaySummaryProvider);
           ref.invalidate(topAppsProvider);
           ref.invalidate(weeklySummaryProvider);
           ref.invalidate(allLimitsProvider);
+          ref.invalidate(installedAppsProvider);
+          ref.invalidate(routineRepositoryProvider);
         },
         child: SingleChildScrollView(
           physics: const AlwaysScrollableScrollPhysics(),

@@ -28,8 +28,9 @@ class OverlayService : Service() {
         private const val EXTRA_USED_TIME = "used_time"
         private const val EXTRA_LIMIT_TIME = "limit_time"
         private const val EXTRA_PACKAGE_NAME = "package_name"
+        private const val EXTRA_OPEN_COUNT = "open_count"
 
-        fun show(context: Context, appName: String, usedTime: String, limitTime: String, packageName: String) {
+        fun show(context: Context, appName: String, usedTime: String, limitTime: String, packageName: String, openCount: Int = 0) {
             if (!Settings.canDrawOverlays(context)) return
 
             val intent = Intent(context, OverlayService::class.java).apply {
@@ -37,6 +38,7 @@ class OverlayService : Service() {
                 putExtra(EXTRA_USED_TIME, usedTime)
                 putExtra(EXTRA_LIMIT_TIME, limitTime)
                 putExtra(EXTRA_PACKAGE_NAME, packageName)
+                putExtra(EXTRA_OPEN_COUNT, openCount)
             }
             context.startService(intent)
         }
@@ -48,17 +50,18 @@ class OverlayService : Service() {
         val appName = intent?.getStringExtra(EXTRA_APP_NAME) ?: "App"
         val usedTime = intent?.getStringExtra(EXTRA_USED_TIME) ?: "--"
         val limitTime = intent?.getStringExtra(EXTRA_LIMIT_TIME) ?: "--"
+        val openCount = intent?.getIntExtra(EXTRA_OPEN_COUNT, 0) ?: 0
         restrictedPackageName = intent?.getStringExtra(EXTRA_PACKAGE_NAME)
 
-        showOverlay(appName, usedTime, limitTime)
+        showOverlay(appName, usedTime, limitTime, openCount)
         return START_NOT_STICKY
     }
 
-    private fun showOverlay(appName: String, usedTime: String, limitTime: String) {
+    private fun showOverlay(appName: String, usedTime: String, limitTime: String, openCount: Int) {
         if (overlayView != null) removeOverlay()
 
         windowManager = getSystemService(WINDOW_SERVICE) as WindowManager
-        overlayView = createOverlayView(appName, usedTime, limitTime)
+        overlayView = createOverlayView(appName, usedTime, limitTime, openCount)
 
         val layoutType = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY
@@ -82,7 +85,7 @@ class OverlayService : Service() {
         windowManager?.addView(overlayView, params)
     }
 
-    private fun createOverlayView(appName: String, usedTime: String, limitTime: String): View {
+    private fun createOverlayView(appName: String, usedTime: String, limitTime: String, openCount: Int): View {
         // Main container
         val mainLayout = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
@@ -148,6 +151,19 @@ class OverlayService : Service() {
 
         // Limit row
         infoCard.addView(createInfoRow("Daily limit", limitTime, "#FFFFFF"))
+
+        addSpacer(infoCard, 16)
+
+        // Divider
+        infoCard.addView(View(this).apply {
+            layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 1)
+            setBackgroundColor(Color.parseColor("#40FFFFFF"))
+        })
+
+        addSpacer(infoCard, 16)
+
+        // Opens row
+        infoCard.addView(createInfoRow("Opens today", "$openCount", "#FFFFFF"))
 
         mainLayout.addView(infoCard)
 

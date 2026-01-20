@@ -4,9 +4,10 @@ import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_strings.dart';
 import '../../../../core/extensions/duration_extensions.dart';
 import '../../../../domain/entities/app_limit.dart';
+import '../../../../domain/entities/app_usage.dart';
 
 class UsageSection extends StatelessWidget {
-  final AsyncValue<Duration> usageToday;
+  final AsyncValue<AppUsage?> usageToday;
   final AsyncValue<AppLimit?> limit;
 
   const UsageSection({
@@ -35,7 +36,7 @@ class UsageSection extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           usageToday.when(
-            data: (duration) => _buildUsageContent(context, duration),
+            data: (usage) => _buildUsageContent(context, usage),
             loading: () => const CircularProgressIndicator(),
             error: (_, __) => const Text('Error loading usage'),
           ),
@@ -44,17 +45,43 @@ class UsageSection extends StatelessWidget {
     );
   }
 
-  Widget _buildUsageContent(BuildContext context, Duration duration) {
+  Widget _buildUsageContent(BuildContext context, AppUsage? usage) {
+    final duration = usage?.totalTimeInForeground ?? Duration.zero;
+    final openCount = usage?.openCount ?? 0;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          duration.toReadableString(),
-          style: TextStyle(
-            fontSize: 32,
-            fontWeight: FontWeight.bold,
-            color: AppColors.getTextPrimary(context),
-          ),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: [
+            Text(
+              duration.toReadableString(),
+              style: TextStyle(
+                fontSize: 32,
+                fontWeight: FontWeight.bold,
+                color: AppColors.getTextPrimary(context),
+              ),
+            ),
+            Row(
+              children: [
+                Icon(
+                  Icons.open_in_new,
+                  size: 16,
+                  color: AppColors.getTextSecondary(context),
+                ),
+                const SizedBox(width: 4),
+                Text(
+                  '$openCount opens',
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: AppColors.getTextSecondary(context),
+                  ),
+                ),
+              ],
+            ),
+          ],
         ),
         limit.when(
           data: (appLimit) {

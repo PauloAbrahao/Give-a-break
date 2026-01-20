@@ -26,11 +26,9 @@ class AppMonitorService : Service() {
     private val handler = Handler(Looper.getMainLooper())
     private var monitoringRunnable: Runnable? = null
     private var lastForegroundPackage: String? = null
-    private var lastOverlayShownTime: Long = 0
-    private var lastOverlayShownPackage: String? = null
+    private var lastOverlayShownForResumeTime: Long = 0
     private var lastWarningShownTime: Long = 0
     private var lastWarningShownPackage: String? = null
-    private val lastKnownUsage = mutableMapOf<String, Int>()
 
     companion object {
         private const val TAG = "AppMonitorService"
@@ -129,19 +127,17 @@ class AppMonitorService : Service() {
                 // Calculate warning time based on threshold (e.g., 80% of daily limit)
                 val warningTimeSeconds = (dailyLimitSeconds * limit.warningThreshold).toInt()
 
-                val now = System.currentTimeMillis()
                 val lastResumeTime = getLastResumeTime(foregroundPackage)
 
-                // Check if limit is exceeded (100%) - show blocking overlay
-                if (usageTodaySeconds >= dailyLimitSeconds) {
-                    val appResumedAfterLastOverlay = lastResumeTime > lastOverlayShownTime + 200
-                    val isDifferentApp = foregroundPackage != lastOverlayShownPackage
-                    val previousUsage = lastKnownUsage[foregroundPackage] ?: 0
-                    val justCrossedLimit = previousUsage < dailyLimitSeconds && usageTodaySeconds >= dailyLimitSeconds
+                // Check if any limit is exceeded
+                val openingsToday = getAppOpenCountToday(foregroundPackage)
+                val openingsLimitReached = limit.dailyLimitOpenings > 0 && openingsToday >= limit.dailyLimitOpenings
+                val timeLimitReached = usageTodaySeconds >= dailyLimitSeconds
 
-                    if (appResumedAfterLastOverlay || isDifferentApp || justCrossedLimit) {
-                        lastOverlayShownTime = now
-                        lastOverlayShownPackage = foregroundPackage
+                if (timeLimitReached || openingsLimitReached) {
+                    // Show overlay once per app resume
+                    if (lastResumeTime != lastOverlayShownForResumeTime) {
+                        lastOverlayShownForResumeTime = lastResumeTime
                         showOverlay(foregroundPackage, usageTodaySeconds, dailyLimitSeconds)
                     }
                 }
@@ -151,13 +147,12 @@ class AppMonitorService : Service() {
                     val isDifferentApp = foregroundPackage != lastWarningShownPackage
 
                     if (appResumedAfterLastWarning || isDifferentApp) {
-                        lastWarningShownTime = now
+                        lastWarningShownTime = System.currentTimeMillis()
                         lastWarningShownPackage = foregroundPackage
                         showWarningNotification(foregroundPackage, usageTodaySeconds, dailyLimitSeconds)
                     }
                 }
 
-                lastKnownUsage[foregroundPackage] = usageTodaySeconds
             }
             lastForegroundPackage = foregroundPackage
         }
@@ -258,6 +253,38 @@ class AppMonitorService : Service() {
         return (totalTime / 1000).toInt()
     }
 
+    private fun getAppOpenCountToday(packageName: String): Int {
+        val usageStatsManager = getSystemService(Context.USAGE_STATS_SERVICE) as? UsageStatsManager
+            ?: return 0
+
+        val calendar = Calendar.getInstance()
+        calendar.set(Calendar.HOUR_OF_DAY, 0)
+        calendar.set(Calendar.MINUTE, 0)
+        calendar.set(Calendar.SECOND, 0)
+        calendar.set(Calendar.MILLISECOND, 0)
+
+        val startTime = calendar.timeInMillis
+        val endTime = System.currentTimeMillis()
+
+        val usageEvents = usageStatsManager.queryEvents(startTime, endTime) ?: return 0
+
+        var openCount = 0
+        var lastForegroundPkg: String? = null
+        val event = UsageEvents.Event()
+
+        while (usageEvents.hasNextEvent()) {
+            usageEvents.getNextEvent(event)
+            if (event.eventType == UsageEvents.Event.ACTIVITY_RESUMED) {
+                if (event.packageName == packageName && event.packageName != lastForegroundPkg) {
+                    openCount++
+                }
+                lastForegroundPkg = event.packageName
+            }
+        }
+
+        return openCount
+    }
+
     private fun showOverlay(packageName: String, usedSeconds: Int, limitSeconds: Int) {
         // Get app name from package manager
         val appName = try {
@@ -270,10 +297,11 @@ class AppMonitorService : Service() {
 
         val usedTime = formatSeconds(usedSeconds)
         val limitTime = formatSeconds(limitSeconds)
+        val openCount = getAppOpenCountToday(packageName)
 
         // Show native overlay if permission granted
         if (Settings.canDrawOverlays(this)) {
-            OverlayService.show(this, appName, usedTime, limitTime, packageName)
+            OverlayService.show(this, appName, usedTime, limitTime, packageName, openCount)
         } else {
             // Fallback to notification
             showHeadsUpNotification(appName, usedSeconds, limitSeconds)

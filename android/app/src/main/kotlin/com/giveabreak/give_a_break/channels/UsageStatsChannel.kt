@@ -86,7 +86,9 @@ object UsageStatsChannel : MethodChannel.MethodCallHandler {
         val usageEvents = usageStatsManager.queryEvents(startTime, endTime)
 
         val appUsageMap = mutableMapOf<String, Long>()
+        val appOpenCountMap = mutableMapOf<String, Int>()
         val lastResumeMap = mutableMapOf<String, Long>()
+        var lastForegroundPackage: String? = null
 
         val event = UsageEvents.Event()
 
@@ -99,6 +101,11 @@ object UsageStatsChannel : MethodChannel.MethodCallHandler {
             when (event.eventType) {
                 UsageEvents.Event.ACTIVITY_RESUMED -> {
                     lastResumeMap[pkg] = time
+                    // Count as app open if it's a different app than the last one
+                    if (pkg != lastForegroundPackage) {
+                        appOpenCountMap[pkg] = (appOpenCountMap[pkg] ?: 0) + 1
+                        lastForegroundPackage = pkg
+                    }
                 }
 
                 UsageEvents.Event.ACTIVITY_PAUSED -> {
@@ -117,7 +124,8 @@ object UsageStatsChannel : MethodChannel.MethodCallHandler {
                 "packageName" to pkg,
                 "totalTimeInForeground" to duration,
                 "lastTimeUsed" to endTime,
-                "firstTimeStamp" to startTime
+                "firstTimeStamp" to startTime,
+                "openCount" to (appOpenCountMap[pkg] ?: 0)
             )
         }
     }

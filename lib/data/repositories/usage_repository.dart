@@ -20,6 +20,7 @@ class UsageRepository {
         lastTimeUsed:
             DateTime.fromMillisecondsSinceEpoch(stat['lastTimeUsed'] as int),
         date: DateTime.fromMillisecondsSinceEpoch(stat['firstTimeStamp'] as int),
+        openCount: stat['openCount'] as int? ?? 0,
       );
     }).toList();
   }

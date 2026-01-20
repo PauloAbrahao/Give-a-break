@@ -171,11 +171,19 @@ class LimitSection extends StatelessWidget {
               ),
             ),
             if (onEdit != null) ...[
-              const SizedBox(width: 8),
-              IconButton(
-                onPressed: onEdit,
-                icon: const Icon(Icons.edit, size: 18),
-                visualDensity: VisualDensity.compact,
+              const SizedBox(width: 12),
+              Container(
+                width: 36,
+                height: 36,
+                decoration: BoxDecoration(
+                  color: AppColors.getSurfaceVariant(context).withValues(alpha: 0.4),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: IconButton(
+                  onPressed: onEdit,
+                  icon: const Icon(Icons.edit, size: 20),
+                  visualDensity: VisualDensity.compact,
+                ),
               ),
             ],
           ],
