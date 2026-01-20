@@ -91,12 +91,12 @@ class _AppDetailScreenState extends ConsumerState<AppDetailScreen> {
     );
 
     if (result != null) {
-      final newLimit = AppLimit(
-        packageName: widget.packageName,
-        dailyLimit: result,
-        warningThreshold: existingLimit?.warningThreshold ?? 0.8,
-        isEnabled: existingLimit?.isEnabled ?? true,
-      );
+      final newLimit = existingLimit != null
+          ? existingLimit.copyWith(dailyLimit: result)
+          : AppLimit(
+              packageName: widget.packageName,
+              dailyLimit: result,
+            );
       ref.read(appLimitNotifierProvider.notifier).setLimit(newLimit);
     }
   }
@@ -116,12 +116,7 @@ class _AppDetailScreenState extends ConsumerState<AppDetailScreen> {
     );
 
     if (result != null) {
-      final newLimit = AppLimit(
-        packageName: widget.packageName,
-        dailyLimit: existingLimit.dailyLimit,
-        warningThreshold: result / 100.0,
-        isEnabled: existingLimit.isEnabled,
-      );
+      final newLimit = existingLimit.copyWith(warningThreshold: result / 100.0);
       ref.read(appLimitNotifierProvider.notifier).setLimit(newLimit);
     }
   }
