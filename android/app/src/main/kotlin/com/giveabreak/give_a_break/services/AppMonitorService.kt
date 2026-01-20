@@ -30,6 +30,7 @@ class AppMonitorService : Service() {
     private var lastOverlayShownPackage: String? = null
     private var lastWarningShownTime: Long = 0
     private var lastWarningShownPackage: String? = null
+    private val lastKnownUsage = mutableMapOf<String, Int>()
 
     companion object {
         private const val TAG = "AppMonitorService"
@@ -135,8 +136,10 @@ class AppMonitorService : Service() {
                 if (usageTodaySeconds >= dailyLimitSeconds) {
                     val appResumedAfterLastOverlay = lastResumeTime > lastOverlayShownTime + 200
                     val isDifferentApp = foregroundPackage != lastOverlayShownPackage
+                    val previousUsage = lastKnownUsage[foregroundPackage] ?: 0
+                    val justCrossedLimit = previousUsage < dailyLimitSeconds && usageTodaySeconds >= dailyLimitSeconds
 
-                    if (appResumedAfterLastOverlay || isDifferentApp) {
+                    if (appResumedAfterLastOverlay || isDifferentApp || justCrossedLimit) {
                         lastOverlayShownTime = now
                         lastOverlayShownPackage = foregroundPackage
                         showOverlay(foregroundPackage, usageTodaySeconds, dailyLimitSeconds)
@@ -153,6 +156,8 @@ class AppMonitorService : Service() {
                         showWarningNotification(foregroundPackage, usageTodaySeconds, dailyLimitSeconds)
                     }
                 }
+
+                lastKnownUsage[foregroundPackage] = usageTodaySeconds
             }
             lastForegroundPackage = foregroundPackage
         }

@@ -17,7 +17,7 @@ class RestrictedAppsCard extends ConsumerWidget {
 
     return limitsAsync.when(
       data: (limits) {
-        final enabledLimits = limits.where((l) => l.isEnabled).take(6).toList();
+        final enabledLimits = limits.where((l) => l.isEnabled).toList();
         return _buildCard(context, ref, enabledLimits);
       },
       loading: () => _buildCard(context, ref, [], isLoading: true),
@@ -43,6 +43,7 @@ class RestrictedAppsCard extends ConsumerWidget {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Row(
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Icon(
                   Icons.block,
@@ -99,18 +100,40 @@ class RestrictedAppsCard extends ConsumerWidget {
   }
 
   Widget _buildAppGrid(BuildContext context, WidgetRef ref, List<AppLimit> limits) {
-    final displayLimits = limits.take(6).toList();
+    final displayLimits = limits.take(4).toList();
+    final remaining = limits.length - 4;
 
     return Wrap(
       spacing: 10,
       runSpacing: 10,
-      children: displayLimits.map((limit) {
-        return SizedBox(
-          width: 34,
-          height: 34,
-          child: _AppIconWidget(packageName: limit.packageName),
-        );
-      }).toList(),
+      children: [
+        ...displayLimits.map((limit) {
+          return SizedBox(
+            width: 34,
+            height: 34,
+            child: _AppIconWidget(packageName: limit.packageName),
+          );
+        }),
+        if (remaining > 0)
+          Container(
+            width: 34,
+            height: 34,
+            decoration: BoxDecoration(
+              color: AppColors.primary.withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Center(
+              child: Text(
+                '+$remaining',
+                style: const TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                  color: AppColors.primary,
+                ),
+              ),
+            ),
+          ),
+      ],
     );
   }
 }
