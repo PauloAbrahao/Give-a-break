@@ -173,6 +173,7 @@ class DataTransferNotifier extends StateNotifier<AsyncValue<void>> {
     return {
       'packageName': limit.packageName,
       'dailyLimitMinutes': limit.dailyLimit.inMinutes,
+      'dailyLimitOpenings': limit.dailyLimitOpenings,
       'warningThreshold': limit.warningThreshold,
       'isEnabled': limit.isEnabled,
     };
@@ -182,6 +183,7 @@ class DataTransferNotifier extends StateNotifier<AsyncValue<void>> {
     return AppLimit(
       packageName: json['packageName'] as String,
       dailyLimit: Duration(minutes: json['dailyLimitMinutes'] as int),
+      dailyLimitOpenings: json['dailyLimitOpenings'] as int? ?? 0,
       warningThreshold: (json['warningThreshold'] as num).toDouble(),
       isEnabled: json['isEnabled'] as bool? ?? true,
     );

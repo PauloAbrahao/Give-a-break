@@ -199,6 +199,7 @@ class AppMonitorService : Service() {
                     return AppLimit(
                         packageName = obj.getString("packageName"),
                         dailyLimitSeconds = obj.getInt("dailyLimitSeconds"),
+                        dailyLimitOpenings = obj.optInt("dailyLimitOpenings", 0),
                         isEnabled = obj.getBoolean("isEnabled"),
                         warningThreshold = obj.optDouble("warningThreshold", 0.8)
                     )
@@ -439,6 +440,7 @@ class AppMonitorService : Service() {
     data class AppLimit(
         val packageName: String,
         val dailyLimitSeconds: Int,
+        val dailyLimitOpenings: Int = 0,
         val isEnabled: Boolean,
         val warningThreshold: Double = 0.8
     )

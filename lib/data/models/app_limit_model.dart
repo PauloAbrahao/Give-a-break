@@ -14,6 +14,9 @@ class AppLimitModel extends HiveObject {
   @HiveField(2)
   double warningThreshold;
 
+  @HiveField(3)
+  int dailyLimitOpenings;
+
   @HiveField(4)
   bool isEnabled;
 
@@ -21,6 +24,7 @@ class AppLimitModel extends HiveObject {
     required this.packageName,
     required this.dailyLimitMinutes,
     this.warningThreshold = 0.8,
+    this.dailyLimitOpenings = 0,
     this.isEnabled = true,
   });
 
@@ -29,6 +33,7 @@ class AppLimitModel extends HiveObject {
       packageName: entity.packageName,
       dailyLimitMinutes: entity.dailyLimit.inMinutes,
       warningThreshold: entity.warningThreshold,
+      dailyLimitOpenings: entity.dailyLimitOpenings,
       isEnabled: entity.isEnabled,
     );
   }
@@ -38,6 +43,7 @@ class AppLimitModel extends HiveObject {
       packageName: packageName,
       dailyLimit: Duration(minutes: dailyLimitMinutes),
       warningThreshold: warningThreshold,
+      dailyLimitOpenings: dailyLimitOpenings,
       isEnabled: isEnabled,
     );
   }

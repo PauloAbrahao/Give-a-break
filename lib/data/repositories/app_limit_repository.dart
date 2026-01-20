@@ -60,6 +60,7 @@ class AppLimitRepository {
       final limitsJson = limits.map((limit) => {
         'packageName': limit.packageName,
         'dailyLimitSeconds': limit.dailyLimit.inSeconds,
+        'dailyLimitOpenings': limit.dailyLimitOpenings,
         'isEnabled': limit.isEnabled,
         'warningThreshold': limit.warningThreshold,
       }).toList();

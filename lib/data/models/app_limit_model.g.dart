@@ -20,6 +20,7 @@ class AppLimitModelAdapter extends TypeAdapter<AppLimitModel> {
       packageName: fields[0] as String,
       dailyLimitMinutes: (fields[1] as num).toInt(),
       warningThreshold: fields[2] == null ? 0.8 : (fields[2] as num).toDouble(),
+      dailyLimitOpenings: fields[3] == null ? 0 : (fields[3] as num).toInt(),
       isEnabled: fields[4] == null ? true : fields[4] as bool,
     );
   }
@@ -27,13 +28,15 @@ class AppLimitModelAdapter extends TypeAdapter<AppLimitModel> {
   @override
   void write(BinaryWriter writer, AppLimitModel obj) {
     writer
-      ..writeByte(4)
+      ..writeByte(5)
       ..writeByte(0)
       ..write(obj.packageName)
       ..writeByte(1)
       ..write(obj.dailyLimitMinutes)
       ..writeByte(2)
       ..write(obj.warningThreshold)
+      ..writeByte(3)
+      ..write(obj.dailyLimitOpenings)
       ..writeByte(4)
       ..write(obj.isEnabled);
   }

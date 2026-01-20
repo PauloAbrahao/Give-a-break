@@ -11,6 +11,7 @@ import 'widgets/usage_section.dart';
 import 'widgets/limit_section.dart';
 import 'widgets/time_limit_picker.dart';
 import 'widgets/warning_threshold_picker.dart';
+import 'widgets/daily_openings_picker.dart';
 
 class AppDetailScreen extends ConsumerStatefulWidget {
   final String packageName;
@@ -63,6 +64,7 @@ class _AppDetailScreenState extends ConsumerState<AppDetailScreen> {
               },
               onEditLimit: () => _showTimePicker(limit.valueOrNull),
               onEditWarning: (appLimit) => _showWarningPicker(appLimit),
+              onEditDailyOpenings: (appLimit) => _showDailyOpeningsPicker(appLimit),
               onRemoveLimit: _removeLimit,
               onSetLimit: () => _showTimePicker(null),
             ),
@@ -120,6 +122,23 @@ class _AppDetailScreenState extends ConsumerState<AppDetailScreen> {
         warningThreshold: result / 100.0,
         isEnabled: existingLimit.isEnabled,
       );
+      ref.read(appLimitNotifierProvider.notifier).setLimit(newLimit);
+    }
+  }
+
+  Future<void> _showDailyOpeningsPicker(AppLimit existingLimit) async {
+    final result = await showModalBottomSheet<int>(
+      context: context,
+      barrierColor: Colors.black.withValues(alpha: 0.8),
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder: (context) => DailyOpeningsPicker(
+        initialValue: existingLimit.dailyLimitOpenings,
+      ),
+    );
+
+    if (result != null) {
+      final newLimit = existingLimit.copyWith(dailyLimitOpenings: result);
       ref.read(appLimitNotifierProvider.notifier).setLimit(newLimit);
     }
   }
