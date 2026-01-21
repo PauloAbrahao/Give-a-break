@@ -166,6 +166,7 @@ class RoutinesScreen extends ConsumerWidget {
       context: context,
       barrierColor: Colors.black.withValues(alpha: 0.8),
       isScrollControlled: true,
+      useSafeArea: true,
       backgroundColor: Colors.transparent,
       builder: (context) => CreateRoutineDialog(existingRoutine: routine),
     );

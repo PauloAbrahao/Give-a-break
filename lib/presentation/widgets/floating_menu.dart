@@ -131,13 +131,6 @@ class _FloatingMenuState extends State<FloatingMenu>
           decoration: BoxDecoration(
             color: AppColors.getSurface(context),
             borderRadius: BorderRadius.circular(8),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.1),
-                blurRadius: 8,
-                offset: const Offset(0, 2),
-              ),
-            ],
           ),
           child: Text(
             label,

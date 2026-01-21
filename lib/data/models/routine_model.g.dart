@@ -25,13 +25,15 @@ class RoutineModelAdapter extends TypeAdapter<RoutineModel> {
       isEnabled: fields[5] == null ? true : fields[5] as bool,
       isArchived: fields[7] == null ? false : fields[7] as bool,
       createdAt: fields[6] as DateTime?,
+      startTime: fields[8] as String?,
+      endTime: fields[9] as String?,
     );
   }
 
   @override
   void write(BinaryWriter writer, RoutineModel obj) {
     writer
-      ..writeByte(8)
+      ..writeByte(10)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -47,7 +49,11 @@ class RoutineModelAdapter extends TypeAdapter<RoutineModel> {
       ..writeByte(6)
       ..write(obj.createdAt)
       ..writeByte(7)
-      ..write(obj.isArchived);
+      ..write(obj.isArchived)
+      ..writeByte(8)
+      ..write(obj.startTime)
+      ..writeByte(9)
+      ..write(obj.endTime);
   }
 
   @override

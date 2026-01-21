@@ -26,6 +26,9 @@ class _CreateRoutineDialogState extends ConsumerState<CreateRoutineDialog> {
   Set<int> _selectedDays = {0, 1, 2, 3, 4, 5, 6};
   Set<String> _selectedApps = {};
   bool _isEnabled = true;
+  bool _isAllDay = true;
+  TimeOfDay _startTime = const TimeOfDay(hour: 9, minute: 0);
+  TimeOfDay _endTime = const TimeOfDay(hour: 18, minute: 0);
 
   bool get _isEditing => widget.existingRoutine != null;
 
@@ -38,6 +41,15 @@ class _CreateRoutineDialogState extends ConsumerState<CreateRoutineDialog> {
       _selectedDays = Set.from(widget.existingRoutine!.days);
       _selectedApps = Set.from(widget.existingRoutine!.appPackages);
       _isEnabled = widget.existingRoutine!.isEnabled;
+      _isAllDay = widget.existingRoutine!.startTime == null;
+      if (widget.existingRoutine!.startTime != null) {
+        final startParts = widget.existingRoutine!.startTime!.split(':');
+        _startTime = TimeOfDay(hour: int.parse(startParts[0]), minute: int.parse(startParts[1]));
+      }
+      if (widget.existingRoutine!.endTime != null) {
+        final endParts = widget.existingRoutine!.endTime!.split(':');
+        _endTime = TimeOfDay(hour: int.parse(endParts[0]), minute: int.parse(endParts[1]));
+      }
     }
   }
 
@@ -90,6 +102,8 @@ class _CreateRoutineDialogState extends ConsumerState<CreateRoutineDialog> {
                     onChanged: (days) => setState(() => _selectedDays = days),
                   ),
                   const SizedBox(height: 24),
+                  _buildTimeSelector(),
+                  const SizedBox(height: 24),
                   SelectedAppsPreview(
                     selectedPackages: _selectedApps,
                     onTap: _openAppSelector,
@@ -118,6 +132,71 @@ class _CreateRoutineDialogState extends ConsumerState<CreateRoutineDialog> {
       decoration: BoxDecoration(
         color: AppColors.primary,
         borderRadius: BorderRadius.circular(2.5),
+      ),
+    );
+  }
+
+  Widget _buildTimeSelector() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            const Text('Schedule', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500)),
+            const Spacer(),
+            Text('All Day', style: TextStyle(fontSize: 14, color: AppColors.getTextSecondary(context),)),
+            const SizedBox(width: 8),
+            Switch(
+              value: _isAllDay,
+              onChanged: (value) => setState(() => _isAllDay = value),
+              activeThumbColor: AppColors.success,
+            ),
+          ],
+        ),
+        AnimatedSize(
+          duration: const Duration(milliseconds: 250),
+          curve: Curves.easeInOut,
+          child: !_isAllDay
+              ? Padding(
+                  padding: const EdgeInsets.only(top: 12),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: _buildTimePicker('Start', _startTime, (time) => setState(() => _startTime = time)),
+                      ),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: _buildTimePicker('End', _endTime, (time) => setState(() => _endTime = time)),
+                      ),
+                    ],
+                  ),
+                )
+              : const SizedBox.shrink(),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildTimePicker(String label, TimeOfDay time, ValueChanged<TimeOfDay> onChanged) {
+    return InkWell(
+      onTap: () async {
+        final picked = await showTimePicker(context: context, initialTime: time);
+        if (picked != null) onChanged(picked);
+      },
+      borderRadius: BorderRadius.circular(12),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        decoration: BoxDecoration(
+          border: Border.all(color: AppColors.getTextSecondary(context).withOpacity(0.3)),
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Row(
+          children: [
+            Text(label, style: TextStyle(color: AppColors.getTextSecondary(context), fontSize: 14)),
+            const Spacer(),
+            Text(time.format(context), style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500)),
+          ],
+        ),
       ),
     );
   }
@@ -173,6 +252,8 @@ class _CreateRoutineDialogState extends ConsumerState<CreateRoutineDialog> {
       appPackages: _selectedApps,
       isEnabled: _isEnabled,
       createdAt: widget.existingRoutine?.createdAt ?? DateTime.now(),
+      startTime: _isAllDay ? null : '${_startTime.hour.toString().padLeft(2, '0')}:${_startTime.minute.toString().padLeft(2, '0')}',
+      endTime: _isAllDay ? null : '${_endTime.hour.toString().padLeft(2, '0')}:${_endTime.minute.toString().padLeft(2, '0')}',
     );
 
     await repo.saveRoutine(routine);

@@ -13,5 +13,7 @@ sealed class Routine with _$Routine {
     @Default(true) bool isEnabled,
     @Default(false) bool isArchived,
     DateTime? createdAt,
+    String? startTime,
+    String? endTime, 
   }) = _Routine;
 }

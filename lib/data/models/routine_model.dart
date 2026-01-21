@@ -29,6 +29,12 @@ class RoutineModel extends HiveObject {
   @HiveField(7)
   bool isArchived;
 
+  @HiveField(8)
+  String? startTime;
+
+  @HiveField(9)
+  String? endTime;
+
   RoutineModel({
     required this.id,
     required this.name,
@@ -38,6 +44,8 @@ class RoutineModel extends HiveObject {
     this.isEnabled = true,
     this.isArchived = false,
     this.createdAt,
+    this.startTime,
+    this.endTime,
   });
 
   factory RoutineModel.fromEntity(Routine entity) {
@@ -50,6 +58,8 @@ class RoutineModel extends HiveObject {
       isEnabled: entity.isEnabled,
       isArchived: entity.isArchived,
       createdAt: entity.createdAt,
+      startTime: entity.startTime,
+      endTime: entity.endTime,
     );
   }
 
@@ -63,6 +73,8 @@ class RoutineModel extends HiveObject {
       isEnabled: isEnabled,
       isArchived: isArchived,
       createdAt: createdAt,
+      startTime: startTime,
+      endTime: endTime,
     );
   }
 }
