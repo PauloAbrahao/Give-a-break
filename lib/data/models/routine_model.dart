@@ -35,6 +35,12 @@ class RoutineModel extends HiveObject {
   @HiveField(9)
   String? endTime;
 
+  @HiveField(10)
+  int dailyLimitMinutes;
+
+  @HiveField(11)
+  int dailyLimitOpenings;
+
   RoutineModel({
     required this.id,
     required this.name,
@@ -46,6 +52,8 @@ class RoutineModel extends HiveObject {
     this.createdAt,
     this.startTime,
     this.endTime,
+    this.dailyLimitMinutes = 0,
+    this.dailyLimitOpenings = 0,
   });
 
   factory RoutineModel.fromEntity(Routine entity) {
@@ -60,6 +68,8 @@ class RoutineModel extends HiveObject {
       createdAt: entity.createdAt,
       startTime: entity.startTime,
       endTime: entity.endTime,
+      dailyLimitMinutes: entity.dailyLimit.inMinutes,
+      dailyLimitOpenings: entity.dailyLimitOpenings,
     );
   }
 
@@ -75,6 +85,8 @@ class RoutineModel extends HiveObject {
       createdAt: createdAt,
       startTime: startTime,
       endTime: endTime,
+      dailyLimit: Duration(minutes: dailyLimitMinutes),
+      dailyLimitOpenings: dailyLimitOpenings,
     );
   }
 }

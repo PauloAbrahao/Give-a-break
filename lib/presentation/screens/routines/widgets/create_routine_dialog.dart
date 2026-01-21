@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:give_a_break/presentation/providers/app_limit_provider.dart';
 import 'package:give_a_break/presentation/widgets/dialog.dart';
 import '../../../../core/constants/app_colors.dart';
+import '../../../../core/extensions/duration_extensions.dart';
 import '../../../../domain/entities/routine.dart';
 import '../../../providers/routine_provider.dart';
+import '../../app_detail/widgets/time_limit_picker.dart';
+import '../../app_detail/widgets/daily_openings_picker.dart';
 import 'app_selector_screen.dart';
 import 'day_selector.dart';
 import 'routine_dialog_header.dart';
@@ -29,6 +33,8 @@ class _CreateRoutineDialogState extends ConsumerState<CreateRoutineDialog> {
   bool _isAllDay = true;
   TimeOfDay _startTime = const TimeOfDay(hour: 9, minute: 0);
   TimeOfDay _endTime = const TimeOfDay(hour: 18, minute: 0);
+  Duration _dailyLimit = Duration.zero;
+  int _dailyLimitOpenings = 0;
 
   bool get _isEditing => widget.existingRoutine != null;
 
@@ -50,6 +56,8 @@ class _CreateRoutineDialogState extends ConsumerState<CreateRoutineDialog> {
         final endParts = widget.existingRoutine!.endTime!.split(':');
         _endTime = TimeOfDay(hour: int.parse(endParts[0]), minute: int.parse(endParts[1]));
       }
+      _dailyLimit = widget.existingRoutine!.dailyLimit;
+      _dailyLimitOpenings = widget.existingRoutine!.dailyLimitOpenings;
     }
   }
 
@@ -108,6 +116,8 @@ class _CreateRoutineDialogState extends ConsumerState<CreateRoutineDialog> {
                     selectedPackages: _selectedApps,
                     onTap: _openAppSelector,
                   ),
+                  const SizedBox(height: 24),
+                  _buildLimitsSection(),
                   const SizedBox(height: 24),
                   RoutineEnabledSwitch(
                     value: _isEnabled,
@@ -201,6 +211,98 @@ class _CreateRoutineDialogState extends ConsumerState<CreateRoutineDialog> {
     );
   }
 
+  Widget _buildLimitsSection() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text('Limits', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500)),
+        const SizedBox(height: 12),
+        Row(
+          children: [
+            Expanded(
+              child: _buildLimitButton(
+                label: 'Daily Limit',
+                value: _dailyLimit.inSeconds == 0
+                    ? 'Disabled'
+                    : _dailyLimit.toReadableString(),
+                onTap: _showDailyLimitPicker,
+              ),
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: _buildLimitButton(
+                label: 'Daily Opens',
+                value: _dailyLimitOpenings == 0
+                    ? 'Disabled'
+                    : _dailyLimitOpenings.toString(),
+                onTap: _showDailyOpeningsPicker,
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget _buildLimitButton({
+    required String label,
+    required String value,
+    required VoidCallback onTap,
+  }) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(12),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        decoration: BoxDecoration(
+          border: Border.all(color: AppColors.getTextSecondary(context).withOpacity(0.3)),
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(label, style: TextStyle(color: AppColors.getTextSecondary(context), fontSize: 12)),
+            const SizedBox(height: 4),
+            Text(value, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500)),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<void> _showDailyLimitPicker() async {
+    final result = await showModalBottomSheet<Duration>(
+      context: context,
+      barrierColor: Colors.black.withValues(alpha: 0.8),
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder: (context) => TimeLimitPicker(
+        initialHours: _dailyLimit.inHours,
+        initialMinutes: _dailyLimit.inMinutes.remainder(60),
+      ),
+    );
+
+    if (result != null) {
+      setState(() => _dailyLimit = result);
+    }
+  }
+
+  Future<void> _showDailyOpeningsPicker() async {
+    final result = await showModalBottomSheet<int>(
+      context: context,
+      barrierColor: Colors.black.withValues(alpha: 0.8),
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder: (context) => DailyOpeningsPicker(
+        initialValue: _dailyLimitOpenings,
+      ),
+    );
+
+    if (result != null) {
+      setState(() => _dailyLimitOpenings = result);
+    }
+  }
+
   Widget _buildActionButtons(BuildContext context) {
     return Row(
       children: [
@@ -243,9 +345,9 @@ class _CreateRoutineDialogState extends ConsumerState<CreateRoutineDialog> {
   }
 
   Future<void> _saveRoutine() async {
-    final repo = await ref.read(routineRepositoryProvider.future);
+    final notifier = ref.read(routineNotifierProvider.notifier);
     final routine = Routine(
-      id: widget.existingRoutine?.id ?? repo.generateId(),
+      id: widget.existingRoutine?.id ?? notifier.generateId(),
       name: _nameController.text.trim(),
       description: _descriptionController.text.trim().isEmpty ? null : _descriptionController.text.trim(),
       days: _selectedDays,
@@ -254,12 +356,15 @@ class _CreateRoutineDialogState extends ConsumerState<CreateRoutineDialog> {
       createdAt: widget.existingRoutine?.createdAt ?? DateTime.now(),
       startTime: _isAllDay ? null : '${_startTime.hour.toString().padLeft(2, '0')}:${_startTime.minute.toString().padLeft(2, '0')}',
       endTime: _isAllDay ? null : '${_endTime.hour.toString().padLeft(2, '0')}:${_endTime.minute.toString().padLeft(2, '0')}',
+      dailyLimit: _dailyLimit,
+      dailyLimitOpenings: _dailyLimitOpenings,
     );
 
-    await repo.saveRoutine(routine);
+    await notifier.saveRoutine(routine);
     ref.invalidate(allRoutinesProvider);
     ref.invalidate(activeRoutinesProvider);
     ref.invalidate(archivedRoutinesProvider);
+    ref.invalidate(allLimitsProvider);
 
     if (mounted) Navigator.pop(context);
   }

@@ -85,7 +85,9 @@ class UsageSection extends StatelessWidget {
         ),
         limit.when(
           data: (appLimit) {
-            if (appLimit == null) return const SizedBox.shrink();
+            if (appLimit == null || appLimit.dailyLimit.inSeconds == 0) {
+              return const SizedBox.shrink();
+            }
             return _buildProgressIndicator(context, duration, appLimit);
           },
           loading: () => const SizedBox.shrink(),

@@ -85,7 +85,9 @@ class LimitSection extends StatelessWidget {
         _buildLimitRow(
           context,
           'Daily limit',
-          appLimit.dailyLimit.toReadableString(),
+          appLimit.dailyLimit.inSeconds == 0
+              ? 'Disabled'
+              : appLimit.dailyLimit.toReadableString(),
           onEditLimit,
         ),
         const SizedBox(height: 6),
@@ -99,7 +101,9 @@ class LimitSection extends StatelessWidget {
         _buildLimitRow(
           context,
           'Daily Opens',
-          appLimit.dailyLimitOpenings.toString(),
+          appLimit.dailyLimitOpenings == 0
+              ? 'Disabled'
+              : appLimit.dailyLimitOpenings.toString(),
           () => onEditDailyOpenings(appLimit),
         ),
         const SizedBox(height: 24),

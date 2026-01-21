@@ -2,10 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:give_a_break/presentation/widgets/dialog.dart';
 import '../../../core/constants/app_colors.dart';
+import '../../../core/extensions/duration_extensions.dart';
 import '../../../domain/entities/app_limit.dart';
+import '../../../domain/entities/routine.dart';
 import '../../providers/installed_apps_provider.dart';
 import '../../providers/usage_provider.dart';
 import '../../providers/app_limit_provider.dart';
+import '../../providers/routine_provider.dart';
 import 'widgets/app_header.dart';
 import 'widgets/usage_section.dart';
 import 'widgets/limit_section.dart';
@@ -28,6 +31,7 @@ class _AppDetailScreenState extends ConsumerState<AppDetailScreen> {
     final appInfo = ref.watch(appInfoProvider(widget.packageName));
     final usageToday = ref.watch(appUsageFullTodayProvider(widget.packageName));
     final limit = ref.watch(appLimitProvider(widget.packageName));
+    final activeRoutine = ref.watch(appActiveRoutineProvider(widget.packageName));
 
     return Scaffold(
       appBar: AppBar(
@@ -55,22 +59,96 @@ class _AppDetailScreenState extends ConsumerState<AppDetailScreen> {
               limit: limit,
             ),
             const SizedBox(height: 24),
-            LimitSection(
-              limit: limit,
-              onToggleLimit: (enabled) {
-                ref
-                    .read(appLimitNotifierProvider.notifier)
-                    .toggleLimit(widget.packageName, enabled);
+            activeRoutine.when(
+              data: (routine) {
+                if (routine != null) {
+                  return _buildRoutineManagedSection(routine);
+                }
+                return LimitSection(
+                  limit: limit,
+                  onToggleLimit: (enabled) {
+                    ref
+                        .read(appLimitNotifierProvider.notifier)
+                        .toggleLimit(widget.packageName, enabled);
+                  },
+                  onEditLimit: () => _showTimePicker(limit.valueOrNull),
+                  onEditWarning: (appLimit) => _showWarningPicker(appLimit),
+                  onEditDailyOpenings: (appLimit) => _showDailyOpeningsPicker(appLimit),
+                  onRemoveLimit: _removeLimit,
+                  onSetLimit: () => _showTimePicker(null),
+                );
               },
-              onEditLimit: () => _showTimePicker(limit.valueOrNull),
-              onEditWarning: (appLimit) => _showWarningPicker(appLimit),
-              onEditDailyOpenings: (appLimit) => _showDailyOpeningsPicker(appLimit),
-              onRemoveLimit: _removeLimit,
-              onSetLimit: () => _showTimePicker(null),
+              loading: () => const Center(child: CircularProgressIndicator()),
+              error: (_, __) => const SizedBox.shrink(),
             ),
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildRoutineManagedSection(Routine routine) {
+    final hasTimeLimit = routine.dailyLimit.inSeconds > 0;
+    final hasOpenLimit = routine.dailyLimitOpenings > 0;
+
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: AppColors.primaryLight.withValues(alpha: 0.15),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: AppColors.primary.withValues(alpha: 0.3)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(Icons.schedule, color: AppColors.primary, size: 20),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  'Managed by "${routine.name}"',
+                  style: TextStyle(
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.primary,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Text(
+            'This app is part of an active routine. To edit limits, go to the routine settings or disable the routine.',
+            style: TextStyle(
+              fontSize: 13,
+              color: AppColors.getTextSecondary(context),
+            ),
+          ),
+          if (hasTimeLimit || hasOpenLimit) ...[
+            const SizedBox(height: 12),
+            Wrap(
+              spacing: 12,
+              runSpacing: 8,
+              children: [
+                if (hasTimeLimit)
+                  _buildLimitChip('Daily Limit: ${routine.dailyLimit.toReadableString()}'),
+                if (hasOpenLimit)
+                  _buildLimitChip('Daily Opens: ${routine.dailyLimitOpenings}'),
+              ],
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  Widget _buildLimitChip(String label) {
+    return Container(
+      decoration: BoxDecoration(
+        color: AppColors.getSurface(context),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Text(label, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w500)),
     );
   }
 

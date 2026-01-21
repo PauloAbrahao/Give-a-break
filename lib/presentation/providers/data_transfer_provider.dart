@@ -197,7 +197,12 @@ class DataTransferNotifier extends StateNotifier<AsyncValue<void>> {
       'days': routine.days.toList(),
       'appPackages': routine.appPackages.toList(),
       'isEnabled': routine.isEnabled,
+      'isArchived': routine.isArchived,
       'createdAt': routine.createdAt?.toIso8601String(),
+      'startTime': routine.startTime,
+      'endTime': routine.endTime,
+      'dailyLimitMinutes': routine.dailyLimit.inMinutes,
+      'dailyLimitOpenings': routine.dailyLimitOpenings,
     };
   }
 
@@ -210,9 +215,14 @@ class DataTransferNotifier extends StateNotifier<AsyncValue<void>> {
       appPackages:
           (json['appPackages'] as List<dynamic>).map((e) => e as String).toSet(),
       isEnabled: json['isEnabled'] as bool? ?? true,
+      isArchived: json['isArchived'] as bool? ?? false,
       createdAt: json['createdAt'] != null
           ? DateTime.parse(json['createdAt'] as String)
           : null,
+      startTime: json['startTime'] as String?,
+      endTime: json['endTime'] as String?,
+      dailyLimit: Duration(minutes: json['dailyLimitMinutes'] as int? ?? 0),
+      dailyLimitOpenings: json['dailyLimitOpenings'] as int? ?? 0,
     );
   }
 }

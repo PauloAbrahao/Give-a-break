@@ -14,6 +14,8 @@ sealed class Routine with _$Routine {
     @Default(false) bool isArchived,
     DateTime? createdAt,
     String? startTime,
-    String? endTime, 
+    String? endTime,
+    @Default(Duration.zero) Duration dailyLimit,
+    @Default(0) int dailyLimitOpenings,
   }) = _Routine;
 }

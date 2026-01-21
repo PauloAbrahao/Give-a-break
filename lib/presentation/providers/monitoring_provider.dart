@@ -73,8 +73,12 @@ class MonitoringNotifier extends StateNotifier<MonitoringState> {
     final limit = _limitRepository!.getLimit(packageName);
     if (limit == null || !limit.isEnabled) return;
 
-    final usageToday = await _usageRepository.getAppUsageToday(packageName);
     final dailyLimit = limit.dailyLimit;
+
+    // Skip time limit check if dailyLimit is 0 (disabled)
+    if (dailyLimit.inSeconds == 0) return;
+
+    final usageToday = await _usageRepository.getAppUsageToday(packageName);
     final warningThreshold = limit.warningThreshold;
 
     // Calculate the warning time based on threshold (e.g., 80% of daily limit)

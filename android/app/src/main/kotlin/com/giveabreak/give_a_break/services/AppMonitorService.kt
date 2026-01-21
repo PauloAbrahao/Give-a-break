@@ -132,7 +132,7 @@ class AppMonitorService : Service() {
                 // Check if any limit is exceeded
                 val openingsToday = getAppOpenCountToday(foregroundPackage)
                 val openingsLimitReached = limit.dailyLimitOpenings > 0 && openingsToday >= limit.dailyLimitOpenings
-                val timeLimitReached = usageTodaySeconds >= dailyLimitSeconds
+                val timeLimitReached = dailyLimitSeconds > 0 && usageTodaySeconds >= dailyLimitSeconds
 
                 if (timeLimitReached || openingsLimitReached) {
                     // Show overlay once per app resume
@@ -142,7 +142,8 @@ class AppMonitorService : Service() {
                     }
                 }
                 // Check if warning threshold reached but not yet at limit - show warning notification
-                else if (usageTodaySeconds >= warningTimeSeconds) {
+                // Only show warning if dailyLimit is set (> 0)
+                else if (dailyLimitSeconds > 0 && usageTodaySeconds >= warningTimeSeconds) {
                     val appResumedAfterLastWarning = lastResumeTime > lastWarningShownTime + 200
                     val isDifferentApp = foregroundPackage != lastWarningShownPackage
 

@@ -239,17 +239,15 @@ class _TimeLimitPickerState extends State<TimeLimitPicker> {
           const SizedBox(width: 12),
           Expanded(
             child: ElevatedButton(
-              onPressed: _selectedHours == 0 && _selectedMinutes == 0
-                  ? null
-                  : () {
-                      Navigator.pop(
-                        context,
-                        Duration(
-                          hours: _selectedHours,
-                          minutes: _selectedMinutes,
-                        ),
-                      );
-                    },
+              onPressed: () {
+                Navigator.pop(
+                  context,
+                  Duration(
+                    hours: _selectedHours,
+                    minutes: _selectedMinutes,
+                  ),
+                );
+              },
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.primary,
                 disabledBackgroundColor: Colors.grey.withOpacity(0.4),

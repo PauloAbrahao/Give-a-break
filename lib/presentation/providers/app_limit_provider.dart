@@ -35,22 +35,23 @@ class AppLimitNotifier extends StateNotifier<AsyncValue<List<AppLimit>>> {
   Future<void> setLimit(AppLimit limit) async {
     if (_repository == null) return;
     await _repository.setLimit(limit);
-    state = AsyncValue.data(_repository.getAllLimits());
-    _ref.invalidate(allLimitsProvider);
-    _ref.invalidate(appLimitProvider(limit.packageName));
+    _invalidate(limit.packageName);
   }
 
   Future<void> removeLimit(String packageName) async {
     if (_repository == null) return;
     await _repository.removeLimit(packageName);
-    state = AsyncValue.data(_repository.getAllLimits());
-    _ref.invalidate(allLimitsProvider);
-    _ref.invalidate(appLimitProvider(packageName));
+    _invalidate(packageName);
   }
 
   Future<void> toggleLimit(String packageName, bool enabled) async {
     if (_repository == null) return;
     await _repository.toggleLimit(packageName, enabled);
+    _invalidate(packageName);
+  }
+
+  void _invalidate(String packageName) {
+    if (_repository == null) return;
     state = AsyncValue.data(_repository.getAllLimits());
     _ref.invalidate(allLimitsProvider);
     _ref.invalidate(appLimitProvider(packageName));

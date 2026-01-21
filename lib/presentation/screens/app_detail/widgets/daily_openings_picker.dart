@@ -93,10 +93,6 @@ class _DailyOpeningsPickerState extends State<DailyOpeningsPicker> {
                             focusedBorder: InputBorder.none,
                             filled: false,
                             contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-                            suffixStyle: TextStyle(
-                              fontSize: 16,
-                              color: AppColors.getTextSecondary(context),
-                            ),
                           ),
                           onSubmitted: (_) => _confirm(),
                         ),
