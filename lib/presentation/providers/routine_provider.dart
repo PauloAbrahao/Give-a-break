@@ -61,6 +61,15 @@ class RoutineNotifier extends StateNotifier<AsyncValue<List<Routine>>> {
 
   Future<void> deleteRoutine(String id) async {
     if (_repository == null) return;
+
+    final routine = _repository.getRoutine(id);
+    if (routine != null) {
+      final limitNotifier = _ref.read(appLimitNotifierProvider.notifier);
+      for (final packageName in routine.appPackages) {
+        await limitNotifier.removeLimit(packageName);
+      }
+    }
+
     await _repository.deleteRoutine(id);
     _invalidateAll();
   }
@@ -79,6 +88,15 @@ class RoutineNotifier extends StateNotifier<AsyncValue<List<Routine>>> {
 
   Future<void> archiveRoutine(String id) async {
     if (_repository == null) return;
+
+    final routine = _repository.getRoutine(id);
+    if (routine != null) {
+      final limitNotifier = _ref.read(appLimitNotifierProvider.notifier);
+      for (final packageName in routine.appPackages) {
+        await limitNotifier.toggleLimit(packageName, false);
+      }
+    }
+
     await _repository.archiveRoutine(id);
     _invalidateAll();
   }
@@ -121,4 +139,19 @@ final appActiveRoutineProvider =
     }
   }
   return null;
+});
+
+final appsInRoutinesProvider =
+    FutureProvider.family<Map<String, String>, String?>((ref, excludeRoutineId) async {
+  final routines = await ref.watch(activeRoutinesProvider.future);
+  final Map<String, String> appsInRoutines = {};
+
+  for (final routine in routines) {
+    if (routine.id == excludeRoutineId) continue;
+    for (final packageName in routine.appPackages) {
+      appsInRoutines[packageName] = routine.name;
+    }
+  }
+
+  return appsInRoutines;
 });

@@ -101,7 +101,6 @@ class ArchivedRoutinesScreen extends ConsumerWidget {
         ref.read(routineNotifierProvider.notifier).deleteRoutine(routine.id);
         Navigator.pop(context);
       },
-    
     );
   }
 }

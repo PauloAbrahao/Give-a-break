@@ -1,13 +1,17 @@
+import 'dart:convert';
 import 'package:hive_ce/hive.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../models/routine_model.dart';
 import '../../domain/entities/routine.dart';
 
 class RoutineRepository {
   static const String _boxName = 'routines';
+  static const String _sharedPrefsKey = 'routines_json';
   late Box<RoutineModel> _box;
 
   Future<void> init() async {
     _box = await Hive.openBox<RoutineModel>(_boxName);
+    await _syncToSharedPreferences();
   }
 
   List<Routine> getAllRoutines() {
@@ -36,10 +40,12 @@ class RoutineRepository {
   Future<void> saveRoutine(Routine routine) async {
     final model = RoutineModel.fromEntity(routine);
     await _box.put(routine.id, model);
+    await _syncToSharedPreferences();
   }
 
   Future<void> deleteRoutine(String id) async {
     await _box.delete(id);
+    await _syncToSharedPreferences();
   }
 
   Future<void> toggleRoutine(String id, bool enabled) async {
@@ -47,6 +53,7 @@ class RoutineRepository {
     if (model != null) {
       model.isEnabled = enabled;
       await model.save();
+      await _syncToSharedPreferences();
     }
   }
 
@@ -56,6 +63,7 @@ class RoutineRepository {
       model.isArchived = true;
       model.isEnabled = false;
       await model.save();
+      await _syncToSharedPreferences();
     }
   }
 
@@ -64,10 +72,33 @@ class RoutineRepository {
     if (model != null) {
       model.isArchived = false;
       await model.save();
+      await _syncToSharedPreferences();
     }
   }
 
   String generateId() {
     return DateTime.now().millisecondsSinceEpoch.toString();
+  }
+
+  Future<void> _syncToSharedPreferences() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final routines = getAllRoutines();
+      final routinesJson = routines.map((routine) => {
+        'id': routine.id,
+        'name': routine.name,
+        'days': routine.days.toList(),
+        'appPackages': routine.appPackages.toList(),
+        'isEnabled': routine.isEnabled,
+        'isArchived': routine.isArchived,
+        'startTime': routine.startTime,
+        'endTime': routine.endTime,
+        'dailyLimitSeconds': routine.dailyLimit.inSeconds,
+        'dailyLimitOpenings': routine.dailyLimitOpenings,
+      }).toList();
+      await prefs.setString(_sharedPrefsKey, jsonEncode(routinesJson));
+    } catch (e) {
+      // Silently fail
+    }
   }
 }

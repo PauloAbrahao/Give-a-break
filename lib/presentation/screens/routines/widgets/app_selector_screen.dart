@@ -6,10 +6,12 @@ import '../../../providers/installed_apps_provider.dart';
 
 class AppSelectorScreen extends ConsumerStatefulWidget {
   final Set<String> initialSelectedPackages;
+  final Map<String, String> appsInOtherRoutines;
 
   const AppSelectorScreen({
     super.key,
     required this.initialSelectedPackages,
+    this.appsInOtherRoutines = const {},
   });
 
   @override
@@ -107,10 +109,19 @@ class _AppSelectorScreenState extends ConsumerState<AppSelectorScreen> {
   }
 
   Widget _buildAppsList(BuildContext context, List<AppInfo> apps) {
-    final filteredApps = apps.where((app) {
+    var filteredApps = apps.where((app) {
       if (_searchQuery.isEmpty) return true;
       return app.appName.toLowerCase().contains(_searchQuery.toLowerCase());
     }).toList();
+
+    // Sort: selected apps first, then alphabetically
+    filteredApps.sort((a, b) {
+      final aSelected = _selectedPackages.contains(a.packageName);
+      final bSelected = _selectedPackages.contains(b.packageName);
+      if (aSelected && !bSelected) return -1;
+      if (!aSelected && bSelected) return 1;
+      return a.appName.toLowerCase().compareTo(b.appName.toLowerCase());
+    });
 
     if (filteredApps.isEmpty) {
       return Center(
@@ -127,19 +138,25 @@ class _AppSelectorScreenState extends ConsumerState<AppSelectorScreen> {
       itemBuilder: (context, index) {
         final app = filteredApps[index];
         final isSelected = _selectedPackages.contains(app.packageName);
+        final routineName = widget.appsInOtherRoutines[app.packageName];
+        final isBlocked = routineName != null;
 
         return _AppListItem(
           app: app,
           isSelected: isSelected,
-          onToggle: () {
-            setState(() {
-              if (isSelected) {
-                _selectedPackages.remove(app.packageName);
-              } else {
-                _selectedPackages.add(app.packageName);
-              }
-            });
-          },
+          isBlocked: isBlocked,
+          blockedByRoutine: routineName,
+          onToggle: isBlocked
+              ? null
+              : () {
+                  setState(() {
+                    if (isSelected) {
+                      _selectedPackages.remove(app.packageName);
+                    } else {
+                      _selectedPackages.add(app.packageName);
+                    }
+                  });
+                },
         );
       },
     );
@@ -149,12 +166,16 @@ class _AppSelectorScreenState extends ConsumerState<AppSelectorScreen> {
 class _AppListItem extends StatelessWidget {
   final AppInfo app;
   final bool isSelected;
-  final VoidCallback onToggle;
+  final bool isBlocked;
+  final String? blockedByRoutine;
+  final VoidCallback? onToggle;
 
   const _AppListItem({
     required this.app,
     required this.isSelected,
-    required this.onToggle,
+    this.isBlocked = false,
+    this.blockedByRoutine,
+    this.onToggle,
   });
 
   @override
@@ -162,47 +183,70 @@ class _AppListItem extends StatelessWidget {
     return GestureDetector(
       onTap: onToggle,
       behavior: HitTestBehavior.opaque,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 8),
-        child: Row(
-          children: [
-            _buildIcon(context),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Text(
-                app.appName,
-                style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w500,
-                  color: AppColors.getTextPrimary(context),
+      child: Opacity(
+        opacity: isBlocked ? 0.5 : 1.0,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 8),
+          child: Row(
+            children: [
+              _buildIcon(context),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      app.appName,
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w500,
+                        color: AppColors.getTextPrimary(context),
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    if (isBlocked && blockedByRoutine != null)
+                      Text(
+                        'In "$blockedByRoutine"',
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: AppColors.getTextSecondary(context),
+                        ),
+                      ),
+                  ],
                 ),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
               ),
-            ),
-            const SizedBox(width: 12),
-            Container(
-              width: 24,
-              height: 24,
-              decoration: BoxDecoration(
-                color: isSelected ? AppColors.primary : Colors.transparent,
-                borderRadius: BorderRadius.circular(6),
-                border: Border.all(
-                  color: isSelected
-                      ? AppColors.primary
-                      : AppColors.getTextSecondary(context),
-                  width: 2,
+              const SizedBox(width: 12),
+              if (isBlocked)
+                Icon(
+                  Icons.lock_outline,
+                  size: 20,
+                  color: AppColors.getTextSecondary(context),
+                )
+              else
+                Container(
+                  width: 24,
+                  height: 24,
+                  decoration: BoxDecoration(
+                    color: isSelected ? AppColors.primary : Colors.transparent,
+                    borderRadius: BorderRadius.circular(6),
+                    border: Border.all(
+                      color: isSelected
+                          ? AppColors.primary
+                          : AppColors.getTextSecondary(context),
+                      width: 2,
+                    ),
+                  ),
+                  child: isSelected
+                      ? const Icon(
+                          Icons.check,
+                          size: 16,
+                          color: Colors.white,
+                        )
+                      : null,
                 ),
-              ),
-              child: isSelected
-                  ? const Icon(
-                      Icons.check,
-                      size: 16,
-                      color: Colors.white,
-                    )
-                  : null,
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
