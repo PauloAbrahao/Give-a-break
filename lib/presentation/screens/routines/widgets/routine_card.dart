@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/constants/app_colors.dart';
+import '../../../../core/extensions/routine_extensions.dart';
 import '../../../../domain/entities/routine.dart';
 import '../../../providers/installed_apps_provider.dart';
 import 'days_display.dart';
@@ -47,7 +48,7 @@ class RoutineCard extends ConsumerWidget {
                 ],
                 const SizedBox(height: 12),
                 DaysDisplay(selectedDays: routine.days),
-                const SizedBox(height: 12),
+                const SizedBox(height: 20),
                 _buildAppsRow(context, ref),
               ],
             ),
@@ -106,43 +107,92 @@ class RoutineCard extends ConsumerWidget {
   Widget _buildAppsRow(BuildContext context, WidgetRef ref) {
     final displayPackages = routine.appPackages.take(4).toList();
     final remaining = routine.appPackages.length - 4;
+    const double iconSize = 28;
+    const double overlap = 8;
+
+    final totalWidth = displayPackages.isEmpty
+        ? 0.0
+        : iconSize + (displayPackages.length - 1) * (iconSize - overlap) +
+            (remaining > 0 ? (iconSize - overlap) : 0);
 
     return Row(
       children: [
-        ...displayPackages.map((packageName) {
-          return Padding(
-            padding: const EdgeInsets.only(right: 6),
-            child: _AppIconSmall(packageName: packageName),
-          );
-        }),
-        if (remaining > 0)
-          Container(
-            width: 28,
-            height: 28,
-            decoration: BoxDecoration(
-              color: AppColors.primary.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(6),
-            ),
-            child: Center(
-              child: Text(
-                '+$remaining',
-                style: TextStyle(
-                  fontSize: 10,
-                  fontWeight: FontWeight.w600,
-                  color: AppColors.primary,
+        SizedBox(
+          width: totalWidth,
+          height: iconSize,
+          child: Stack(
+            children: [
+              ...displayPackages.asMap().entries.map((entry) {
+                final index = entry.key;
+                final packageName = entry.value;
+                return Positioned(
+                  left: index * (iconSize - overlap),
+                  child: _AppIconSmall(packageName: packageName),
+                );
+              }),
+              if (remaining > 0)
+                Positioned(
+                  left: displayPackages.length * (iconSize - overlap),
+                  child: Container(
+                    width: iconSize,
+                    height: iconSize,
+                    decoration: BoxDecoration(
+                      color: AppColors.primary.withValues(alpha: 0.1),
+                      borderRadius: BorderRadius.circular(6),
+                    ),
+                    child: Center(
+                      child: Text(
+                        '+$remaining',
+                        style: TextStyle(
+                          fontSize: 10,
+                          fontWeight: FontWeight.w600,
+                          color: AppColors.primary,
+                        ),
+                      ),
+                    ),
+                  ),
                 ),
-              ),
-            ),
-          ),
-        const Spacer(),
-        Text(
-          '${routine.appPackages.length} apps',
-          style: TextStyle(
-            fontSize: 12,
-            color: AppColors.getTextSecondary(context),
+            ],
           ),
         ),
+        const Spacer(),
+        _buildNextOccurrence(context),
       ],
+    );
+  }
+
+  Widget _buildNextOccurrence(BuildContext context) {
+    final nextText = routine.nextOccurrenceText;
+
+    if (nextText == null || !routine.isEnabled) {
+      return const SizedBox.shrink();
+    }
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      decoration: BoxDecoration(
+        color: AppColors.primary.withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(6),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(
+            Icons.schedule,
+            size: 12,
+            color: AppColors.primary,
+          ),
+          const SizedBox(width: 4),
+          Text(
+            nextText,
+            style: TextStyle(
+              fontSize: 11,
+              fontWeight: FontWeight.w500,
+              color: AppColors.primary,
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

@@ -10,7 +10,6 @@ class LimitSection extends StatelessWidget {
   final void Function(bool enabled) onToggleLimit;
   final VoidCallback onEditLimit;
   final void Function(AppLimit limit) onEditDailyOpenings;
-  final void Function(AppLimit limit) onEditWarning;
   final VoidCallback onRemoveLimit;
   final VoidCallback onSetLimit;
 
@@ -20,7 +19,6 @@ class LimitSection extends StatelessWidget {
     required this.onToggleLimit,
     required this.onEditLimit,
     required this.onEditDailyOpenings,
-    required this.onEditWarning,
     required this.onRemoveLimit,
     required this.onSetLimit,
   });
@@ -28,7 +26,7 @@ class LimitSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: AppColors.getSurface(context),
         borderRadius: BorderRadius.circular(16),
@@ -89,13 +87,6 @@ class LimitSection extends StatelessWidget {
               ? 'Disabled'
               : appLimit.dailyLimit.toReadableString(),
           onEditLimit,
-        ),
-        const SizedBox(height: 6),
-        _buildLimitRow(
-          context,
-          'Warning at',
-          '${(appLimit.warningThreshold * 100).toInt()}%',
-          () => onEditWarning(appLimit),
         ),
         const SizedBox(height: 6),
         _buildLimitRow(

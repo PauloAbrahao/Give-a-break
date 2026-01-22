@@ -14,7 +14,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$AppLimit {
 
- String get packageName; Duration get dailyLimit; double get warningThreshold; int get dailyLimitOpenings; bool get isEnabled;
+ String get packageName; Duration get dailyLimit; int get dailyLimitOpenings; bool get isEnabled;
 /// Create a copy of AppLimit
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -25,16 +25,16 @@ $AppLimitCopyWith<AppLimit> get copyWith => _$AppLimitCopyWithImpl<AppLimit>(thi
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is AppLimit&&(identical(other.packageName, packageName) || other.packageName == packageName)&&(identical(other.dailyLimit, dailyLimit) || other.dailyLimit == dailyLimit)&&(identical(other.warningThreshold, warningThreshold) || other.warningThreshold == warningThreshold)&&(identical(other.dailyLimitOpenings, dailyLimitOpenings) || other.dailyLimitOpenings == dailyLimitOpenings)&&(identical(other.isEnabled, isEnabled) || other.isEnabled == isEnabled));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is AppLimit&&(identical(other.packageName, packageName) || other.packageName == packageName)&&(identical(other.dailyLimit, dailyLimit) || other.dailyLimit == dailyLimit)&&(identical(other.dailyLimitOpenings, dailyLimitOpenings) || other.dailyLimitOpenings == dailyLimitOpenings)&&(identical(other.isEnabled, isEnabled) || other.isEnabled == isEnabled));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,packageName,dailyLimit,warningThreshold,dailyLimitOpenings,isEnabled);
+int get hashCode => Object.hash(runtimeType,packageName,dailyLimit,dailyLimitOpenings,isEnabled);
 
 @override
 String toString() {
-  return 'AppLimit(packageName: $packageName, dailyLimit: $dailyLimit, warningThreshold: $warningThreshold, dailyLimitOpenings: $dailyLimitOpenings, isEnabled: $isEnabled)';
+  return 'AppLimit(packageName: $packageName, dailyLimit: $dailyLimit, dailyLimitOpenings: $dailyLimitOpenings, isEnabled: $isEnabled)';
 }
 
 
@@ -45,7 +45,7 @@ abstract mixin class $AppLimitCopyWith<$Res>  {
   factory $AppLimitCopyWith(AppLimit value, $Res Function(AppLimit) _then) = _$AppLimitCopyWithImpl;
 @useResult
 $Res call({
- String packageName, Duration dailyLimit, double warningThreshold, int dailyLimitOpenings, bool isEnabled
+ String packageName, Duration dailyLimit, int dailyLimitOpenings, bool isEnabled
 });
 
 
@@ -62,12 +62,11 @@ class _$AppLimitCopyWithImpl<$Res>
 
 /// Create a copy of AppLimit
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? packageName = null,Object? dailyLimit = null,Object? warningThreshold = null,Object? dailyLimitOpenings = null,Object? isEnabled = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? packageName = null,Object? dailyLimit = null,Object? dailyLimitOpenings = null,Object? isEnabled = null,}) {
   return _then(_self.copyWith(
 packageName: null == packageName ? _self.packageName : packageName // ignore: cast_nullable_to_non_nullable
 as String,dailyLimit: null == dailyLimit ? _self.dailyLimit : dailyLimit // ignore: cast_nullable_to_non_nullable
-as Duration,warningThreshold: null == warningThreshold ? _self.warningThreshold : warningThreshold // ignore: cast_nullable_to_non_nullable
-as double,dailyLimitOpenings: null == dailyLimitOpenings ? _self.dailyLimitOpenings : dailyLimitOpenings // ignore: cast_nullable_to_non_nullable
+as Duration,dailyLimitOpenings: null == dailyLimitOpenings ? _self.dailyLimitOpenings : dailyLimitOpenings // ignore: cast_nullable_to_non_nullable
 as int,isEnabled: null == isEnabled ? _self.isEnabled : isEnabled // ignore: cast_nullable_to_non_nullable
 as bool,
   ));
@@ -151,10 +150,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String packageName,  Duration dailyLimit,  double warningThreshold,  int dailyLimitOpenings,  bool isEnabled)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String packageName,  Duration dailyLimit,  int dailyLimitOpenings,  bool isEnabled)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _AppLimit() when $default != null:
-return $default(_that.packageName,_that.dailyLimit,_that.warningThreshold,_that.dailyLimitOpenings,_that.isEnabled);case _:
+return $default(_that.packageName,_that.dailyLimit,_that.dailyLimitOpenings,_that.isEnabled);case _:
   return orElse();
 
 }
@@ -172,10 +171,10 @@ return $default(_that.packageName,_that.dailyLimit,_that.warningThreshold,_that.
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String packageName,  Duration dailyLimit,  double warningThreshold,  int dailyLimitOpenings,  bool isEnabled)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String packageName,  Duration dailyLimit,  int dailyLimitOpenings,  bool isEnabled)  $default,) {final _that = this;
 switch (_that) {
 case _AppLimit():
-return $default(_that.packageName,_that.dailyLimit,_that.warningThreshold,_that.dailyLimitOpenings,_that.isEnabled);}
+return $default(_that.packageName,_that.dailyLimit,_that.dailyLimitOpenings,_that.isEnabled);}
 }
 /// A variant of `when` that fallback to returning `null`
 ///
@@ -189,10 +188,10 @@ return $default(_that.packageName,_that.dailyLimit,_that.warningThreshold,_that.
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String packageName,  Duration dailyLimit,  double warningThreshold,  int dailyLimitOpenings,  bool isEnabled)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String packageName,  Duration dailyLimit,  int dailyLimitOpenings,  bool isEnabled)?  $default,) {final _that = this;
 switch (_that) {
 case _AppLimit() when $default != null:
-return $default(_that.packageName,_that.dailyLimit,_that.warningThreshold,_that.dailyLimitOpenings,_that.isEnabled);case _:
+return $default(_that.packageName,_that.dailyLimit,_that.dailyLimitOpenings,_that.isEnabled);case _:
   return null;
 
 }
@@ -204,12 +203,11 @@ return $default(_that.packageName,_that.dailyLimit,_that.warningThreshold,_that.
 
 
 class _AppLimit implements AppLimit {
-  const _AppLimit({required this.packageName, required this.dailyLimit, this.warningThreshold = 0.8, this.dailyLimitOpenings = 0, this.isEnabled = true});
+  const _AppLimit({required this.packageName, required this.dailyLimit, this.dailyLimitOpenings = 0, this.isEnabled = true});
   
 
 @override final  String packageName;
 @override final  Duration dailyLimit;
-@override@JsonKey() final  double warningThreshold;
 @override@JsonKey() final  int dailyLimitOpenings;
 @override@JsonKey() final  bool isEnabled;
 
@@ -223,16 +221,16 @@ _$AppLimitCopyWith<_AppLimit> get copyWith => __$AppLimitCopyWithImpl<_AppLimit>
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _AppLimit&&(identical(other.packageName, packageName) || other.packageName == packageName)&&(identical(other.dailyLimit, dailyLimit) || other.dailyLimit == dailyLimit)&&(identical(other.warningThreshold, warningThreshold) || other.warningThreshold == warningThreshold)&&(identical(other.dailyLimitOpenings, dailyLimitOpenings) || other.dailyLimitOpenings == dailyLimitOpenings)&&(identical(other.isEnabled, isEnabled) || other.isEnabled == isEnabled));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _AppLimit&&(identical(other.packageName, packageName) || other.packageName == packageName)&&(identical(other.dailyLimit, dailyLimit) || other.dailyLimit == dailyLimit)&&(identical(other.dailyLimitOpenings, dailyLimitOpenings) || other.dailyLimitOpenings == dailyLimitOpenings)&&(identical(other.isEnabled, isEnabled) || other.isEnabled == isEnabled));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,packageName,dailyLimit,warningThreshold,dailyLimitOpenings,isEnabled);
+int get hashCode => Object.hash(runtimeType,packageName,dailyLimit,dailyLimitOpenings,isEnabled);
 
 @override
 String toString() {
-  return 'AppLimit(packageName: $packageName, dailyLimit: $dailyLimit, warningThreshold: $warningThreshold, dailyLimitOpenings: $dailyLimitOpenings, isEnabled: $isEnabled)';
+  return 'AppLimit(packageName: $packageName, dailyLimit: $dailyLimit, dailyLimitOpenings: $dailyLimitOpenings, isEnabled: $isEnabled)';
 }
 
 
@@ -243,7 +241,7 @@ abstract mixin class _$AppLimitCopyWith<$Res> implements $AppLimitCopyWith<$Res>
   factory _$AppLimitCopyWith(_AppLimit value, $Res Function(_AppLimit) _then) = __$AppLimitCopyWithImpl;
 @override @useResult
 $Res call({
- String packageName, Duration dailyLimit, double warningThreshold, int dailyLimitOpenings, bool isEnabled
+ String packageName, Duration dailyLimit, int dailyLimitOpenings, bool isEnabled
 });
 
 
@@ -260,12 +258,11 @@ class __$AppLimitCopyWithImpl<$Res>
 
 /// Create a copy of AppLimit
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? packageName = null,Object? dailyLimit = null,Object? warningThreshold = null,Object? dailyLimitOpenings = null,Object? isEnabled = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? packageName = null,Object? dailyLimit = null,Object? dailyLimitOpenings = null,Object? isEnabled = null,}) {
   return _then(_AppLimit(
 packageName: null == packageName ? _self.packageName : packageName // ignore: cast_nullable_to_non_nullable
 as String,dailyLimit: null == dailyLimit ? _self.dailyLimit : dailyLimit // ignore: cast_nullable_to_non_nullable
-as Duration,warningThreshold: null == warningThreshold ? _self.warningThreshold : warningThreshold // ignore: cast_nullable_to_non_nullable
-as double,dailyLimitOpenings: null == dailyLimitOpenings ? _self.dailyLimitOpenings : dailyLimitOpenings // ignore: cast_nullable_to_non_nullable
+as Duration,dailyLimitOpenings: null == dailyLimitOpenings ? _self.dailyLimitOpenings : dailyLimitOpenings // ignore: cast_nullable_to_non_nullable
 as int,isEnabled: null == isEnabled ? _self.isEnabled : isEnabled // ignore: cast_nullable_to_non_nullable
 as bool,
   ));

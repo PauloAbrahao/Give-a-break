@@ -7,7 +7,6 @@ sealed class AppLimit with _$AppLimit {
   const factory AppLimit({
     required String packageName,
     required Duration dailyLimit,
-    @Default(0.8) double warningThreshold,
     @Default(0) int dailyLimitOpenings,
     @Default(true) bool isEnabled,
   }) = _AppLimit;

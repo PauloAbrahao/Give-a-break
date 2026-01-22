@@ -1,8 +1,28 @@
+import 'dart:async';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../core/extensions/routine_extensions.dart';
 import '../../data/repositories/routine_repository.dart';
 import '../../domain/entities/app_limit.dart';
 import '../../domain/entities/routine.dart';
 import 'app_limit_provider.dart';
+
+final routineTickerProvider = StreamProvider<DateTime>((ref) {
+  final controller = StreamController<DateTime>();
+
+  controller.add(DateTime.now());
+
+  final timer = Timer.periodic(const Duration(minutes: 1), (_) {
+    controller.add(DateTime.now());
+  });
+
+  ref.onDispose(() {
+    timer.cancel();
+    controller.close();
+  });
+
+  return controller.stream;
+});
 
 final routineRepositoryProvider =
     FutureProvider<RoutineRepository>((ref) async {
@@ -154,4 +174,32 @@ final appsInRoutinesProvider =
   }
 
   return appsInRoutines;
+});
+
+final currentlyRunningRoutinesProvider = FutureProvider<List<Routine>>((ref) async {
+  ref.watch(routineTickerProvider);
+  final routines = await ref.watch(activeRoutinesProvider.future);
+  return routines.where((r) => r.isCurrentlyRunning).toList();
+});
+
+final upcomingRoutinesProvider = FutureProvider<List<Routine>>((ref) async {
+  ref.watch(routineTickerProvider);
+  final routines = await ref.watch(activeRoutinesProvider.future);
+  final upcoming = routines.where((r) => r.isEnabled && !r.isCurrentlyRunning).toList();
+
+  upcoming.sort((a, b) {
+    final aNext = a.nextOccurrence;
+    final bNext = b.nextOccurrence;
+    if (aNext == null && bNext == null) return 0;
+    if (aNext == null) return 1;
+    if (bNext == null) return -1;
+    return aNext.compareTo(bNext);
+  });
+
+  return upcoming;
+});
+
+final disabledRoutinesProvider = FutureProvider<List<Routine>>((ref) async {
+  final routines = await ref.watch(activeRoutinesProvider.future);
+  return routines.where((r) => !r.isEnabled).toList();
 });

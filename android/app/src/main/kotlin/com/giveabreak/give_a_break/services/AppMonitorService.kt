@@ -91,13 +91,6 @@ class AppMonitorService : Service() {
                     result.limitSeconds
                 )
             }
-            is LimitChecker.CheckResult.WarningThreshold -> {
-                limitChecker.handleWarningThreshold(
-                    foregroundPackage,
-                    result.usedSeconds,
-                    result.limitSeconds
-                )
-            }
             LimitChecker.CheckResult.NoLimit,
             LimitChecker.CheckResult.RoutineInactive,
             LimitChecker.CheckResult.WithinLimit -> {

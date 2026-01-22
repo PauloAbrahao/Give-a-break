@@ -4,6 +4,5 @@ data class AppLimit(
     val packageName: String,
     val dailyLimitSeconds: Int,
     val dailyLimitOpenings: Int = 0,
-    val isEnabled: Boolean,
-    val warningThreshold: Double = 0.8
+    val isEnabled: Boolean
 )

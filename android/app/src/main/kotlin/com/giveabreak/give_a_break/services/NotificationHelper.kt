@@ -18,7 +18,6 @@ class NotificationHelper(private val context: Context) {
         const val FOREGROUND_NOTIFICATION_ID = 1001
 
         private const val WARNING_CHANNEL_ID = "app_limit_warning"
-        private const val APPROACHING_CHANNEL_ID = "app_limit_approaching"
     }
 
     private val notificationManager: NotificationManager
@@ -78,30 +77,6 @@ class NotificationHelper(private val context: Context) {
         }
     }
 
-    fun showWarningNotification(packageName: String, usedSeconds: Int, limitSeconds: Int) {
-        createApproachingChannel()
-
-        val appName = getAppName(packageName)
-        val remainingSeconds = limitSeconds - usedSeconds
-        val remainingTime = formatSeconds(remainingSeconds)
-
-        val pendingIntent = createMainActivityIntent()
-
-        val notification = NotificationCompat.Builder(context, APPROACHING_CHANNEL_ID)
-            .setContentTitle("⚠️ $appName - Limit approaching")
-            .setContentText("$remainingTime remaining before your daily limit")
-            .setSmallIcon(android.R.drawable.ic_dialog_info)
-            .setContentIntent(pendingIntent)
-            .setAutoCancel(true)
-            .setPriority(NotificationCompat.PRIORITY_HIGH)
-            .setCategory(NotificationCompat.CATEGORY_REMINDER)
-            .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
-            .setVibrate(longArrayOf(0, 300, 150, 300))
-            .build()
-
-        notificationManager.notify(packageName.hashCode(), notification)
-    }
-
     private fun showHeadsUpNotification(appName: String, usedSeconds: Int, limitSeconds: Int) {
         createWarningChannel()
 
@@ -134,23 +109,6 @@ class NotificationHelper(private val context: Context) {
                 description = "Notifications when app usage exceeds limits"
                 enableVibration(true)
                 vibrationPattern = longArrayOf(0, 500, 200, 500)
-                setShowBadge(true)
-                lockscreenVisibility = Notification.VISIBILITY_PUBLIC
-            }
-            notificationManager.createNotificationChannel(channel)
-        }
-    }
-
-    private fun createApproachingChannel() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val channel = NotificationChannel(
-                APPROACHING_CHANNEL_ID,
-                "App Limit Approaching",
-                NotificationManager.IMPORTANCE_HIGH
-            ).apply {
-                description = "Notifications when approaching app usage limits"
-                enableVibration(true)
-                vibrationPattern = longArrayOf(0, 300, 150, 300)
                 setShowBadge(true)
                 lockscreenVisibility = Notification.VISIBILITY_PUBLIC
             }

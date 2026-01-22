@@ -13,7 +13,6 @@ import 'widgets/app_header.dart';
 import 'widgets/usage_section.dart';
 import 'widgets/limit_section.dart';
 import 'widgets/time_limit_picker.dart';
-import 'widgets/warning_threshold_picker.dart';
 import 'widgets/daily_openings_picker.dart';
 
 class AppDetailScreen extends ConsumerStatefulWidget {
@@ -58,7 +57,7 @@ class _AppDetailScreenState extends ConsumerState<AppDetailScreen> {
               usageToday: usageToday,
               limit: limit,
             ),
-            const SizedBox(height: 24),
+            const SizedBox(height: 12),
             activeRoutine.when(
               data: (routine) {
                 if (routine != null) {
@@ -72,7 +71,6 @@ class _AppDetailScreenState extends ConsumerState<AppDetailScreen> {
                         .toggleLimit(widget.packageName, enabled);
                   },
                   onEditLimit: () => _showTimePicker(limit.valueOrNull),
-                  onEditWarning: (appLimit) => _showWarningPicker(appLimit),
                   onEditDailyOpenings: (appLimit) => _showDailyOpeningsPicker(appLimit),
                   onRemoveLimit: _removeLimit,
                   onSetLimit: () => _showTimePicker(null),
@@ -175,26 +173,6 @@ class _AppDetailScreenState extends ConsumerState<AppDetailScreen> {
               packageName: widget.packageName,
               dailyLimit: result,
             );
-      ref.read(appLimitNotifierProvider.notifier).setLimit(newLimit);
-    }
-  }
-
-  Future<void> _showWarningPicker(AppLimit existingLimit) async {
-    final initialPercentage = (existingLimit.warningThreshold * 100).toInt();
-
-    final result = await showModalBottomSheet<int>(
-      context: context,
-      barrierColor: Colors.black.withValues(alpha: 0.8),
-      backgroundColor: Colors.transparent,
-      isScrollControlled: true,
-      builder: (context) => WarningThresholdPicker(
-        initialPercentage: initialPercentage,
-        dailyLimit: existingLimit.dailyLimit,
-      ),
-    );
-
-    if (result != null) {
-      final newLimit = existingLimit.copyWith(warningThreshold: result / 100.0);
       ref.read(appLimitNotifierProvider.notifier).setLimit(newLimit);
     }
   }

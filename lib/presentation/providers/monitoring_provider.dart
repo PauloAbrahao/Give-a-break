@@ -79,13 +79,9 @@ class MonitoringNotifier extends StateNotifier<MonitoringState> {
     if (dailyLimit.inSeconds == 0) return;
 
     final usageToday = await _usageRepository.getAppUsageToday(packageName);
-    final warningThreshold = limit.warningThreshold;
 
-    // Calculate the warning time based on threshold (e.g., 80% of daily limit)
-    final warningTime = dailyLimit * warningThreshold;
-
-    // Check if usage reached the warning threshold
-    if (usageToday >= warningTime) {
+    // Check if usage reached the daily limit
+    if (usageToday >= dailyLimit) {
       // Trigger overlay
       _ref.read(overlayTriggerProvider.notifier).triggerOverlay(
             packageName: packageName,

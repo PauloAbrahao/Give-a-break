@@ -13,18 +13,10 @@ class LimitChecker(context: Context) {
     private val notificationHelper = NotificationHelper(context)
 
     private var lastOverlayShownForResumeTime: Long = 0
-    private var lastWarningShownTime: Long = 0
-    private var lastWarningShownPackage: String? = null
-
-    companion object {
-        private const val DEFAULT_WARNING_THRESHOLD = 0.8
-        private const val WARNING_COOLDOWN_MS = 200
-    }
 
     data class LimitConfig(
         val dailyLimitSeconds: Int,
-        val dailyLimitOpenings: Int,
-        val warningThreshold: Double
+        val dailyLimitOpenings: Int
     )
 
     sealed class CheckResult {
@@ -32,7 +24,6 @@ class LimitChecker(context: Context) {
         object RoutineInactive : CheckResult()
         object WithinLimit : CheckResult()
         data class LimitExceeded(val usedSeconds: Int, val limitSeconds: Int) : CheckResult()
-        data class WarningThreshold(val usedSeconds: Int, val limitSeconds: Int) : CheckResult()
     }
 
     fun checkApp(packageName: String): CheckResult {
@@ -50,8 +41,7 @@ class LimitChecker(context: Context) {
                 packageName,
                 LimitConfig(
                     dailyLimitSeconds = routine.dailyLimitSeconds,
-                    dailyLimitOpenings = routine.dailyLimitOpenings,
-                    warningThreshold = DEFAULT_WARNING_THRESHOLD
+                    dailyLimitOpenings = routine.dailyLimitOpenings
                 )
             )
         }
@@ -66,8 +56,7 @@ class LimitChecker(context: Context) {
             packageName,
             LimitConfig(
                 dailyLimitSeconds = limit.dailyLimitSeconds,
-                dailyLimitOpenings = limit.dailyLimitOpenings,
-                warningThreshold = limit.warningThreshold
+                dailyLimitOpenings = limit.dailyLimitOpenings
             )
         )
     }
@@ -85,14 +74,6 @@ class LimitChecker(context: Context) {
             return CheckResult.LimitExceeded(usageTodaySeconds, config.dailyLimitSeconds)
         }
 
-        // Check warning threshold
-        if (config.dailyLimitSeconds > 0) {
-            val warningTimeSeconds = (config.dailyLimitSeconds * config.warningThreshold).toInt()
-            if (usageTodaySeconds >= warningTimeSeconds) {
-                return CheckResult.WarningThreshold(usageTodaySeconds, config.dailyLimitSeconds)
-            }
-        }
-
         return CheckResult.WithinLimit
     }
 
@@ -104,18 +85,6 @@ class LimitChecker(context: Context) {
             lastOverlayShownForResumeTime = lastResumeTime
             val openCount = usageStatsHelper.getAppOpenCountToday(packageName)
             notificationHelper.showOverlay(packageName, usedSeconds, limitSeconds, openCount)
-        }
-    }
-
-    fun handleWarningThreshold(packageName: String, usedSeconds: Int, limitSeconds: Int) {
-        val lastResumeTime = usageStatsHelper.getLastResumeTime(packageName)
-        val appResumedAfterLastWarning = lastResumeTime > lastWarningShownTime + WARNING_COOLDOWN_MS
-        val isDifferentApp = packageName != lastWarningShownPackage
-
-        if (appResumedAfterLastWarning || isDifferentApp) {
-            lastWarningShownTime = System.currentTimeMillis()
-            lastWarningShownPackage = packageName
-            notificationHelper.showWarningNotification(packageName, usedSeconds, limitSeconds)
         }
     }
 

@@ -147,7 +147,7 @@ class _CreateRoutineDialogState extends ConsumerState<CreateRoutineDialog> {
       label: 'Description',
       hint: 'Routine Description',
       controller: _descriptionController,
-      maxLength: 90,
+      maxLength: 32,
       maxLines: 2,
     );
   }

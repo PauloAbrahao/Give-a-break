@@ -62,7 +62,6 @@ class AppLimitRepository {
         'dailyLimitSeconds': limit.dailyLimit.inSeconds,
         'dailyLimitOpenings': limit.dailyLimitOpenings,
         'isEnabled': limit.isEnabled,
-        'warningThreshold': limit.warningThreshold,
       }).toList();
       await prefs.setString(_sharedPrefsKey, jsonEncode(limitsJson));
     } catch (e) {
