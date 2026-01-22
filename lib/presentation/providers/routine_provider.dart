@@ -66,9 +66,15 @@ class RoutineNotifier extends StateNotifier<AsyncValue<List<Routine>>> {
   }
 
   Future<void> _syncAppLimitsFromRoutine(Routine routine) async {
-    if (!routine.isEnabled) return;
-
     final limitNotifier = _ref.read(appLimitNotifierProvider.notifier);
+
+    if (!routine.isEnabled) {
+      for (final packageName in routine.appPackages) {
+        await limitNotifier.toggleLimit(packageName, false);
+      }
+      return;
+    }
+
     for (final packageName in routine.appPackages) {
       final limit = AppLimit(
         packageName: packageName,
@@ -96,11 +102,16 @@ class RoutineNotifier extends StateNotifier<AsyncValue<List<Routine>>> {
 
   Future<void> toggleRoutine(String id, bool enabled) async {
     if (_repository == null) return;
+    final routine = _repository.getRoutine(id);
     await _repository.toggleRoutine(id, enabled);
-    if (enabled) {
-      final routine = _repository.getRoutine(id);
-      if (routine != null) {
+    if (routine != null) {
+      if (enabled) {
         await _syncAppLimitsFromRoutine(routine);
+      } else {
+        final limitNotifier = _ref.read(appLimitNotifierProvider.notifier);
+        for (final packageName in routine.appPackages) {
+          await limitNotifier.toggleLimit(packageName, false);
+        }
       }
     }
     _invalidateAll();

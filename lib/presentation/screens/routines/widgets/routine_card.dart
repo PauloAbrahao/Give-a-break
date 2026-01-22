@@ -137,7 +137,7 @@ class RoutineCard extends ConsumerWidget {
                     width: iconSize,
                     height: iconSize,
                     decoration: BoxDecoration(
-                      color: AppColors.primary.withValues(alpha: 0.1),
+                      color: AppColors.getSurfaceVariant(context),
                       borderRadius: BorderRadius.circular(6),
                     ),
                     child: Center(
