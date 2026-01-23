@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import '../../../../../core/constants/app_colors.dart';
 import '../../../../../core/extensions/routine_extensions.dart';
 import '../../../../../domain/entities/routine.dart';
 import '../../../../providers/installed_apps_provider.dart';
+import '../overlay/overlay_icon_option.dart';
 import 'days_display.dart';
 
 class RoutineCard extends ConsumerWidget {
@@ -59,25 +61,51 @@ class RoutineCard extends ConsumerWidget {
   }
 
   Widget _buildHeader(BuildContext context, WidgetRef ref) {
+    final iconAsset = OverlayIconOption.getAssetForIcon(routine.overlayIcon);
+    final accentColor = _parseColor(routine.overlayColor);
+
     return Row(
       children: [
         Container(
-          width: 8,
-          height: 8,
-          margin: const EdgeInsets.only(right: 10),
+          width: 40,
+          height: 40,
+          margin: const EdgeInsets.only(right: 12),
           decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            color: routine.isEnabled ? AppColors.success : Colors.grey,
+            color: accentColor.withValues(alpha: 0.1),
+            borderRadius: BorderRadius.circular(10),
+          ),
+          child: Center(
+            child: iconAsset != null
+                ? SvgPicture.asset(
+                    iconAsset,
+                    width: 22,
+                    height: 22,
+                    colorFilter: ColorFilter.mode(
+                      accentColor,
+                      BlendMode.srcIn,
+                    ),
+                  )
+                : Icon(
+                    Icons.schedule,
+                    size: 22,
+                    color: accentColor,
+                  ),
           ),
         ),
         Expanded(
-          child: Text(
-            routine.name,
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.w600,
-              color: AppColors.getTextPrimary(context),
-            ),
+          child: Row(
+            children: [
+              Expanded(
+                child: Text(
+                  routine.name,
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.getTextPrimary(context),
+                  ),
+                ),
+              ),
+            ],
           ),
         ),
         Container(
@@ -102,6 +130,12 @@ class RoutineCard extends ConsumerWidget {
         ),
       ],
     );
+  }
+
+  Color _parseColor(String? hex) {
+    if (hex == null) return AppColors.primary;
+    final hexColor = hex.replaceAll('#', '');
+    return Color(int.parse('FF$hexColor', radix: 16));
   }
 
   Widget _buildAppsRow(BuildContext context, WidgetRef ref) {

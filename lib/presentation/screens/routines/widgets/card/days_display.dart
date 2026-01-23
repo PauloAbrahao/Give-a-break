@@ -8,7 +8,7 @@ class DaysDisplay extends StatelessWidget {
   const DaysDisplay({
     super.key,
     required this.selectedDays,
-    this.size = 28,
+    this.size = 22,
   });
 
   static const List<String> dayLabels = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];

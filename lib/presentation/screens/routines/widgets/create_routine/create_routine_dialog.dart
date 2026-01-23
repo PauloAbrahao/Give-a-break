@@ -128,7 +128,7 @@ class _CreateRoutineDialogState extends ConsumerState<CreateRoutineDialog> {
                   const SizedBox(height: 24),
                   _buildLimitsSelector(),
                   const SizedBox(height: 24),
-                  _buildAdvancedSettingsSection(),
+                  _buildCustomSettingsSection(),
                   const SizedBox(height: 24),
                   _buildEnabledSwitch(),
                   const SizedBox(height: 32),
@@ -195,7 +195,7 @@ class _CreateRoutineDialogState extends ConsumerState<CreateRoutineDialog> {
     );
   }
 
-  Widget _buildAdvancedSettingsSection() {
+  Widget _buildCustomSettingsSection() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -217,7 +217,7 @@ class _CreateRoutineDialogState extends ConsumerState<CreateRoutineDialog> {
                 const SizedBox(width: 12),
                 Expanded(
                   child: Text(
-                    'Advanced Settings',
+                    'Custom Settings',
                     style: TextStyle(
                       color: AppColors.getTextPrimary(context),
                       fontSize: 14,

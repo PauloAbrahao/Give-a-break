@@ -21,7 +21,16 @@ class OverlayIconOption {
     OverlayIconOption(name: 'Movie', icon: 'movie', asset: 'assets/icons/movie.svg'),
     OverlayIconOption(name: 'Car', icon: 'car', asset: 'assets/icons/car.svg'),
     OverlayIconOption(name: 'Gym', icon: 'gym', asset: 'assets/icons/gym.svg'),
+    OverlayIconOption(name: 'Battery', icon: 'battery', asset: 'assets/icons/battery.svg'),
+    OverlayIconOption(name: 'Game', icon: 'game', asset: 'assets/icons/game.svg'),
+    OverlayIconOption(name: 'Sun', icon: 'sun', asset: 'assets/icons/sun.svg'),
   ];
 
   static String get defaultIcon => options.first.icon;
+
+  static String? getAssetForIcon(String? iconName) {
+    if (iconName == null) return null;
+    final option = options.where((o) => o.icon == iconName).firstOrNull;
+    return option?.asset;
+  }
 }

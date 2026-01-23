@@ -48,7 +48,10 @@ class OverlayService : Service() {
             "food" to R.drawable.ic_food,
             "movie" to R.drawable.ic_movie,
             "car" to R.drawable.ic_car,
-            "gym" to R.drawable.ic_gym
+            "gym" to R.drawable.ic_gym,
+            "battery" to R.drawable.ic_battery,
+            "game" to R.drawable.ic_game,
+            "sun" to R.drawable.ic_sun
         )
 
         private const val DEFAULT_ICON_RESOURCE = R.drawable.ic_clock

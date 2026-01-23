@@ -145,7 +145,7 @@ class RoutinesScreen extends ConsumerWidget {
             context,
             title: 'Active Now',
             icon: Icons.play_circle_outline,
-            color: AppColors.success,
+            color: AppColors.success.withOpacity(0.6),
           ),
           const SizedBox(height: 12),
           ...currentlyRunning.map(
@@ -161,7 +161,7 @@ class RoutinesScreen extends ConsumerWidget {
             context,
             title: 'Upcoming',
             icon: Icons.schedule_outlined,
-            color: AppColors.primary,
+            color: AppColors.primary.withOpacity(0.6),
           ),
           const SizedBox(height: 12),
           ...upcoming.map(
@@ -177,7 +177,7 @@ class RoutinesScreen extends ConsumerWidget {
             context,
             title: 'Disabled',
             icon: Icons.pause_circle_outline,
-            color: AppColors.getTextSecondary(context),
+            color: AppColors.getTextSecondary(context).withOpacity(0.6),
           ),
           const SizedBox(height: 12),
           ...disabled.map(
