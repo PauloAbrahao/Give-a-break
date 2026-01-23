@@ -56,8 +56,9 @@ class _AppDetailScreenState extends ConsumerState<AppDetailScreen> {
             UsageSection(
               usageToday: usageToday,
               limit: limit,
+              activeRoutine: activeRoutine,
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 4),
             activeRoutine.when(
               data: (routine) {
                 if (routine != null) {
@@ -142,10 +143,6 @@ class _AppDetailScreenState extends ConsumerState<AppDetailScreen> {
 
   Widget _buildLimitChip(String label) {
     return Container(
-      decoration: BoxDecoration(
-        color: AppColors.getSurface(context),
-        borderRadius: BorderRadius.circular(8),
-      ),
       child: Text(label, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w500)),
     );
   }

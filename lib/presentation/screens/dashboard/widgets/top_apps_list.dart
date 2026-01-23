@@ -122,7 +122,7 @@ class TopAppsList extends ConsumerWidget {
                       value: progress,
                       backgroundColor: AppColors.getSurfaceVariant(context),
                       valueColor: AlwaysStoppedAnimation<Color>(
-                        _getColorForProgress(progress),
+                        _getColorForDuration(duration),
                       ),
                       minHeight: 6,
                     ),
@@ -172,9 +172,9 @@ class TopAppsList extends ConsumerWidget {
     );
   }
 
-  Color _getColorForProgress(double progress) {
-    if (progress > 0.8) return AppColors.usageHigh;
-    if (progress > 0.5) return AppColors.usageMedium;
+  Color _getColorForDuration(Duration duration) {
+    if (duration.inMinutes >= 60) return AppColors.usageHigh;
+    if (duration.inMinutes >= 30) return AppColors.usageMedium;
     return AppColors.usageLow;
   }
 

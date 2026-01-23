@@ -48,9 +48,9 @@ class RoutineCard extends ConsumerWidget {
                     overflow: TextOverflow.ellipsis,
                   ),
                 ],
-                const SizedBox(height: 12),
+                const SizedBox(height: 16),
                 DaysDisplay(selectedDays: routine.days),
-                const SizedBox(height: 20),
+                const SizedBox(height: 16),
                 _buildAppsRow(context, ref),
               ],
             ),
@@ -73,6 +73,7 @@ class RoutineCard extends ConsumerWidget {
           decoration: BoxDecoration(
             color: accentColor.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(10),
+            border: Border.all(color: accentColor.withValues(alpha: 0.2)),
           ),
           child: Center(
             child: iconAsset != null
@@ -144,51 +145,49 @@ class RoutineCard extends ConsumerWidget {
     const double iconSize = 28;
     const double overlap = 8;
 
-    final totalWidth = displayPackages.isEmpty
+    final stackWidth = displayPackages.isEmpty
         ? 0.0
-        : iconSize + (displayPackages.length - 1) * (iconSize - overlap) +
-            (remaining > 0 ? (iconSize - overlap) : 0);
+        : iconSize + (displayPackages.length - 1) * (iconSize - overlap);
 
     return Row(
       children: [
-        SizedBox(
-          width: totalWidth,
-          height: iconSize,
-          child: Stack(
-            children: [
-              ...displayPackages.asMap().entries.map((entry) {
-                final index = entry.key;
-                final packageName = entry.value;
-                return Positioned(
-                  left: index * (iconSize - overlap),
-                  child: _AppIconSmall(packageName: packageName),
-                );
-              }),
-              if (remaining > 0)
-                Positioned(
-                  left: displayPackages.length * (iconSize - overlap),
-                  child: Container(
-                    width: iconSize,
-                    height: iconSize,
-                    decoration: BoxDecoration(
-                      color: AppColors.getSurfaceVariant(context),
-                      borderRadius: BorderRadius.circular(6),
-                    ),
-                    child: Center(
-                      child: Text(
-                        '+$remaining',
-                        style: TextStyle(
-                          fontSize: 10,
-                          fontWeight: FontWeight.w600,
-                          color: AppColors.primary,
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-            ],
+        if (displayPackages.isNotEmpty)
+          SizedBox(
+            width: stackWidth,
+            height: iconSize,
+            child: Stack(
+              children: [
+                ...displayPackages.asMap().entries.map((entry) {
+                  final index = entry.key;
+                  final packageName = entry.value;
+                  return Positioned(
+                    left: index * (iconSize - overlap),
+                    child: _AppIconSmall(packageName: packageName),
+                  );
+                }),
+              ],
+            ),
           ),
-        ),
+        if (remaining > 0)
+          Container(
+            width: iconSize,
+            height: iconSize,
+            margin: const EdgeInsets.only(left: 6),
+            decoration: BoxDecoration(
+              color: AppColors.getSurfaceVariant(context),
+              borderRadius: BorderRadius.circular(6),
+            ),
+            child: Center(
+              child: Text(
+                '+$remaining',
+                style: TextStyle(
+                  fontSize: 10,
+                  fontWeight: FontWeight.w600,
+                  color: AppColors.primary,
+                ),
+              ),
+            ),
+          ),
         const Spacer(),
         _buildNextOccurrence(context),
       ],

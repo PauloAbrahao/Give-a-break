@@ -318,6 +318,8 @@ class _CreateRoutineDialogState extends ConsumerState<CreateRoutineDialog> {
 
     if (!mounted) return;
 
+    final previousApps = Set<String>.from(_selectedApps);
+
     final result = await Navigator.push<Set<String>>(
       context,
       MaterialPageRoute(
@@ -328,7 +330,18 @@ class _CreateRoutineDialogState extends ConsumerState<CreateRoutineDialog> {
       ),
     );
 
-    if (result != null) setState(() => _selectedApps = result);
+    if (result != null) {
+      final removedApps = previousApps.difference(result);
+
+      if (removedApps.isNotEmpty) {
+        final limitNotifier = ref.read(appLimitNotifierProvider.notifier);
+        for (final packageName in removedApps) {
+          await limitNotifier.removeLimit(packageName);
+        }
+      }
+
+      setState(() => _selectedApps = result);
+    }
   }
 
   void _handleArchive() {

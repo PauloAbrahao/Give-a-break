@@ -5,15 +5,18 @@ import '../../../../core/constants/app_strings.dart';
 import '../../../../core/extensions/duration_extensions.dart';
 import '../../../../domain/entities/app_limit.dart';
 import '../../../../domain/entities/app_usage.dart';
+import '../../../../domain/entities/routine.dart';
 
 class UsageSection extends StatelessWidget {
   final AsyncValue<AppUsage?> usageToday;
   final AsyncValue<AppLimit?> limit;
+  final AsyncValue<Routine?>? activeRoutine;
 
   const UsageSection({
     super.key,
     required this.usageToday,
     required this.limit,
+    this.activeRoutine,
   });
 
   @override
@@ -34,7 +37,7 @@ class UsageSection extends StatelessWidget {
               color: AppColors.getTextSecondary(context),
             ),
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 4),
           usageToday.when(
             data: (usage) => _buildUsageContent(context, usage),
             loading: () => const CircularProgressIndicator(),
@@ -54,7 +57,7 @@ class UsageSection extends StatelessWidget {
       children: [
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          crossAxisAlignment: CrossAxisAlignment.end,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Text(
               duration.toReadableString(),
@@ -83,27 +86,54 @@ class UsageSection extends StatelessWidget {
             ),
           ],
         ),
-        limit.when(
-          data: (appLimit) {
-            if (appLimit == null || appLimit.dailyLimit.inSeconds == 0) {
-              return const SizedBox.shrink();
-            }
-            return _buildProgressIndicator(context, duration, appLimit);
-          },
-          loading: () => const SizedBox.shrink(),
-          error: (_, __) => const SizedBox.shrink(),
-        ),
+        _buildProgressFromLimitOrRoutine(context, duration),
       ],
+    );
+  }
+
+  Widget _buildProgressFromLimitOrRoutine(BuildContext context, Duration duration) {
+    if (activeRoutine != null) {
+      return activeRoutine!.when(
+        data: (routine) {
+          if (routine != null && routine.dailyLimit.inSeconds > 0) {
+            return _buildProgressIndicator(
+              context,
+              duration,
+              routine.dailyLimit,
+              isFromRoutine: true,
+            );
+          }
+          return _buildProgressFromIndividualLimit(context, duration);
+        },
+        loading: () => const SizedBox.shrink(),
+        error: (_, __) => _buildProgressFromIndividualLimit(context, duration),
+      );
+    }
+
+    return _buildProgressFromIndividualLimit(context, duration);
+  }
+
+  Widget _buildProgressFromIndividualLimit(BuildContext context, Duration duration) {
+    return limit.when(
+      data: (appLimit) {
+        if (appLimit == null || appLimit.dailyLimit.inSeconds == 0) {
+          return const SizedBox.shrink();
+        }
+        return _buildProgressIndicator(context, duration, appLimit.dailyLimit);
+      },
+      loading: () => const SizedBox.shrink(),
+      error: (_, __) => const SizedBox.shrink(),
     );
   }
 
   Widget _buildProgressIndicator(
     BuildContext context,
     Duration duration,
-    AppLimit appLimit,
-  ) {
-    final progress = appLimit.dailyLimit.inSeconds > 0
-        ? duration.inSeconds / appLimit.dailyLimit.inSeconds
+    Duration dailyLimit, {
+    bool isFromRoutine = false,
+  }) {
+    final progress = dailyLimit.inSeconds > 0
+        ? duration.inSeconds / dailyLimit.inSeconds
         : 0.0;
 
     return Column(
@@ -114,7 +144,7 @@ class UsageSection extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(
-              'Limit: ${appLimit.dailyLimit.toReadableString()}',
+              'Limit: ${dailyLimit.toReadableString()}',
               style: TextStyle(
                 fontSize: 12,
                 color: AppColors.getTextSecondary(context),
@@ -122,7 +152,7 @@ class UsageSection extends StatelessWidget {
             ),
             Text(
               progress > 1
-                  ? '${(duration.inMinutes - appLimit.dailyLimit.inMinutes)} min over limit'
+                  ? '${(duration.inMinutes - dailyLimit.inMinutes)} min over limit'
                   : '${(progress * 100).toInt()}% used',
               style: TextStyle(
                 fontSize: 12,

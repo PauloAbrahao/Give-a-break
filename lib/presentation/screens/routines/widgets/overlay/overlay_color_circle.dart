@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:give_a_break/core/constants/app_colors.dart';
 
 class OverlayColorCircle extends StatelessWidget {
   final String color;
@@ -25,8 +26,19 @@ class OverlayColorCircle extends StatelessWidget {
         decoration: BoxDecoration(
           color: colorValue,
           borderRadius: BorderRadius.circular(10),
-          border: isSelected ? Border.all(color: Colors.white, width: 2) : null,
         ),
+        child: isSelected
+            ? Center(
+                child: Container(
+                  width: 16,
+                  height: 16,
+                  decoration: BoxDecoration(
+                    color: AppColors.getBackground(context),
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                ),
+              )
+            : null,
       ),
     );
   }
