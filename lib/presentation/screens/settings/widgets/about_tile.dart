@@ -12,12 +12,12 @@ class AboutTile extends StatelessWidget {
         width: 40,
         height: 40,
         decoration: BoxDecoration(
-          color: AppColors.success.withValues(alpha: 0.1),
+          color: AppColors.primary.withValues(alpha: 0.1),
           borderRadius: BorderRadius.circular(10),
         ),
         child: const Icon(
           Icons.info_outline,
-          color: AppColors.success,
+          color: AppColors.primary,
         ),
       ),
       title: const Text(AppStrings.appName),

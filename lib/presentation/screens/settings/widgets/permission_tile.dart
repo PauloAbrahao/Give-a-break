@@ -24,13 +24,12 @@ class PermissionTile extends StatelessWidget {
         width: 40,
         height: 40,
         decoration: BoxDecoration(
-          color: (isGranted ? AppColors.success : AppColors.primary)
-              .withValues(alpha: 0.1),
+          color: AppColors.primary.withValues(alpha: 0.1),
           borderRadius: BorderRadius.circular(10),
         ),
         child: Icon(
           icon,
-          color: isGranted ? AppColors.success : AppColors.primary,
+          color: AppColors.primary,
         ),
       ),
       title: Text(title),

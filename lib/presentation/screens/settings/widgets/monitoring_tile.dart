@@ -18,13 +18,13 @@ class MonitoringTile extends StatelessWidget {
         width: 40,
         height: 40,
         decoration: BoxDecoration(
-          color: (isRunning ? AppColors.success : AppColors.warning)
+          color: (isRunning ? AppColors.primary : AppColors.warning)
               .withValues(alpha: 0.1),
           borderRadius: BorderRadius.circular(10),
         ),
         child: Icon(
           isRunning ? Icons.visibility : Icons.visibility_off,
-          color: isRunning ? AppColors.success : AppColors.warning,
+          color: isRunning ? AppColors.primary : AppColors.warning,
         ),
       ),
       title: const Text('App Monitoring'),

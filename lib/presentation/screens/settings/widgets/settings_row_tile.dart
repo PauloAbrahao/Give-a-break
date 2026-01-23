@@ -24,10 +24,10 @@ class SettingsRowTile extends StatelessWidget {
         width: 40,
         height: 40,
         decoration: BoxDecoration(
-          color: AppColors.success.withValues(alpha: 0.1),
+          color: AppColors.primary.withValues(alpha: 0.1),
           borderRadius: BorderRadius.circular(10),
         ),
-        child: Icon(icon, color: AppColors.success),
+        child: Icon(icon, color: AppColors.primary),
       ),
       title: Text(title),
       subtitle: Text(

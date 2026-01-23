@@ -105,20 +105,20 @@ class _ThemeOption extends StatelessWidget {
         width: 40,
         height: 40,
         decoration: BoxDecoration(
-          color: (isSelected ? AppColors.success : AppColors.getTextSecondary(context))
+          color: (isSelected ? AppColors.primary : AppColors.getTextSecondary(context))
               .withValues(alpha: 0.1),
           borderRadius: BorderRadius.circular(10),
         ),
         child: Icon(
           icon,
-          color: isSelected ? AppColors.success : AppColors.getTextSecondary(context),
+          color: isSelected ? AppColors.primary : AppColors.getTextSecondary(context),
         ),
       ),
       title: Text(
         title,
         style: TextStyle(
           fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
-          color: isSelected ? AppColors.success : null,
+          color: isSelected ? AppColors.primary : null,
         ),
       ),
       subtitle: Text(
