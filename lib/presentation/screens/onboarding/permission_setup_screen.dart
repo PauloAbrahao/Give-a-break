@@ -115,6 +115,18 @@ class _PermissionSetupScreenState extends ConsumerState<PermissionSetupScreen>
             ),
             const SizedBox(height: 16),
             PermissionCard(
+              title: AppStrings.permissionAccessibilityTitle,
+              description: AppStrings.permissionAccessibilityDesc,
+              icon: Icons.accessibility_new,
+              isGranted: permissions.accessibilityGranted,
+              onRequest: () {
+                ref
+                    .read(permissionProvider.notifier)
+                    .requestAccessibilityPermission();
+              },
+            ),
+            const SizedBox(height: 16),
+            PermissionCard(
               title: AppStrings.permissionNotificationTitle,
               description: AppStrings.permissionNotificationDesc,
               icon: Icons.notifications,
@@ -135,7 +147,7 @@ class _PermissionSetupScreenState extends ConsumerState<PermissionSetupScreen>
             const SizedBox(height: 8),
             if (!permissions.coreGranted)
               Text(
-                'Please grant Usage Access and Overlay permissions to continue',
+                'Please grant Usage Access, Overlay and Accessibility permissions to continue',
                 style: TextStyle(
                   fontSize: 12,
                   color: AppColors.getTextTertiary(context),

@@ -106,4 +106,33 @@ class MethodChannelService {
       return false;
     }
   }
+
+  // Accessibility Service Methods
+  static Future<bool> checkAccessibilityPermission() async {
+    try {
+      final result =
+          await _monitorChannel.invokeMethod<bool>('checkAccessibilityPermission');
+      return result ?? false;
+    } on PlatformException {
+      return false;
+    }
+  }
+
+  static Future<void> requestAccessibilityPermission() async {
+    try {
+      await _monitorChannel.invokeMethod('requestAccessibilityPermission');
+    } on PlatformException {
+      // Permission request opened settings
+    }
+  }
+
+  static Future<bool> isAccessibilityServiceRunning() async {
+    try {
+      final result =
+          await _monitorChannel.invokeMethod<bool>('isAccessibilityServiceRunning');
+      return result ?? false;
+    } on PlatformException {
+      return false;
+    }
+  }
 }

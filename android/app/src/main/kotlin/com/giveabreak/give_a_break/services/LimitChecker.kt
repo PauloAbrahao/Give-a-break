@@ -12,7 +12,7 @@ class LimitChecker(context: Context) {
     private val limitManager = LimitManager(context)
     private val notificationHelper = NotificationHelper(context)
 
-    private var lastOverlayShownForResumeTime: Long = 0
+    private var lastOverlayShownForPackage: String? = null
 
     data class LimitConfig(
         val dailyLimitSeconds: Int,
@@ -23,7 +23,11 @@ class LimitChecker(context: Context) {
         object NoLimit : CheckResult()
         object RoutineInactive : CheckResult()
         object WithinLimit : CheckResult()
-        data class LimitExceeded(val usedSeconds: Int, val limitSeconds: Int) : CheckResult()
+        data class LimitExceeded(
+            val usedSeconds: Int,
+            val limitSeconds: Int,
+            val openCount: Int
+        ) : CheckResult()
     }
 
     fun checkApp(packageName: String): CheckResult {
@@ -71,35 +75,36 @@ class LimitChecker(context: Context) {
                                usageTodaySeconds >= config.dailyLimitSeconds
 
         if (timeLimitReached || openingsLimitReached) {
-            return CheckResult.LimitExceeded(usageTodaySeconds, config.dailyLimitSeconds)
+            return CheckResult.LimitExceeded(usageTodaySeconds, config.dailyLimitSeconds, openingsToday)
         }
 
         return CheckResult.WithinLimit
     }
 
-    fun handleLimitExceeded(packageName: String, usedSeconds: Int, limitSeconds: Int) {
-        val lastResumeTime = usageStatsHelper.getLastResumeTime(packageName)
-
-        // Show overlay once per app resume
-        if (lastResumeTime != lastOverlayShownForResumeTime) {
-            lastOverlayShownForResumeTime = lastResumeTime
-            val openCount = usageStatsHelper.getAppOpenCountToday(packageName)
-
-            // Get overlay customization from routine
-            val routine = limitManager.getRoutineForApp(packageName)
-            val overlayColor = routine?.overlayColor
-            val overlayIcon = routine?.overlayIcon
-
-            notificationHelper.showOverlay(
-                packageName,
-                usedSeconds,
-                limitSeconds,
-                openCount,
-                overlayColor,
-                overlayIcon
-            )
+    fun handleLimitExceeded(packageName: String, usedSeconds: Int, limitSeconds: Int, openCount: Int) {
+        if (packageName == lastOverlayShownForPackage) {
+            return
         }
+
+        lastOverlayShownForPackage = packageName
+
+        val routine = limitManager.getRoutineForApp(packageName)
+        val overlayColor = routine?.overlayColor
+        val overlayIcon = routine?.overlayIcon
+
+        notificationHelper.showOverlay(
+            packageName,
+            usedSeconds,
+            limitSeconds,
+            openCount,
+            overlayColor,
+            overlayIcon
+        )
     }
 
-    fun getCurrentForegroundApp(): String? = usageStatsHelper.getCurrentForegroundApp()
+    fun onAppChanged(newPackageName: String) {
+        if (newPackageName != lastOverlayShownForPackage) {
+            lastOverlayShownForPackage = null
+        }
+    }
 }

@@ -174,6 +174,18 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen>
                 ),
                 Divider(height: 1, color: AppColors.getDivider(context)),
                 PermissionTile(
+                  title: AppStrings.permissionAccessibilityTitle,
+                  subtitle: AppStrings.permissionAccessibilityDesc,
+                  icon: Icons.accessibility_new,
+                  isGranted: permissions.accessibilityGranted,
+                  onTap: () {
+                    ref
+                        .read(permissionProvider.notifier)
+                        .requestAccessibilityPermission();
+                  },
+                ),
+                Divider(height: 1, color: AppColors.getDivider(context)),
+                PermissionTile(
                   title: AppStrings.permissionNotificationTitle,
                   subtitle: AppStrings.permissionNotificationDesc,
                   icon: Icons.notifications,

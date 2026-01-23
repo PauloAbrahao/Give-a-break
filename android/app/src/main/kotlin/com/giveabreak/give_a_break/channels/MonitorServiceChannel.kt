@@ -3,6 +3,7 @@ package com.giveabreak.give_a_break.channels
 import android.app.Activity
 import android.content.Intent
 import android.os.Build
+import com.giveabreak.give_a_break.services.AppAccessibilityService
 import com.giveabreak.give_a_break.services.AppMonitorService
 import io.flutter.plugin.common.BinaryMessenger
 import io.flutter.plugin.common.MethodCall
@@ -32,7 +33,21 @@ object MonitorServiceChannel : MethodChannel.MethodCallHandler {
                 result.success(true)
             }
             "isServiceRunning" -> {
-                result.success(AppMonitorService.isRunning)
+                // Service is effectively running if either the foreground service
+                // or the accessibility service is active
+                val isRunning = AppMonitorService.isRunning || AppAccessibilityService.isRunning
+                result.success(isRunning)
+            }
+            "checkAccessibilityPermission" -> {
+                val isEnabled = AppAccessibilityService.isAccessibilityServiceEnabled(activity)
+                result.success(isEnabled)
+            }
+            "requestAccessibilityPermission" -> {
+                AppAccessibilityService.openAccessibilitySettings(activity)
+                result.success(true)
+            }
+            "isAccessibilityServiceRunning" -> {
+                result.success(AppAccessibilityService.isRunning)
             }
             else -> result.notImplemented()
         }

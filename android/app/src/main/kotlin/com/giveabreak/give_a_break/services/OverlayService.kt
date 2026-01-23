@@ -8,7 +8,9 @@ import android.graphics.Color
 import android.graphics.PixelFormat
 import android.graphics.drawable.GradientDrawable
 import android.os.Build
+import android.os.Handler
 import android.os.IBinder
+import android.os.Looper
 import android.provider.Settings
 import android.view.Gravity
 import android.view.View
@@ -279,22 +281,43 @@ class OverlayService : Service() {
     private fun takeABreak() {
         removeOverlay()
 
-        // Go to home screen first (puts restricted app in background)
-        val homeIntent = Intent(Intent.ACTION_MAIN).apply {
-            addCategory(Intent.CATEGORY_HOME)
-            flags = Intent.FLAG_ACTIVITY_NEW_TASK
-        }
-        startActivity(homeIntent)
+        val packageToKill = restrictedPackageName
+        val handler = Handler(Looper.getMainLooper())
 
-        // Kill the restricted app's background processes
-        restrictedPackageName?.let { packageName ->
-            try {
-                val activityManager = getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
-                activityManager.killBackgroundProcesses(packageName)
-            } catch (e: Exception) {
-                // Silently fail if unable to kill process
+        // Use accessibility service to press back (helps close the app properly)
+        AppAccessibilityService.forceCloseCurrentApp()
+
+        // Go to home screen after a short delay
+        handler.postDelayed({
+            val homeIntent = Intent(Intent.ACTION_MAIN).apply {
+                addCategory(Intent.CATEGORY_HOME)
+                flags = Intent.FLAG_ACTIVITY_NEW_TASK
             }
-        }
+            startActivity(homeIntent)
+
+            // Kill background processes after going home
+            packageToKill?.let { packageName ->
+                val activityManager = getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
+
+                handler.postDelayed({
+                    try {
+                        activityManager.killBackgroundProcesses(packageName)
+                    } catch (_: Exception) {}
+                }, 100)
+
+                handler.postDelayed({
+                    try {
+                        activityManager.killBackgroundProcesses(packageName)
+                    } catch (_: Exception) {}
+                }, 300)
+
+                handler.postDelayed({
+                    try {
+                        activityManager.killBackgroundProcesses(packageName)
+                    } catch (_: Exception) {}
+                }, 500)
+            }
+        }, 250)
 
         stopSelf()
     }

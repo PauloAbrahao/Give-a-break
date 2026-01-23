@@ -201,6 +201,8 @@ class DataTransferNotifier extends StateNotifier<AsyncValue<void>> {
       'endTime': routine.endTime,
       'dailyLimitMinutes': routine.dailyLimit.inMinutes,
       'dailyLimitOpenings': routine.dailyLimitOpenings,
+      'overlayColor': routine.overlayColor,
+      'overlayIcon': routine.overlayIcon,
     };
   }
 
@@ -221,6 +223,8 @@ class DataTransferNotifier extends StateNotifier<AsyncValue<void>> {
       endTime: json['endTime'] as String?,
       dailyLimit: Duration(minutes: json['dailyLimitMinutes'] as int? ?? 0),
       dailyLimitOpenings: json['dailyLimitOpenings'] as int? ?? 0,
+      overlayColor: json['overlayColor'] as String?,
+      overlayIcon: json['overlayIcon'] as String?,
     );
   }
 }

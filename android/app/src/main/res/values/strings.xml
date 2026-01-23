@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="accessibility_service_description">Give a Break uses accessibility to instantly detect when you open apps with time limits. This allows the app to show warnings immediately when you reach your daily limit, helping you stay mindful of your screen time.</string>
+</resources>

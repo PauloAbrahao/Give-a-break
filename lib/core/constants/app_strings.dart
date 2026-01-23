@@ -29,6 +29,9 @@ class AppStrings {
   static const String permissionNotificationTitle = 'Notifications';
   static const String permissionNotificationDesc =
       'Required to send you usage alerts';
+  static const String permissionAccessibilityTitle = 'Accessibility';
+  static const String permissionAccessibilityDesc =
+      'Required for instant app detection';
 
   // Dashboard
   static const String dashboardTitle = 'Your Usage';
