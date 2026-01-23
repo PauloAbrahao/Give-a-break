@@ -84,7 +84,20 @@ class LimitChecker(context: Context) {
         if (lastResumeTime != lastOverlayShownForResumeTime) {
             lastOverlayShownForResumeTime = lastResumeTime
             val openCount = usageStatsHelper.getAppOpenCountToday(packageName)
-            notificationHelper.showOverlay(packageName, usedSeconds, limitSeconds, openCount)
+
+            // Get overlay customization from routine
+            val routine = limitManager.getRoutineForApp(packageName)
+            val overlayColor = routine?.overlayColor
+            val overlayIcon = routine?.overlayIcon
+
+            notificationHelper.showOverlay(
+                packageName,
+                usedSeconds,
+                limitSeconds,
+                openCount,
+                overlayColor,
+                overlayIcon
+            )
         }
     }
 

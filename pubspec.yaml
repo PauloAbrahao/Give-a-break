@@ -34,6 +34,7 @@ dependencies:
   # UI Components
   fl_chart: ^0.70.2
   shimmer: ^3.0.0
+  flutter_svg: ^2.0.10
 
   # File Handling
   file_picker: ^8.1.7
@@ -63,3 +64,5 @@ flutter_native_splash:
 
 flutter:
   uses-material-design: true
+  assets:
+    - assets/icons/

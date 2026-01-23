@@ -10,5 +10,7 @@ data class RoutineInfo(
     val startTime: String?,
     val endTime: String?,
     val dailyLimitSeconds: Int,
-    val dailyLimitOpenings: Int
+    val dailyLimitOpenings: Int,
+    val overlayColor: String?,
+    val overlayIcon: String?
 )

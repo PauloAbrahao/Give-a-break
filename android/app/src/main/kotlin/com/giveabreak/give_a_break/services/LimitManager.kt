@@ -65,7 +65,9 @@ class LimitManager(private val context: Context) {
                         startTime = obj.optString("startTime", null),
                         endTime = obj.optString("endTime", null),
                         dailyLimitSeconds = obj.optInt("dailyLimitSeconds", 0),
-                        dailyLimitOpenings = obj.optInt("dailyLimitOpenings", 0)
+                        dailyLimitOpenings = obj.optInt("dailyLimitOpenings", 0),
+                        overlayColor = if (obj.isNull("overlayColor")) null else obj.optString("overlayColor", null),
+                        overlayIcon = if (obj.isNull("overlayIcon")) null else obj.optString("overlayIcon", null)
                     )
                 }
             }

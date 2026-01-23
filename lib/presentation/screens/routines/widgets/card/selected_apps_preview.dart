@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../../../core/constants/app_colors.dart';
-import '../../../providers/installed_apps_provider.dart';
+import '../../../../../core/constants/app_colors.dart';
+import '../../../../providers/installed_apps_provider.dart';
 
 class SelectedAppsPreview extends ConsumerWidget {
   final Set<String> selectedPackages;

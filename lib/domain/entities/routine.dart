@@ -17,5 +17,8 @@ sealed class Routine with _$Routine {
     String? endTime,
     @Default(Duration.zero) Duration dailyLimit,
     @Default(0) int dailyLimitOpenings,
+    // Advanced overlay settings
+    String? overlayColor, // Hex color like "#6366F1"
+    String? overlayIcon, // Emoji icon like "⏰"
   }) = _Routine;
 }

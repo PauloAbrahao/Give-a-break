@@ -95,6 +95,8 @@ class RoutineRepository {
         'endTime': routine.endTime,
         'dailyLimitSeconds': routine.dailyLimit.inSeconds,
         'dailyLimitOpenings': routine.dailyLimitOpenings,
+        'overlayColor': routine.overlayColor,
+        'overlayIcon': routine.overlayIcon,
       }).toList();
       await prefs.setString(_sharedPrefsKey, jsonEncode(routinesJson));
     } catch (e) {

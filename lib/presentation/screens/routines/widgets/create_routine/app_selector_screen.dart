@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../../../core/constants/app_colors.dart';
-import '../../../../domain/entities/app_info.dart';
-import '../../../providers/installed_apps_provider.dart';
+import '../../../../../core/constants/app_colors.dart';
+import '../../../../../domain/entities/app_info.dart';
+import '../../../../providers/installed_apps_provider.dart';
 
 class AppSelectorScreen extends ConsumerStatefulWidget {
   final Set<String> initialSelectedPackages;

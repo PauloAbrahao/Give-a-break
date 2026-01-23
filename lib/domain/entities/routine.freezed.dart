@@ -14,7 +14,9 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$Routine {
 
- String get id; String get name; String? get description; Set<int> get days; Set<String> get appPackages; bool get isEnabled; bool get isArchived; DateTime? get createdAt; String? get startTime; String? get endTime; Duration get dailyLimit; int get dailyLimitOpenings;
+ String get id; String get name; String? get description; Set<int> get days; Set<String> get appPackages; bool get isEnabled; bool get isArchived; DateTime? get createdAt; String? get startTime; String? get endTime; Duration get dailyLimit; int get dailyLimitOpenings;// Advanced overlay settings
+ String? get overlayColor;// Hex color like "#6366F1"
+ String? get overlayIcon;
 /// Create a copy of Routine
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -25,16 +27,16 @@ $RoutineCopyWith<Routine> get copyWith => _$RoutineCopyWithImpl<Routine>(this as
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is Routine&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&(identical(other.description, description) || other.description == description)&&const DeepCollectionEquality().equals(other.days, days)&&const DeepCollectionEquality().equals(other.appPackages, appPackages)&&(identical(other.isEnabled, isEnabled) || other.isEnabled == isEnabled)&&(identical(other.isArchived, isArchived) || other.isArchived == isArchived)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.startTime, startTime) || other.startTime == startTime)&&(identical(other.endTime, endTime) || other.endTime == endTime)&&(identical(other.dailyLimit, dailyLimit) || other.dailyLimit == dailyLimit)&&(identical(other.dailyLimitOpenings, dailyLimitOpenings) || other.dailyLimitOpenings == dailyLimitOpenings));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is Routine&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&(identical(other.description, description) || other.description == description)&&const DeepCollectionEquality().equals(other.days, days)&&const DeepCollectionEquality().equals(other.appPackages, appPackages)&&(identical(other.isEnabled, isEnabled) || other.isEnabled == isEnabled)&&(identical(other.isArchived, isArchived) || other.isArchived == isArchived)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.startTime, startTime) || other.startTime == startTime)&&(identical(other.endTime, endTime) || other.endTime == endTime)&&(identical(other.dailyLimit, dailyLimit) || other.dailyLimit == dailyLimit)&&(identical(other.dailyLimitOpenings, dailyLimitOpenings) || other.dailyLimitOpenings == dailyLimitOpenings)&&(identical(other.overlayColor, overlayColor) || other.overlayColor == overlayColor)&&(identical(other.overlayIcon, overlayIcon) || other.overlayIcon == overlayIcon));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,id,name,description,const DeepCollectionEquality().hash(days),const DeepCollectionEquality().hash(appPackages),isEnabled,isArchived,createdAt,startTime,endTime,dailyLimit,dailyLimitOpenings);
+int get hashCode => Object.hash(runtimeType,id,name,description,const DeepCollectionEquality().hash(days),const DeepCollectionEquality().hash(appPackages),isEnabled,isArchived,createdAt,startTime,endTime,dailyLimit,dailyLimitOpenings,overlayColor,overlayIcon);
 
 @override
 String toString() {
-  return 'Routine(id: $id, name: $name, description: $description, days: $days, appPackages: $appPackages, isEnabled: $isEnabled, isArchived: $isArchived, createdAt: $createdAt, startTime: $startTime, endTime: $endTime, dailyLimit: $dailyLimit, dailyLimitOpenings: $dailyLimitOpenings)';
+  return 'Routine(id: $id, name: $name, description: $description, days: $days, appPackages: $appPackages, isEnabled: $isEnabled, isArchived: $isArchived, createdAt: $createdAt, startTime: $startTime, endTime: $endTime, dailyLimit: $dailyLimit, dailyLimitOpenings: $dailyLimitOpenings, overlayColor: $overlayColor, overlayIcon: $overlayIcon)';
 }
 
 
@@ -45,7 +47,7 @@ abstract mixin class $RoutineCopyWith<$Res>  {
   factory $RoutineCopyWith(Routine value, $Res Function(Routine) _then) = _$RoutineCopyWithImpl;
 @useResult
 $Res call({
- String id, String name, String? description, Set<int> days, Set<String> appPackages, bool isEnabled, bool isArchived, DateTime? createdAt, String? startTime, String? endTime, Duration dailyLimit, int dailyLimitOpenings
+ String id, String name, String? description, Set<int> days, Set<String> appPackages, bool isEnabled, bool isArchived, DateTime? createdAt, String? startTime, String? endTime, Duration dailyLimit, int dailyLimitOpenings, String? overlayColor, String? overlayIcon
 });
 
 
@@ -62,7 +64,7 @@ class _$RoutineCopyWithImpl<$Res>
 
 /// Create a copy of Routine
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? name = null,Object? description = freezed,Object? days = null,Object? appPackages = null,Object? isEnabled = null,Object? isArchived = null,Object? createdAt = freezed,Object? startTime = freezed,Object? endTime = freezed,Object? dailyLimit = null,Object? dailyLimitOpenings = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? name = null,Object? description = freezed,Object? days = null,Object? appPackages = null,Object? isEnabled = null,Object? isArchived = null,Object? createdAt = freezed,Object? startTime = freezed,Object? endTime = freezed,Object? dailyLimit = null,Object? dailyLimitOpenings = null,Object? overlayColor = freezed,Object? overlayIcon = freezed,}) {
   return _then(_self.copyWith(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
@@ -76,7 +78,9 @@ as DateTime?,startTime: freezed == startTime ? _self.startTime : startTime // ig
 as String?,endTime: freezed == endTime ? _self.endTime : endTime // ignore: cast_nullable_to_non_nullable
 as String?,dailyLimit: null == dailyLimit ? _self.dailyLimit : dailyLimit // ignore: cast_nullable_to_non_nullable
 as Duration,dailyLimitOpenings: null == dailyLimitOpenings ? _self.dailyLimitOpenings : dailyLimitOpenings // ignore: cast_nullable_to_non_nullable
-as int,
+as int,overlayColor: freezed == overlayColor ? _self.overlayColor : overlayColor // ignore: cast_nullable_to_non_nullable
+as String?,overlayIcon: freezed == overlayIcon ? _self.overlayIcon : overlayIcon // ignore: cast_nullable_to_non_nullable
+as String?,
   ));
 }
 
@@ -158,10 +162,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String name,  String? description,  Set<int> days,  Set<String> appPackages,  bool isEnabled,  bool isArchived,  DateTime? createdAt,  String? startTime,  String? endTime,  Duration dailyLimit,  int dailyLimitOpenings)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String name,  String? description,  Set<int> days,  Set<String> appPackages,  bool isEnabled,  bool isArchived,  DateTime? createdAt,  String? startTime,  String? endTime,  Duration dailyLimit,  int dailyLimitOpenings,  String? overlayColor,  String? overlayIcon)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _Routine() when $default != null:
-return $default(_that.id,_that.name,_that.description,_that.days,_that.appPackages,_that.isEnabled,_that.isArchived,_that.createdAt,_that.startTime,_that.endTime,_that.dailyLimit,_that.dailyLimitOpenings);case _:
+return $default(_that.id,_that.name,_that.description,_that.days,_that.appPackages,_that.isEnabled,_that.isArchived,_that.createdAt,_that.startTime,_that.endTime,_that.dailyLimit,_that.dailyLimitOpenings,_that.overlayColor,_that.overlayIcon);case _:
   return orElse();
 
 }
@@ -179,10 +183,10 @@ return $default(_that.id,_that.name,_that.description,_that.days,_that.appPackag
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String name,  String? description,  Set<int> days,  Set<String> appPackages,  bool isEnabled,  bool isArchived,  DateTime? createdAt,  String? startTime,  String? endTime,  Duration dailyLimit,  int dailyLimitOpenings)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String name,  String? description,  Set<int> days,  Set<String> appPackages,  bool isEnabled,  bool isArchived,  DateTime? createdAt,  String? startTime,  String? endTime,  Duration dailyLimit,  int dailyLimitOpenings,  String? overlayColor,  String? overlayIcon)  $default,) {final _that = this;
 switch (_that) {
 case _Routine():
-return $default(_that.id,_that.name,_that.description,_that.days,_that.appPackages,_that.isEnabled,_that.isArchived,_that.createdAt,_that.startTime,_that.endTime,_that.dailyLimit,_that.dailyLimitOpenings);}
+return $default(_that.id,_that.name,_that.description,_that.days,_that.appPackages,_that.isEnabled,_that.isArchived,_that.createdAt,_that.startTime,_that.endTime,_that.dailyLimit,_that.dailyLimitOpenings,_that.overlayColor,_that.overlayIcon);}
 }
 /// A variant of `when` that fallback to returning `null`
 ///
@@ -196,10 +200,10 @@ return $default(_that.id,_that.name,_that.description,_that.days,_that.appPackag
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String name,  String? description,  Set<int> days,  Set<String> appPackages,  bool isEnabled,  bool isArchived,  DateTime? createdAt,  String? startTime,  String? endTime,  Duration dailyLimit,  int dailyLimitOpenings)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String name,  String? description,  Set<int> days,  Set<String> appPackages,  bool isEnabled,  bool isArchived,  DateTime? createdAt,  String? startTime,  String? endTime,  Duration dailyLimit,  int dailyLimitOpenings,  String? overlayColor,  String? overlayIcon)?  $default,) {final _that = this;
 switch (_that) {
 case _Routine() when $default != null:
-return $default(_that.id,_that.name,_that.description,_that.days,_that.appPackages,_that.isEnabled,_that.isArchived,_that.createdAt,_that.startTime,_that.endTime,_that.dailyLimit,_that.dailyLimitOpenings);case _:
+return $default(_that.id,_that.name,_that.description,_that.days,_that.appPackages,_that.isEnabled,_that.isArchived,_that.createdAt,_that.startTime,_that.endTime,_that.dailyLimit,_that.dailyLimitOpenings,_that.overlayColor,_that.overlayIcon);case _:
   return null;
 
 }
@@ -211,7 +215,7 @@ return $default(_that.id,_that.name,_that.description,_that.days,_that.appPackag
 
 
 class _Routine implements Routine {
-  const _Routine({required this.id, required this.name, this.description, required final  Set<int> days, required final  Set<String> appPackages, this.isEnabled = true, this.isArchived = false, this.createdAt, this.startTime, this.endTime, this.dailyLimit = Duration.zero, this.dailyLimitOpenings = 0}): _days = days,_appPackages = appPackages;
+  const _Routine({required this.id, required this.name, this.description, required final  Set<int> days, required final  Set<String> appPackages, this.isEnabled = true, this.isArchived = false, this.createdAt, this.startTime, this.endTime, this.dailyLimit = Duration.zero, this.dailyLimitOpenings = 0, this.overlayColor, this.overlayIcon}): _days = days,_appPackages = appPackages;
   
 
 @override final  String id;
@@ -238,6 +242,10 @@ class _Routine implements Routine {
 @override final  String? endTime;
 @override@JsonKey() final  Duration dailyLimit;
 @override@JsonKey() final  int dailyLimitOpenings;
+// Advanced overlay settings
+@override final  String? overlayColor;
+// Hex color like "#6366F1"
+@override final  String? overlayIcon;
 
 /// Create a copy of Routine
 /// with the given fields replaced by the non-null parameter values.
@@ -249,16 +257,16 @@ _$RoutineCopyWith<_Routine> get copyWith => __$RoutineCopyWithImpl<_Routine>(thi
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Routine&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&(identical(other.description, description) || other.description == description)&&const DeepCollectionEquality().equals(other._days, _days)&&const DeepCollectionEquality().equals(other._appPackages, _appPackages)&&(identical(other.isEnabled, isEnabled) || other.isEnabled == isEnabled)&&(identical(other.isArchived, isArchived) || other.isArchived == isArchived)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.startTime, startTime) || other.startTime == startTime)&&(identical(other.endTime, endTime) || other.endTime == endTime)&&(identical(other.dailyLimit, dailyLimit) || other.dailyLimit == dailyLimit)&&(identical(other.dailyLimitOpenings, dailyLimitOpenings) || other.dailyLimitOpenings == dailyLimitOpenings));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Routine&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&(identical(other.description, description) || other.description == description)&&const DeepCollectionEquality().equals(other._days, _days)&&const DeepCollectionEquality().equals(other._appPackages, _appPackages)&&(identical(other.isEnabled, isEnabled) || other.isEnabled == isEnabled)&&(identical(other.isArchived, isArchived) || other.isArchived == isArchived)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.startTime, startTime) || other.startTime == startTime)&&(identical(other.endTime, endTime) || other.endTime == endTime)&&(identical(other.dailyLimit, dailyLimit) || other.dailyLimit == dailyLimit)&&(identical(other.dailyLimitOpenings, dailyLimitOpenings) || other.dailyLimitOpenings == dailyLimitOpenings)&&(identical(other.overlayColor, overlayColor) || other.overlayColor == overlayColor)&&(identical(other.overlayIcon, overlayIcon) || other.overlayIcon == overlayIcon));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,id,name,description,const DeepCollectionEquality().hash(_days),const DeepCollectionEquality().hash(_appPackages),isEnabled,isArchived,createdAt,startTime,endTime,dailyLimit,dailyLimitOpenings);
+int get hashCode => Object.hash(runtimeType,id,name,description,const DeepCollectionEquality().hash(_days),const DeepCollectionEquality().hash(_appPackages),isEnabled,isArchived,createdAt,startTime,endTime,dailyLimit,dailyLimitOpenings,overlayColor,overlayIcon);
 
 @override
 String toString() {
-  return 'Routine(id: $id, name: $name, description: $description, days: $days, appPackages: $appPackages, isEnabled: $isEnabled, isArchived: $isArchived, createdAt: $createdAt, startTime: $startTime, endTime: $endTime, dailyLimit: $dailyLimit, dailyLimitOpenings: $dailyLimitOpenings)';
+  return 'Routine(id: $id, name: $name, description: $description, days: $days, appPackages: $appPackages, isEnabled: $isEnabled, isArchived: $isArchived, createdAt: $createdAt, startTime: $startTime, endTime: $endTime, dailyLimit: $dailyLimit, dailyLimitOpenings: $dailyLimitOpenings, overlayColor: $overlayColor, overlayIcon: $overlayIcon)';
 }
 
 
@@ -269,7 +277,7 @@ abstract mixin class _$RoutineCopyWith<$Res> implements $RoutineCopyWith<$Res> {
   factory _$RoutineCopyWith(_Routine value, $Res Function(_Routine) _then) = __$RoutineCopyWithImpl;
 @override @useResult
 $Res call({
- String id, String name, String? description, Set<int> days, Set<String> appPackages, bool isEnabled, bool isArchived, DateTime? createdAt, String? startTime, String? endTime, Duration dailyLimit, int dailyLimitOpenings
+ String id, String name, String? description, Set<int> days, Set<String> appPackages, bool isEnabled, bool isArchived, DateTime? createdAt, String? startTime, String? endTime, Duration dailyLimit, int dailyLimitOpenings, String? overlayColor, String? overlayIcon
 });
 
 
@@ -286,7 +294,7 @@ class __$RoutineCopyWithImpl<$Res>
 
 /// Create a copy of Routine
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? name = null,Object? description = freezed,Object? days = null,Object? appPackages = null,Object? isEnabled = null,Object? isArchived = null,Object? createdAt = freezed,Object? startTime = freezed,Object? endTime = freezed,Object? dailyLimit = null,Object? dailyLimitOpenings = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? name = null,Object? description = freezed,Object? days = null,Object? appPackages = null,Object? isEnabled = null,Object? isArchived = null,Object? createdAt = freezed,Object? startTime = freezed,Object? endTime = freezed,Object? dailyLimit = null,Object? dailyLimitOpenings = null,Object? overlayColor = freezed,Object? overlayIcon = freezed,}) {
   return _then(_Routine(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
@@ -300,7 +308,9 @@ as DateTime?,startTime: freezed == startTime ? _self.startTime : startTime // ig
 as String?,endTime: freezed == endTime ? _self.endTime : endTime // ignore: cast_nullable_to_non_nullable
 as String?,dailyLimit: null == dailyLimit ? _self.dailyLimit : dailyLimit // ignore: cast_nullable_to_non_nullable
 as Duration,dailyLimitOpenings: null == dailyLimitOpenings ? _self.dailyLimitOpenings : dailyLimitOpenings // ignore: cast_nullable_to_non_nullable
-as int,
+as int,overlayColor: freezed == overlayColor ? _self.overlayColor : overlayColor // ignore: cast_nullable_to_non_nullable
+as String?,overlayIcon: freezed == overlayIcon ? _self.overlayIcon : overlayIcon // ignore: cast_nullable_to_non_nullable
+as String?,
   ));
 }
 

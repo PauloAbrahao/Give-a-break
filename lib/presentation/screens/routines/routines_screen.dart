@@ -4,8 +4,8 @@ import '../../../core/constants/app_colors.dart';
 import '../../../domain/entities/routine.dart';
 import '../../providers/routine_provider.dart';
 import '../archived_routines/archived_routines_screen.dart';
-import 'widgets/create_routine_dialog.dart';
-import 'widgets/routine_card.dart';
+import 'widgets/create_routine/create_routine_dialog.dart';
+import 'widgets/card/routine_card.dart';
 
 class RoutinesScreen extends ConsumerWidget {
   const RoutinesScreen({super.key});

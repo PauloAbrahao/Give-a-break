@@ -64,14 +64,25 @@ class NotificationHelper(private val context: Context) {
         packageName: String,
         usedSeconds: Int,
         limitSeconds: Int,
-        openCount: Int
+        openCount: Int,
+        overlayColor: String? = null,
+        overlayIcon: String? = null
     ) {
         val appName = getAppName(packageName)
         val usedTime = formatSeconds(usedSeconds)
         val limitTime = formatSeconds(limitSeconds)
 
         if (Settings.canDrawOverlays(context)) {
-            OverlayService.show(context, appName, usedTime, limitTime, packageName, openCount)
+            OverlayService.show(
+                context,
+                appName,
+                usedTime,
+                limitTime,
+                packageName,
+                openCount,
+                overlayColor,
+                overlayIcon
+            )
         } else {
             showHeadsUpNotification(appName, usedSeconds, limitSeconds)
         }

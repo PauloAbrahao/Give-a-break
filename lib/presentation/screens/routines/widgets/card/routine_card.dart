@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../../../core/constants/app_colors.dart';
-import '../../../../core/extensions/routine_extensions.dart';
-import '../../../../domain/entities/routine.dart';
-import '../../../providers/installed_apps_provider.dart';
+import '../../../../../core/constants/app_colors.dart';
+import '../../../../../core/extensions/routine_extensions.dart';
+import '../../../../../domain/entities/routine.dart';
+import '../../../../providers/installed_apps_provider.dart';
 import 'days_display.dart';
 
 class RoutineCard extends ConsumerWidget {

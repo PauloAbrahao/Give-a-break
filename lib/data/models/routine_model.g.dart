@@ -29,13 +29,15 @@ class RoutineModelAdapter extends TypeAdapter<RoutineModel> {
       endTime: fields[9] as String?,
       dailyLimitMinutes: fields[10] == null ? 0 : (fields[10] as num).toInt(),
       dailyLimitOpenings: fields[11] == null ? 0 : (fields[11] as num).toInt(),
+      overlayColor: fields[12] as String?,
+      overlayIcon: fields[13] as String?,
     );
   }
 
   @override
   void write(BinaryWriter writer, RoutineModel obj) {
     writer
-      ..writeByte(12)
+      ..writeByte(14)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -59,7 +61,11 @@ class RoutineModelAdapter extends TypeAdapter<RoutineModel> {
       ..writeByte(10)
       ..write(obj.dailyLimitMinutes)
       ..writeByte(11)
-      ..write(obj.dailyLimitOpenings);
+      ..write(obj.dailyLimitOpenings)
+      ..writeByte(12)
+      ..write(obj.overlayColor)
+      ..writeByte(13)
+      ..write(obj.overlayIcon);
   }
 
   @override

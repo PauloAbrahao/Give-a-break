@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import '../../../../core/constants/app_colors.dart';
-import '../../../../core/extensions/duration_extensions.dart';
-import '../../app_detail/widgets/time_limit_picker.dart';
-import '../../app_detail/widgets/daily_openings_picker.dart';
+import '../../../../../core/constants/app_colors.dart';
+import '../../../../../core/extensions/duration_extensions.dart';
+import '../../../app_detail/widgets/time_limit_picker.dart';
+import '../../../app_detail/widgets/daily_openings_picker.dart';
 
 class LimitsSelector extends StatelessWidget {
   final Duration dailyLimit;

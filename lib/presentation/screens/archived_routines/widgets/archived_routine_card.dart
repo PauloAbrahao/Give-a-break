@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../domain/entities/routine.dart';
 import '../../../providers/installed_apps_provider.dart';
-import '../../routines/widgets/days_display.dart';
+import '../../routines/widgets/card/days_display.dart';
 
 class ArchivedRoutineCard extends ConsumerWidget {
   final Routine routine;

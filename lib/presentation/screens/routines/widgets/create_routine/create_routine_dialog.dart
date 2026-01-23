@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../../../core/constants/app_colors.dart';
-import '../../../../domain/entities/routine.dart';
-import '../../../providers/app_limit_provider.dart';
-import '../../../providers/routine_provider.dart';
+import '../../../../../core/constants/app_colors.dart';
+import '../../../../../domain/entities/routine.dart';
+import '../../../../providers/app_limit_provider.dart';
+import '../../../../providers/routine_provider.dart';
 import 'bottom_sheet_handle.dart';
-import '../../../widgets/dialog.dart';
+import '../../../../widgets/dialog.dart';
 import 'app_selector_screen.dart';
 import 'day_selector.dart';
 import 'limits_selector.dart';
@@ -14,7 +14,8 @@ import 'routine_dialog_header.dart';
 import 'routine_enabled_switch.dart';
 import 'routine_text_field.dart';
 import 'schedule_selector.dart';
-import 'selected_apps_preview.dart';
+import '../card/selected_apps_preview.dart';
+import '../overlay/overlay_settings_selector.dart';
 
 class CreateRoutineDialog extends ConsumerStatefulWidget {
   final Routine? existingRoutine;
@@ -36,6 +37,9 @@ class _CreateRoutineDialogState extends ConsumerState<CreateRoutineDialog> {
   TimeOfDay _endTime = const TimeOfDay(hour: 18, minute: 0);
   Duration _dailyLimit = Duration.zero;
   int _dailyLimitOpenings = 0;
+  String? _overlayColor;
+  String? _overlayIcon;
+  bool _showAdvancedSettings = false;
 
   bool get _isEditing => widget.existingRoutine != null;
 
@@ -62,6 +66,9 @@ class _CreateRoutineDialogState extends ConsumerState<CreateRoutineDialog> {
     _isAllDay = routine.startTime == null;
     _dailyLimit = routine.dailyLimit;
     _dailyLimitOpenings = routine.dailyLimitOpenings;
+    _overlayColor = routine.overlayColor;
+    _overlayIcon = routine.overlayIcon;
+    _showAdvancedSettings = routine.overlayColor != null || routine.overlayIcon != null;
 
     if (routine.startTime != null) {
       _startTime = _parseTime(routine.startTime!);
@@ -120,6 +127,8 @@ class _CreateRoutineDialogState extends ConsumerState<CreateRoutineDialog> {
                   _buildAppsPreview(),
                   const SizedBox(height: 24),
                   _buildLimitsSelector(),
+                  const SizedBox(height: 24),
+                  _buildAdvancedSettingsSection(),
                   const SizedBox(height: 24),
                   _buildEnabledSwitch(),
                   const SizedBox(height: 32),
@@ -186,6 +195,68 @@ class _CreateRoutineDialogState extends ConsumerState<CreateRoutineDialog> {
     );
   }
 
+  Widget _buildAdvancedSettingsSection() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        GestureDetector(
+          onTap: () => setState(() => _showAdvancedSettings = !_showAdvancedSettings),
+          child: Container(
+            padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+            decoration: BoxDecoration(
+              color: AppColors.getSurfaceVariant(context),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Row(
+              children: [
+                Icon(
+                  Icons.tune,
+                  size: 20,
+                  color: AppColors.getTextSecondary(context),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Text(
+                    'Advanced Settings',
+                    style: TextStyle(
+                      color: AppColors.getTextPrimary(context),
+                      fontSize: 14,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ),
+                AnimatedRotation(
+                  turns: _showAdvancedSettings ? 0.5 : 0,
+                  duration: const Duration(milliseconds: 200),
+                  child: Icon(
+                    Icons.keyboard_arrow_down,
+                    color: AppColors.getTextSecondary(context),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+        AnimatedCrossFade(
+          firstChild: const SizedBox.shrink(),
+          secondChild: Padding(
+            padding: const EdgeInsets.only(top: 16),
+            child: OverlaySettingsSelector(
+              selectedColor: _overlayColor,
+              selectedIcon: _overlayIcon,
+              onColorChanged: (color) => setState(() => _overlayColor = color),
+              onIconChanged: (icon) => setState(() => _overlayIcon = icon),
+            ),
+          ),
+          crossFadeState: _showAdvancedSettings
+              ? CrossFadeState.showSecond
+              : CrossFadeState.showFirst,
+          duration: const Duration(milliseconds: 200),
+        ),
+      ],
+    );
+  }
+
   Widget _buildEnabledSwitch() {
     return RoutineEnabledSwitch(
       value: _isEnabled,
@@ -223,6 +294,8 @@ class _CreateRoutineDialogState extends ConsumerState<CreateRoutineDialog> {
       endTime: _isAllDay ? null : _formatTime(_endTime),
       dailyLimit: _dailyLimit,
       dailyLimitOpenings: _dailyLimitOpenings,
+      overlayColor: _overlayColor,
+      overlayIcon: _overlayIcon,
     );
 
     await notifier.saveRoutine(routine);

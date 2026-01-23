@@ -14,8 +14,10 @@ import android.view.Gravity
 import android.view.View
 import android.view.WindowManager
 import android.widget.Button
+import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
+import com.giveabreak.give_a_break.R
 
 class OverlayService : Service() {
 
@@ -29,8 +31,38 @@ class OverlayService : Service() {
         private const val EXTRA_LIMIT_TIME = "limit_time"
         private const val EXTRA_PACKAGE_NAME = "package_name"
         private const val EXTRA_OPEN_COUNT = "open_count"
+        private const val EXTRA_OVERLAY_COLOR = "overlay_color"
+        private const val EXTRA_OVERLAY_ICON = "overlay_icon"
 
-        fun show(context: Context, appName: String, usedTime: String, limitTime: String, packageName: String, openCount: Int = 0) {
+        private const val DEFAULT_BUTTON_COLOR = "#6366F1"
+        private const val DEFAULT_ICON = "clock"
+
+        private val iconMap = mapOf(
+            "clock" to R.drawable.ic_clock,
+            "block" to R.drawable.ic_block,
+            "warning" to R.drawable.ic_warning,
+            "pause" to R.drawable.ic_pause,
+            "house" to R.drawable.ic_house,
+            "work" to R.drawable.ic_work,
+            "bedtime" to R.drawable.ic_bedtime,
+            "food" to R.drawable.ic_food,
+            "movie" to R.drawable.ic_movie,
+            "car" to R.drawable.ic_car,
+            "gym" to R.drawable.ic_gym
+        )
+
+        private const val DEFAULT_ICON_RESOURCE = R.drawable.ic_clock
+
+        fun show(
+            context: Context,
+            appName: String,
+            usedTime: String,
+            limitTime: String,
+            packageName: String,
+            openCount: Int = 0,
+            overlayColor: String? = null,
+            overlayIcon: String? = null
+        ) {
             if (!Settings.canDrawOverlays(context)) return
 
             val intent = Intent(context, OverlayService::class.java).apply {
@@ -39,6 +71,8 @@ class OverlayService : Service() {
                 putExtra(EXTRA_LIMIT_TIME, limitTime)
                 putExtra(EXTRA_PACKAGE_NAME, packageName)
                 putExtra(EXTRA_OPEN_COUNT, openCount)
+                putExtra(EXTRA_OVERLAY_COLOR, overlayColor)
+                putExtra(EXTRA_OVERLAY_ICON, overlayIcon)
             }
             context.startService(intent)
         }
@@ -51,17 +85,26 @@ class OverlayService : Service() {
         val usedTime = intent?.getStringExtra(EXTRA_USED_TIME) ?: "--"
         val limitTime = intent?.getStringExtra(EXTRA_LIMIT_TIME) ?: "--"
         val openCount = intent?.getIntExtra(EXTRA_OPEN_COUNT, 0) ?: 0
+        val overlayColor = intent?.getStringExtra(EXTRA_OVERLAY_COLOR) ?: DEFAULT_BUTTON_COLOR
+        val overlayIcon = intent?.getStringExtra(EXTRA_OVERLAY_ICON) ?: DEFAULT_ICON
         restrictedPackageName = intent?.getStringExtra(EXTRA_PACKAGE_NAME)
 
-        showOverlay(appName, usedTime, limitTime, openCount)
+        showOverlay(appName, usedTime, limitTime, openCount, overlayColor, overlayIcon)
         return START_NOT_STICKY
     }
 
-    private fun showOverlay(appName: String, usedTime: String, limitTime: String, openCount: Int) {
+    private fun showOverlay(
+        appName: String,
+        usedTime: String,
+        limitTime: String,
+        openCount: Int,
+        overlayColor: String,
+        overlayIcon: String
+    ) {
         if (overlayView != null) removeOverlay()
 
         windowManager = getSystemService(WINDOW_SERVICE) as WindowManager
-        overlayView = createOverlayView(appName, usedTime, limitTime, openCount)
+        overlayView = createOverlayView(appName, usedTime, limitTime, openCount, overlayColor, overlayIcon)
 
         val layoutType = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY
@@ -85,7 +128,20 @@ class OverlayService : Service() {
         windowManager?.addView(overlayView, params)
     }
 
-    private fun createOverlayView(appName: String, usedTime: String, limitTime: String, openCount: Int): View {
+    private fun createOverlayView(
+        appName: String,
+        usedTime: String,
+        limitTime: String,
+        openCount: Int,
+        overlayColor: String,
+        overlayIcon: String
+    ): View {
+        val buttonColor = try {
+            Color.parseColor(overlayColor)
+        } catch (e: Exception) {
+            Color.parseColor(DEFAULT_BUTTON_COLOR)
+        }
+
         // Main container
         val mainLayout = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
@@ -95,12 +151,13 @@ class OverlayService : Service() {
         }
 
         // Icon
-        val iconText = TextView(this).apply {
-            text = "⏰"
-            textSize = 64f
-            gravity = Gravity.CENTER
+        val iconDrawable = iconMap[overlayIcon] ?: DEFAULT_ICON_RESOURCE
+        val iconView = ImageView(this).apply {
+            setImageResource(iconDrawable)
+            setColorFilter(buttonColor, android.graphics.PorterDuff.Mode.SRC_IN)
+            layoutParams = LinearLayout.LayoutParams(dp(80), dp(80))
         }
-        mainLayout.addView(iconText)
+        mainLayout.addView(iconView)
 
         addSpacer(mainLayout, 32)
 
@@ -171,11 +228,11 @@ class OverlayService : Service() {
 
         // Take a Break button
         val breakButton = Button(this).apply {
-            text = "Take a Break"
+            text = "Close"
             textSize = 16f
             setTextColor(Color.WHITE)
             background = GradientDrawable().apply {
-                setColor(Color.parseColor("#6366F1"))
+                setColor(buttonColor)
                 cornerRadius = dp(12).toFloat()
             }
             setPadding(dp(32), dp(16), dp(32), dp(16))
