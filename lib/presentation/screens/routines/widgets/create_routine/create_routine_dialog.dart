@@ -46,7 +46,8 @@ class _CreateRoutineDialogState extends ConsumerState<CreateRoutineDialog> {
   bool get _canSave =>
       _nameController.text.trim().isNotEmpty &&
       _selectedDays.isNotEmpty &&
-      _selectedApps.isNotEmpty;
+      _selectedApps.isNotEmpty &&
+      (_dailyLimit.inSeconds > 0 || _dailyLimitOpenings > 0);
 
   @override
   void initState() {

@@ -60,5 +60,5 @@ void showResultSnackBar(BuildContext context, DataTransferResult result) {
 
   overlay.insert(entry);
 
-  Future.delayed(const Duration(seconds: 2), dismiss);
+  Future.delayed(const Duration(seconds: 3), dismiss);
 }

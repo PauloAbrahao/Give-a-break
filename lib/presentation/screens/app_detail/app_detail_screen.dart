@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:give_a_break/presentation/screens/import_settings/widgets/result_snackbar.dart';
 import 'package:give_a_break/presentation/widgets/dialog.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/extensions/duration_extensions.dart';
 import '../../../domain/entities/app_limit.dart';
 import '../../../domain/entities/routine.dart';
+import '../../providers/data_transfer_provider.dart';
 import '../../providers/installed_apps_provider.dart';
 import '../../providers/usage_provider.dart';
 import '../../providers/app_limit_provider.dart';
@@ -30,7 +32,9 @@ class _AppDetailScreenState extends ConsumerState<AppDetailScreen> {
     final appInfo = ref.watch(appInfoProvider(widget.packageName));
     final usageToday = ref.watch(appUsageFullTodayProvider(widget.packageName));
     final limit = ref.watch(appLimitProvider(widget.packageName));
-    final activeRoutine = ref.watch(appActiveRoutineProvider(widget.packageName));
+    final activeRoutine = ref.watch(
+      appActiveRoutineProvider(widget.packageName),
+    );
 
     return Scaffold(
       appBar: AppBar(
@@ -48,10 +52,7 @@ class _AppDetailScreenState extends ConsumerState<AppDetailScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            AppHeader(
-              appInfo: appInfo,
-              packageName: widget.packageName,
-            ),
+            AppHeader(appInfo: appInfo, packageName: widget.packageName),
             const SizedBox(height: 24),
             UsageSection(
               usageToday: usageToday,
@@ -72,7 +73,8 @@ class _AppDetailScreenState extends ConsumerState<AppDetailScreen> {
                         .toggleLimit(widget.packageName, enabled);
                   },
                   onEditLimit: () => _showTimePicker(limit.valueOrNull),
-                  onEditDailyOpenings: (appLimit) => _showDailyOpeningsPicker(appLimit),
+                  onEditDailyOpenings: (appLimit) =>
+                      _showDailyOpeningsPicker(appLimit),
                   onRemoveLimit: _removeLimit,
                   onSetLimit: () => _showTimePicker(null),
                 );
@@ -130,7 +132,9 @@ class _AppDetailScreenState extends ConsumerState<AppDetailScreen> {
               runSpacing: 8,
               children: [
                 if (hasTimeLimit)
-                  _buildLimitChip('Daily Limit: ${routine.dailyLimit.toReadableString()}'),
+                  _buildLimitChip(
+                    'Daily Limit: ${routine.dailyLimit.toReadableString()}',
+                  ),
                 if (hasOpenLimit)
                   _buildLimitChip('Daily Opens: ${routine.dailyLimitOpenings}'),
               ],
@@ -143,7 +147,10 @@ class _AppDetailScreenState extends ConsumerState<AppDetailScreen> {
 
   Widget _buildLimitChip(String label) {
     return Container(
-      child: Text(label, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w500)),
+      child: Text(
+        label,
+        style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w500),
+      ),
     );
   }
 
@@ -166,11 +173,26 @@ class _AppDetailScreenState extends ConsumerState<AppDetailScreen> {
     if (result != null) {
       final newLimit = existingLimit != null
           ? existingLimit.copyWith(dailyLimit: result)
-          : AppLimit(
-              packageName: widget.packageName,
-              dailyLimit: result,
-            );
-      ref.read(appLimitNotifierProvider.notifier).setLimit(newLimit);
+          : AppLimit(packageName: widget.packageName, dailyLimit: result);
+
+      if (newLimit.dailyLimit.inSeconds == 0 &&
+          newLimit.dailyLimitOpenings == 0) {
+        ref
+            .read(appLimitNotifierProvider.notifier)
+            .toggleLimit(widget.packageName, false);
+
+        if (mounted) {
+          showResultSnackBar(
+            context,
+            const DataTransferResult(
+              success: false,
+              message: 'Limit not set. Please set a valid time or daily openings.',
+            ),
+          );
+        }
+      } else {
+        ref.read(appLimitNotifierProvider.notifier).setLimit(newLimit);
+      }
     }
   }
 
@@ -180,14 +202,31 @@ class _AppDetailScreenState extends ConsumerState<AppDetailScreen> {
       barrierColor: Colors.black.withValues(alpha: 0.8),
       backgroundColor: Colors.transparent,
       isScrollControlled: true,
-      builder: (context) => DailyOpeningsPicker(
-        initialValue: existingLimit.dailyLimitOpenings,
-      ),
+      builder: (context) =>
+          DailyOpeningsPicker(initialValue: existingLimit.dailyLimitOpenings),
     );
 
     if (result != null) {
       final newLimit = existingLimit.copyWith(dailyLimitOpenings: result);
-      ref.read(appLimitNotifierProvider.notifier).setLimit(newLimit);
+
+      if (newLimit.dailyLimit.inSeconds == 0 &&
+          newLimit.dailyLimitOpenings == 0) {
+        ref
+            .read(appLimitNotifierProvider.notifier)
+            .toggleLimit(widget.packageName, false);
+
+        if (mounted) {
+          showResultSnackBar(
+            context,
+            const DataTransferResult(
+              success: false,
+              message: 'Limit not set. Please set a valid time or daily openings.',
+            ),
+          );
+        }
+      } else {
+        ref.read(appLimitNotifierProvider.notifier).setLimit(newLimit);
+      }
     }
   }
 
