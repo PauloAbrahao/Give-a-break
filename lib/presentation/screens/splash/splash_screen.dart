@@ -39,8 +39,6 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
     if (onboardingCompleted && permissions.coreGranted) {
       await ref.read(monitoringProvider.notifier).startMonitoring();
 
-      await _waitForAccessibilityService();
-
       if (!mounted) return;
 
       Navigator.of(context).pushReplacement(
@@ -51,49 +49,6 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
         MaterialPageRoute(builder: (_) => const OnboardingScreen()),
       );
     }
-  }
-
-  Future<void> _waitForAccessibilityService() async {
-    final isEnabled = await MethodChannelService.checkAccessibilityPermission();
-    if (!isEnabled) return;
-
-    var isRunning = await MethodChannelService.isAccessibilityServiceRunning();
-    if (isRunning) return;
-
-    for (var i = 0; i < 6; i++) {
-      await Future.delayed(const Duration(milliseconds: 500));
-      isRunning = await MethodChannelService.isAccessibilityServiceRunning();
-      if (isRunning) return;
-    }
-
-    if (mounted) {
-      await _showAccessibilityReconnectDialog();
-    }
-  }
-
-  Future<void> _showAccessibilityReconnectDialog() async {
-    return showDialog<void>(
-      context: context,
-      barrierDismissible: false,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('Service Reconnection Required'),
-          content: const Text(
-            'The accessibility service needs to be reconnected. '
-            'Please go to Settings and toggle the "Give a Break" accessibility service off and then on again.',
-          ),
-          actions: <Widget>[
-            TextButton(
-              child: const Text('Open Settings'),
-              onPressed: () async {
-                Navigator.of(context).pop();
-                await MethodChannelService.requestAccessibilityPermission();
-              },
-            ),
-          ],
-        );
-      },
-    );
   }
 
   @override

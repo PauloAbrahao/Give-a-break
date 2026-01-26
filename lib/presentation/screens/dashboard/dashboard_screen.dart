@@ -207,31 +207,31 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen>
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.orange.shade100,
+        color: AppColors.warning.withOpacity(0.1),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.orange.shade300),
+        border: Border.all(color: AppColors.warning),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              Icon(Icons.warning_amber_rounded, color: Colors.orange.shade800),
+              Icon(Icons.warning_amber_rounded, color: AppColors.warning),
               const SizedBox(width: 8),
               Text(
                 'Service Disconnected',
                 style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  color: Colors.orange.shade900,
+                  fontWeight: FontWeight.w500,
+                  color: AppColors.warning,
                 ),
               ),
             ],
           ),
           const SizedBox(height: 8),
           Text(
-            'The app monitoring service needs to be reconnected. '
+            'The app monitoring service needs to be reconnected.' 
             'Please toggle the accessibility setting off and on again.',
-            style: TextStyle(color: Colors.orange.shade900, fontSize: 13),
+            style: TextStyle(color: AppColors.warning, fontSize: 13),
           ),
           const SizedBox(height: 12),
           SizedBox(
@@ -241,7 +241,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen>
                 await MethodChannelService.requestAccessibilityPermission();
               },
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.orange.shade700,
+                backgroundColor: AppColors.warning,
                 foregroundColor: Colors.white,
               ),
               child: const Text('Open Accessibility Settings'),
