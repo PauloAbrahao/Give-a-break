@@ -279,47 +279,47 @@ class OverlayService : Service() {
     private fun dp(value: Int): Int = (value * resources.displayMetrics.density).toInt()
 
     private fun takeABreak() {
-        removeOverlay()
-
         val packageToKill = restrictedPackageName
         val handler = Handler(Looper.getMainLooper())
+
+        // Go to home screen FIRST (while overlay is still visible)
+        val homeIntent = Intent(Intent.ACTION_MAIN).apply {
+            addCategory(Intent.CATEGORY_HOME)
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK
+        }
+        startActivity(homeIntent)
 
         // Use accessibility service to press back (helps close the app properly)
         AppAccessibilityService.forceCloseCurrentApp()
 
-        // Go to home screen after a short delay
+        // Remove overlay AFTER going to home so user doesn't see the restricted app
         handler.postDelayed({
-            val homeIntent = Intent(Intent.ACTION_MAIN).apply {
-                addCategory(Intent.CATEGORY_HOME)
-                flags = Intent.FLAG_ACTIVITY_NEW_TASK
-            }
-            startActivity(homeIntent)
+            removeOverlay()
+            stopSelf()
+        }, 150)
 
-            // Kill background processes after going home
-            packageToKill?.let { packageName ->
-                val activityManager = getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
+        // Kill background processes
+        packageToKill?.let { packageName ->
+            val activityManager = getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
 
-                handler.postDelayed({
-                    try {
-                        activityManager.killBackgroundProcesses(packageName)
-                    } catch (_: Exception) {}
-                }, 100)
+            handler.postDelayed({
+                try {
+                    activityManager.killBackgroundProcesses(packageName)
+                } catch (_: Exception) {}
+            }, 100)
 
-                handler.postDelayed({
-                    try {
-                        activityManager.killBackgroundProcesses(packageName)
-                    } catch (_: Exception) {}
-                }, 300)
+            handler.postDelayed({
+                try {
+                    activityManager.killBackgroundProcesses(packageName)
+                } catch (_: Exception) {}
+            }, 300)
 
-                handler.postDelayed({
-                    try {
-                        activityManager.killBackgroundProcesses(packageName)
-                    } catch (_: Exception) {}
-                }, 500)
-            }
-        }, 250)
-
-        stopSelf()
+            handler.postDelayed({
+                try {
+                    activityManager.killBackgroundProcesses(packageName)
+                } catch (_: Exception) {}
+            }, 500)
+        }
     }
 
     private fun removeOverlay() {

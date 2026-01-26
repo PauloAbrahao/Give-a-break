@@ -4,6 +4,7 @@ import 'package:give_a_break/presentation/providers/installed_apps_provider.dart
 import 'package:give_a_break/presentation/providers/routine_provider.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_strings.dart';
+import '../../../core/services/method_channel_service.dart';
 import '../../providers/usage_provider.dart';
 import '../../providers/monitoring_provider.dart';
 import '../../providers/app_limit_provider.dart';
@@ -23,12 +24,40 @@ class DashboardScreen extends ConsumerStatefulWidget {
   ConsumerState<DashboardScreen> createState() => _DashboardScreenState();
 }
 
-class _DashboardScreenState extends ConsumerState<DashboardScreen> {
+class _DashboardScreenState extends ConsumerState<DashboardScreen>
+    with WidgetsBindingObserver {
+  bool _needsReconnect = false;
+
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     // Check monitoring service status
     ref.read(monitoringProvider.notifier).checkServiceStatus();
+    _checkAccessibilityStatus();
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      ref.read(monitoringProvider.notifier).checkServiceStatus();
+      _checkAccessibilityStatus();
+    }
+  }
+
+  Future<void> _checkAccessibilityStatus() async {
+    final needsReconnect = await MethodChannelService.needsAccessibilityReconnect();
+    if (mounted && needsReconnect != _needsReconnect) {
+      setState(() {
+        _needsReconnect = needsReconnect;
+      });
+    }
   }
 
   @override
@@ -61,6 +90,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
           ref.invalidate(allLimitsProvider);
           ref.invalidate(installedAppsProvider);
           ref.invalidate(routineRepositoryProvider);
+          await _checkAccessibilityStatus();
         },
         child: SingleChildScrollView(
           physics: const AlwaysScrollableScrollPhysics(),
@@ -68,6 +98,10 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              if (_needsReconnect) ...[
+                _buildReconnectWarning(),
+                const SizedBox(height: 16),
+              ],
               IntrinsicHeight(
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -169,4 +203,52 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
     );
   }
 
+  Widget _buildReconnectWarning() {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.orange.shade100,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.orange.shade300),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(Icons.warning_amber_rounded, color: Colors.orange.shade800),
+              const SizedBox(width: 8),
+              Text(
+                'Service Disconnected',
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  color: Colors.orange.shade900,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'The app monitoring service needs to be reconnected. '
+            'Please toggle the accessibility setting off and on again.',
+            style: TextStyle(color: Colors.orange.shade900, fontSize: 13),
+          ),
+          const SizedBox(height: 12),
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton(
+              onPressed: () async {
+                await MethodChannelService.requestAccessibilityPermission();
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.orange.shade700,
+                foregroundColor: Colors.white,
+              ),
+              child: const Text('Open Accessibility Settings'),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 }

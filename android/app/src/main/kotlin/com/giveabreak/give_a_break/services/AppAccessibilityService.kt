@@ -5,8 +5,10 @@ import android.accessibilityservice.AccessibilityServiceInfo
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.provider.Settings
 import android.text.TextUtils
+import android.util.Log
 import android.view.accessibility.AccessibilityEvent
 
 /**
@@ -19,9 +21,12 @@ import android.view.accessibility.AccessibilityEvent
 class AppAccessibilityService : AccessibilityService() {
 
     private var lastPackageName: String? = null
-    private lateinit var limitChecker: LimitChecker
+    private var limitChecker: LimitChecker? = null
+    private var launcherPackage: String? = null
 
     companion object {
+        private const val TAG = "AppAccessibilityService"
+
         @Volatile
         var isRunning = false
             private set
@@ -81,15 +86,21 @@ class AppAccessibilityService : AccessibilityService() {
         }
     }
 
-    override fun onCreate() {
-        super.onCreate()
-        limitChecker = LimitChecker(this)
+    private fun getDefaultLauncherPackage(): String? {
+        val intent = Intent(Intent.ACTION_MAIN).apply {
+            addCategory(Intent.CATEGORY_HOME)
+        }
+        val resolveInfo = packageManager.resolveActivity(intent, PackageManager.MATCH_DEFAULT_ONLY)
+        return resolveInfo?.activityInfo?.packageName
     }
 
     override fun onServiceConnected() {
         super.onServiceConnected()
         isRunning = true
         instance = this
+
+        limitChecker = LimitChecker(applicationContext)
+        launcherPackage = getDefaultLauncherPackage()
 
         // Configure for instant detection - no timeout, minimal flags
         val info = AccessibilityServiceInfo().apply {
@@ -101,43 +112,57 @@ class AppAccessibilityService : AccessibilityService() {
     }
 
     override fun onAccessibilityEvent(event: AccessibilityEvent?) {
-        if (event?.eventType != AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED) return
+        try {
+            if (event?.eventType != AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED) return
 
-        val packageName = event.packageName?.toString() ?: return
+            val checker = limitChecker ?: return // Not initialized yet
 
-        // Skip system UI and our own app
-        if (packageName == "com.android.systemui" ||
-            packageName == this.packageName ||
-            packageName == "com.giveabreak.give_a_break") {
-            return
+            val packageName = event.packageName?.toString() ?: return
+
+            // Skip system UI and our own app
+            if (packageName == "com.android.systemui" ||
+                packageName == this.packageName ||
+                packageName == "com.giveabreak.give_a_break") {
+                return
+            }
+
+            if (packageName == launcherPackage) {
+                lastPackageName = null
+                checker.onAppChanged(packageName)
+                return
+            }
+
+            if (packageName == lastPackageName) return
+
+            checker.onAppChanged(packageName)
+
+            lastPackageName = packageName
+
+            checkAppLimits(packageName, checker)
+        } catch (e: Exception) {
+            Log.e(TAG, "Error processing accessibility event: ${e.message}", e)
         }
-
-        // Skip if same package as before (e.g., navigating within the same app)
-        if (packageName == lastPackageName) return
-
-        limitChecker.onAppChanged(packageName)
-
-        lastPackageName = packageName
-
-        // Check limits immediately when a new app window appears
-        checkAppLimits(packageName)
     }
 
-    private fun checkAppLimits(packageName: String) {
-        when (val result = limitChecker.checkApp(packageName)) {
-            is LimitChecker.CheckResult.LimitExceeded -> {
-                limitChecker.handleLimitExceeded(
-                    packageName,
-                    result.usedSeconds,
-                    result.limitSeconds,
-                    result.openCount
-                )
+    private fun checkAppLimits(packageName: String, checker: LimitChecker) {
+        try {
+            when (val result = checker.checkApp(packageName)) {
+                is LimitChecker.CheckResult.LimitExceeded -> {
+                    checker.handleLimitExceeded(
+                        packageName,
+                        result.usedSeconds,
+                        result.limitSeconds,
+                        result.openCount
+                    )
+                }
+                LimitChecker.CheckResult.NoLimit,
+                LimitChecker.CheckResult.RoutineInactive,
+                LimitChecker.CheckResult.WithinLimit -> {
+                    // No action needed
+                }
             }
-            LimitChecker.CheckResult.NoLimit,
-            LimitChecker.CheckResult.RoutineInactive,
-            LimitChecker.CheckResult.WithinLimit -> {
-                // No action needed
-            }
+        } catch (e: Exception) {
+            Log.e(TAG, "Error checking app limits for $packageName: ${e.message}", e)
         }
     }
 
@@ -149,5 +174,7 @@ class AppAccessibilityService : AccessibilityService() {
         super.onDestroy()
         isRunning = false
         instance = null
+        limitChecker = null
+        Log.d(TAG, "Accessibility service destroyed")
     }
 }

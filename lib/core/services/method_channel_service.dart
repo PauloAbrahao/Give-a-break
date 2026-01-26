@@ -135,4 +135,24 @@ class MethodChannelService {
       return false;
     }
   }
+
+  static Future<bool> isMonitoringFullyFunctional() async {
+    try {
+      final result =
+          await _monitorChannel.invokeMethod<bool>('isMonitoringFullyFunctional');
+      return result ?? false;
+    } on PlatformException {
+      return false;
+    }
+  }
+
+  static Future<bool> needsAccessibilityReconnect() async {
+    try {
+      final result =
+          await _monitorChannel.invokeMethod<bool>('needsAccessibilityReconnect');
+      return result ?? false;
+    } on PlatformException {
+      return false;
+    }
+  }
 }

@@ -33,10 +33,18 @@ object MonitorServiceChannel : MethodChannel.MethodCallHandler {
                 result.success(true)
             }
             "isServiceRunning" -> {
-                // Service is effectively running if either the foreground service
-                // or the accessibility service is active
-                val isRunning = AppMonitorService.isRunning || AppAccessibilityService.isRunning
+                val isRunning = AppAccessibilityService.isRunning
                 result.success(isRunning)
+            }
+            "isMonitoringFullyFunctional" -> {
+                val isEnabled = AppAccessibilityService.isAccessibilityServiceEnabled(activity)
+                val isConnected = AppAccessibilityService.isRunning
+                result.success(isEnabled && isConnected)
+            }
+            "needsAccessibilityReconnect" -> {
+                val isEnabled = AppAccessibilityService.isAccessibilityServiceEnabled(activity)
+                val isConnected = AppAccessibilityService.isRunning
+                result.success(isEnabled && !isConnected)
             }
             "checkAccessibilityPermission" -> {
                 val isEnabled = AppAccessibilityService.isAccessibilityServiceEnabled(activity)
