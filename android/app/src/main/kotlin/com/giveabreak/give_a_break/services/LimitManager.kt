@@ -46,7 +46,9 @@ class LimitManager(
     fun getAppLimit(packageName: String): AppLimit? = appLimits[packageName]
 
     fun getRoutineForApp(packageName: String): RoutineInfo? =
-        routines.firstOrNull { it.appPackages.contains(packageName) }
+        routines.firstOrNull {
+            it.isEnabled && !it.isArchived && it.appPackages.contains(packageName)
+        }
 
     fun getLimitedPackages(): Set<String> =
         appLimits.keys + routines.flatMap { it.appPackages }

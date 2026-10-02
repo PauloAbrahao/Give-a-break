@@ -26,7 +26,33 @@ class AppDetailScreen extends ConsumerStatefulWidget {
   ConsumerState<AppDetailScreen> createState() => _AppDetailScreenState();
 }
 
-class _AppDetailScreenState extends ConsumerState<AppDetailScreen> {
+class _AppDetailScreenState extends ConsumerState<AppDetailScreen>
+    with WidgetsBindingObserver {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+    WidgetsBinding.instance.addPostFrameCallback((_) => _refreshUsage());
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      _refreshUsage();
+    }
+  }
+
+  void _refreshUsage() {
+    if (!mounted) return;
+    ref.invalidate(todayUsageProvider);
+  }
+
   @override
   Widget build(BuildContext context) {
     final appInfo = ref.watch(appInfoProvider(widget.packageName));
