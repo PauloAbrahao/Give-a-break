@@ -22,34 +22,17 @@ class AppAccessibilityService : AccessibilityService() {
 
     private var lastPackageName: String? = null
     private var limitChecker: LimitChecker? = null
+    private var limitOverlay: LimitOverlay? = null
     private var launcherPackage: String? = null
+    private val activityComponents = mutableMapOf<String, Boolean>()
 
     companion object {
         private const val TAG = "AppAccessibilityService"
+        private const val SYSTEM_UI_PACKAGE = "com.android.systemui"
 
         @Volatile
         var isRunning = false
             private set
-
-        @Volatile
-        private var instance: AppAccessibilityService? = null
-
-        /**
-         * Force close an app by pressing back multiple times.
-         * This helps ensure the app is fully closed and not just in background.
-         */
-        fun forceCloseCurrentApp() {
-            instance?.let { service ->
-                // Press back multiple times to ensure app is closed
-                service.performGlobalAction(GLOBAL_ACTION_BACK)
-                android.os.Handler(android.os.Looper.getMainLooper()).postDelayed({
-                    service.performGlobalAction(GLOBAL_ACTION_BACK)
-                }, 100)
-                android.os.Handler(android.os.Looper.getMainLooper()).postDelayed({
-                    service.performGlobalAction(GLOBAL_ACTION_BACK)
-                }, 200)
-            }
-        }
 
         /**
          * Check if the accessibility service is enabled in system settings.
@@ -97,9 +80,10 @@ class AppAccessibilityService : AccessibilityService() {
     override fun onServiceConnected() {
         super.onServiceConnected()
         isRunning = true
-        instance = this
 
-        limitChecker = LimitChecker(applicationContext)
+        val overlay = LimitOverlay(this, ::onOverlayClosed)
+        limitOverlay = overlay
+        limitChecker = LimitChecker(applicationContext, overlay)
         launcherPackage = getDefaultLauncherPackage()
 
         // Configure for instant detection - no timeout, minimal flags
@@ -119,14 +103,11 @@ class AppAccessibilityService : AccessibilityService() {
 
             val packageName = event.packageName?.toString() ?: return
 
-            // Skip system UI and our own app
-            if (packageName == "com.android.systemui" ||
-                packageName == this.packageName ||
-                packageName == "com.giveabreak.give_a_break") {
-                return
-            }
+            if (packageName == SYSTEM_UI_PACKAGE) return
 
-            if (packageName == launcherPackage) {
+            if (!isActivityWindow(packageName, event.className)) return
+
+            if (packageName == launcherPackage || packageName == this.packageName) {
                 lastPackageName = null
                 checker.onAppChanged(packageName)
                 return
@@ -138,32 +119,28 @@ class AppAccessibilityService : AccessibilityService() {
 
             lastPackageName = packageName
 
-            checkAppLimits(packageName, checker)
+            checker.onAppOpened(packageName)
         } catch (e: Exception) {
             Log.e(TAG, "Error processing accessibility event: ${e.message}", e)
         }
     }
 
-    private fun checkAppLimits(packageName: String, checker: LimitChecker) {
-        try {
-            when (val result = checker.checkApp(packageName)) {
-                is LimitChecker.CheckResult.LimitExceeded -> {
-                    checker.handleLimitExceeded(
-                        packageName,
-                        result.usedSeconds,
-                        result.limitSeconds,
-                        result.openCount
-                    )
-                }
-                LimitChecker.CheckResult.NoLimit,
-                LimitChecker.CheckResult.RoutineInactive,
-                LimitChecker.CheckResult.WithinLimit -> {
-                    // No action needed
-                }
+    private fun isActivityWindow(packageName: String, className: CharSequence?): Boolean {
+        if (className == null) return false
+        val component = ComponentName(packageName, className.toString())
+
+        return activityComponents.getOrPut(component.flattenToString()) {
+            try {
+                packageManager.getActivityInfo(component, 0)
+                true
+            } catch (_: PackageManager.NameNotFoundException) {
+                false
             }
-        } catch (e: Exception) {
-            Log.e(TAG, "Error checking app limits for $packageName: ${e.message}", e)
         }
+    }
+
+    private fun onOverlayClosed() {
+        lastPackageName = null
     }
 
     override fun onInterrupt() {
@@ -173,8 +150,10 @@ class AppAccessibilityService : AccessibilityService() {
     override fun onDestroy() {
         super.onDestroy()
         isRunning = false
-        instance = null
+        limitChecker?.release()
         limitChecker = null
+        limitOverlay?.hide()
+        limitOverlay = null
         Log.d(TAG, "Accessibility service destroyed")
     }
 }

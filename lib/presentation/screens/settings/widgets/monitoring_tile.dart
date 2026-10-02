@@ -29,18 +29,14 @@ class MonitoringTile extends StatelessWidget {
       ),
       title: const Text('App Monitoring'),
       subtitle: Text(
-        isRunning ? 'Active' : 'Starting...',
+        isRunning ? 'Active' : 'Inactive - tap to enable accessibility',
         style: TextStyle(
           color: isRunning ? AppColors.success : AppColors.warning,
         ),
       ),
       trailing: isRunning
           ? const Icon(Icons.check_circle, color: AppColors.success)
-          : const SizedBox(
-              width: 20,
-              height: 20,
-              child: CircularProgressIndicator(strokeWidth: 2),
-            ),
+          : const Icon(Icons.chevron_right),
       onTap: !isRunning ? onTap : null,
     );
   }

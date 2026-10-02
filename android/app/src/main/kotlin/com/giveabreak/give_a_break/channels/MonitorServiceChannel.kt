@@ -1,10 +1,7 @@
 package com.giveabreak.give_a_break.channels
 
 import android.app.Activity
-import android.content.Intent
-import android.os.Build
 import com.giveabreak.give_a_break.services.AppAccessibilityService
-import com.giveabreak.give_a_break.services.AppMonitorService
 import io.flutter.plugin.common.BinaryMessenger
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
@@ -24,14 +21,6 @@ object MonitorServiceChannel : MethodChannel.MethodCallHandler {
 
     override fun onMethodCall(call: MethodCall, result: MethodChannel.Result) {
         when (call.method) {
-            "startService" -> {
-                startMonitorService()
-                result.success(true)
-            }
-            "stopService" -> {
-                stopMonitorService()
-                result.success(true)
-            }
             "isServiceRunning" -> {
                 val isRunning = AppAccessibilityService.isRunning
                 result.success(isRunning)
@@ -59,19 +48,5 @@ object MonitorServiceChannel : MethodChannel.MethodCallHandler {
             }
             else -> result.notImplemented()
         }
-    }
-
-    private fun startMonitorService() {
-        val intent = Intent(activity, AppMonitorService::class.java)
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            activity.startForegroundService(intent)
-        } else {
-            activity.startService(intent)
-        }
-    }
-
-    private fun stopMonitorService() {
-        val intent = Intent(activity, AppMonitorService::class.java)
-        activity.stopService(intent)
     }
 }

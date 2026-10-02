@@ -1,10 +1,11 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_strings.dart';
 import '../../providers/permission_provider.dart';
 import '../../providers/settings_provider.dart';
-import '../../providers/monitoring_provider.dart';
 import '../dashboard/dashboard_screen.dart';
 import 'widgets/permission_card.dart';
 
@@ -20,6 +21,10 @@ class PermissionSetupScreen extends ConsumerStatefulWidget {
 
 class _PermissionSetupScreenState extends ConsumerState<PermissionSetupScreen>
     with WidgetsBindingObserver {
+  Completer<void>? _returnFromSettingsCompleter;
+  bool _hasLeftApp = false;
+  bool _isGrantingAll = false;
+
   @override
   void initState() {
     super.initState();
@@ -34,18 +39,57 @@ class _PermissionSetupScreenState extends ConsumerState<PermissionSetupScreen>
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (state == AppLifecycleState.resumed) {
-      ref.read(permissionProvider.notifier).checkAllPermissions();
+    if (state == AppLifecycleState.paused) {
+      _hasLeftApp = true;
+      return;
     }
+
+    if (state != AppLifecycleState.resumed) return;
+
+    ref.read(permissionProvider.notifier).checkAllPermissions();
+
+    if (!_hasLeftApp) return;
+    _hasLeftApp = false;
+    _returnFromSettingsCompleter?.complete();
+    _returnFromSettingsCompleter = null;
+  }
+
+  Future<void> _grantAllPermissions() async {
+    setState(() => _isGrantingAll = true);
+    final notifier = ref.read(permissionProvider.notifier);
+
+    await notifier.checkAllPermissions();
+
+    if (!ref.read(permissionProvider).usageStatsGranted) {
+      await _openSettingsAndWaitForReturn(notifier.requestUsageStatsPermission);
+    }
+
+    if (mounted && !ref.read(permissionProvider).accessibilityGranted) {
+      await _openSettingsAndWaitForReturn(
+        notifier.requestAccessibilityPermission,
+      );
+    }
+
+    if (!mounted) return;
+    setState(() => _isGrantingAll = false);
+  }
+
+  Future<void> _openSettingsAndWaitForReturn(
+    Future<void> Function() openSettings,
+  ) async {
+    final completer = Completer<void>();
+    _returnFromSettingsCompleter = completer;
+    _hasLeftApp = false;
+
+    await openSettings();
+    await completer.future;
+    await ref.read(permissionProvider.notifier).checkAllPermissions();
   }
 
   Future<void> _completeSetup() async {
     await ref
         .read(settingsNotifierProvider.notifier)
         .setOnboardingCompleted(true);
-
-    // Start monitoring automatically
-    await ref.read(monitoringProvider.notifier).startMonitoring();
 
     if (!mounted) return;
 
@@ -89,7 +133,15 @@ class _PermissionSetupScreenState extends ConsumerState<PermissionSetupScreen>
                 color: AppColors.getTextSecondary(context),
               ),
             ),
-            const SizedBox(height: 32),
+            const SizedBox(height: 24),
+            if (!permissions.coreGranted) ...[
+              OutlinedButton.icon(
+                onPressed: _isGrantingAll ? null : _grantAllPermissions,
+                icon: const Icon(Icons.done_all),
+                label: const Text(AppStrings.grantAllPermissions),
+              ),
+              const SizedBox(height: 24),
+            ],
             PermissionCard(
               title: AppStrings.permissionUsageStatsTitle,
               description: AppStrings.permissionUsageStatsDesc,
@@ -99,18 +151,6 @@ class _PermissionSetupScreenState extends ConsumerState<PermissionSetupScreen>
                 ref
                     .read(permissionProvider.notifier)
                     .requestUsageStatsPermission();
-              },
-            ),
-            const SizedBox(height: 16),
-            PermissionCard(
-              title: AppStrings.permissionOverlayTitle,
-              description: AppStrings.permissionOverlayDesc,
-              icon: Icons.layers,
-              isGranted: permissions.overlayGranted,
-              onRequest: () {
-                ref
-                    .read(permissionProvider.notifier)
-                    .requestOverlayPermission();
               },
             ),
             const SizedBox(height: 16),
@@ -125,18 +165,6 @@ class _PermissionSetupScreenState extends ConsumerState<PermissionSetupScreen>
                     .requestAccessibilityPermission();
               },
             ),
-            const SizedBox(height: 16),
-            PermissionCard(
-              title: AppStrings.permissionNotificationTitle,
-              description: AppStrings.permissionNotificationDesc,
-              icon: Icons.notifications,
-              isGranted: permissions.notificationGranted,
-              onRequest: () {
-                ref
-                    .read(permissionProvider.notifier)
-                    .requestNotificationPermission();
-              },
-            ),
             const Spacer(),
             ElevatedButton(
               onPressed: widget.fromSettings
@@ -147,7 +175,7 @@ class _PermissionSetupScreenState extends ConsumerState<PermissionSetupScreen>
             const SizedBox(height: 8),
             if (!permissions.coreGranted)
               Text(
-                'Please grant Usage Access, Overlay and Accessibility permissions to continue',
+                AppStrings.corePermissionsRequired,
                 style: TextStyle(
                   fontSize: 12,
                   color: AppColors.getTextTertiary(context),

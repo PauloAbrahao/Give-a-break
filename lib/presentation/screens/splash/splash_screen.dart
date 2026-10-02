@@ -5,7 +5,6 @@ import '../../../core/constants/app_strings.dart';
 import '../../../core/services/method_channel_service.dart';
 import '../../providers/permission_provider.dart';
 import '../../providers/settings_provider.dart';
-import '../../providers/monitoring_provider.dart';
 import '../onboarding/onboarding_screen.dart';
 import '../dashboard/dashboard_screen.dart';
 
@@ -37,10 +36,6 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
     final permissions = ref.read(permissionProvider);
 
     if (onboardingCompleted && permissions.coreGranted) {
-      await ref.read(monitoringProvider.notifier).startMonitoring();
-
-      if (!mounted) return;
-
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(builder: (_) => const DashboardScreen()),
       );

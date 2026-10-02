@@ -75,10 +75,10 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen>
                 // App Monitoring
                 MonitoringTile(
                   isRunning: monitoring.isRunning,
-                  onTap: () async {
-                    await ref
-                        .read(monitoringProvider.notifier)
-                        .startMonitoring();
+                  onTap: () {
+                    ref
+                        .read(permissionProvider.notifier)
+                        .requestAccessibilityPermission();
                   },
                 ),
                 Divider(height: 1, color: AppColors.getDivider(context)),
@@ -162,18 +162,6 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen>
                 ),
                 Divider(height: 1, color: AppColors.getDivider(context)),
                 PermissionTile(
-                  title: AppStrings.permissionOverlayTitle,
-                  subtitle: AppStrings.permissionOverlayDesc,
-                  icon: Icons.layers,
-                  isGranted: permissions.overlayGranted,
-                  onTap: () {
-                    ref
-                        .read(permissionProvider.notifier)
-                        .requestOverlayPermission();
-                  },
-                ),
-                Divider(height: 1, color: AppColors.getDivider(context)),
-                PermissionTile(
                   title: AppStrings.permissionAccessibilityTitle,
                   subtitle: AppStrings.permissionAccessibilityDesc,
                   icon: Icons.accessibility_new,
@@ -182,18 +170,6 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen>
                     ref
                         .read(permissionProvider.notifier)
                         .requestAccessibilityPermission();
-                  },
-                ),
-                Divider(height: 1, color: AppColors.getDivider(context)),
-                PermissionTile(
-                  title: AppStrings.permissionNotificationTitle,
-                  subtitle: AppStrings.permissionNotificationDesc,
-                  icon: Icons.notifications,
-                  isGranted: permissions.notificationGranted,
-                  onTap: () {
-                    ref
-                        .read(permissionProvider.notifier)
-                        .requestNotificationPermission();
                   },
                 ),
               ],

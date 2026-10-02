@@ -23,15 +23,12 @@ class AppStrings {
   static const String permissionUsageStatsTitle = 'Usage Access';
   static const String permissionUsageStatsDesc =
       'Required to see how long you use each app';
-  static const String permissionOverlayTitle = 'Display Over Apps';
-  static const String permissionOverlayDesc =
-      'Required to show reminders when you exceed limits';
-  static const String permissionNotificationTitle = 'Notifications';
-  static const String permissionNotificationDesc =
-      'Required to send you usage alerts';
   static const String permissionAccessibilityTitle = 'Accessibility';
   static const String permissionAccessibilityDesc =
       'Required for instant app detection';
+  static const String grantAllPermissions = 'Grant All Permissions';
+  static const String corePermissionsRequired =
+      'Please grant Usage Access and Accessibility permissions to continue';
 
   // Dashboard
   static const String dashboardTitle = 'Your Usage';

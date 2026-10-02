@@ -5,7 +5,6 @@ class MethodChannelService {
 
   static const _usageStatsChannel =
       MethodChannel('com.giveabreak/usage_stats');
-  static const _overlayChannel = MethodChannel('com.giveabreak/overlay');
   static const _monitorChannel =
       MethodChannel('com.giveabreak/monitor_service');
 
@@ -61,42 +60,7 @@ class MethodChannelService {
     }
   }
 
-  // Overlay Methods
-  static Future<bool> checkOverlayPermission() async {
-    try {
-      final result =
-          await _overlayChannel.invokeMethod<bool>('checkPermission');
-      return result ?? false;
-    } on PlatformException {
-      return false;
-    }
-  }
-
-  static Future<void> requestOverlayPermission() async {
-    try {
-      await _overlayChannel.invokeMethod('requestPermission');
-    } on PlatformException {
-      // Permission request opened settings
-    }
-  }
-
   // Monitor Service Methods
-  static Future<void> startMonitorService() async {
-    try {
-      await _monitorChannel.invokeMethod('startService');
-    } on PlatformException {
-      // Service start failed
-    }
-  }
-
-  static Future<void> stopMonitorService() async {
-    try {
-      await _monitorChannel.invokeMethod('stopService');
-    } on PlatformException {
-      // Service stop failed
-    }
-  }
-
   static Future<bool> isMonitorServiceRunning() async {
     try {
       final result =

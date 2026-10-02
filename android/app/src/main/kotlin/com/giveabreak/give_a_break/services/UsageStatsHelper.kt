@@ -3,6 +3,7 @@ package com.giveabreak.give_a_break.services
 import android.app.usage.UsageEvents
 import android.app.usage.UsageStatsManager
 import android.content.Context
+import com.giveabreak.give_a_break.services.models.AppUsageToday
 import java.util.Calendar
 
 class UsageStatsHelper(private val context: Context) {
@@ -50,63 +51,47 @@ class UsageStatsHelper(private val context: Context) {
         return lastResumedPackage
     }
 
-    fun getAppUsageToday(packageName: String): Int {
-        val manager = usageStatsManager ?: return 0
+    fun getUsageToday(packageNames: Set<String>): Map<String, AppUsageToday> {
+        if (packageNames.isEmpty()) return emptyMap()
+        val manager = usageStatsManager ?: return emptyMap()
 
         val (startTime, endTime) = getTodayTimeRange()
-        val usageEvents = manager.queryEvents(startTime, endTime) ?: return 0
+        val usageEvents = manager.queryEvents(startTime, endTime) ?: return emptyMap()
 
-        var totalTime = 0L
-        var lastResumeTime: Long? = null
-        val event = UsageEvents.Event()
-
-        while (usageEvents.hasNextEvent()) {
-            usageEvents.getNextEvent(event)
-
-            if (event.packageName == packageName) {
-                when (event.eventType) {
-                    UsageEvents.Event.ACTIVITY_RESUMED -> {
-                        lastResumeTime = event.timeStamp
-                    }
-                    UsageEvents.Event.ACTIVITY_PAUSED -> {
-                        lastResumeTime?.let { resumeTime ->
-                            totalTime += event.timeStamp - resumeTime
-                        }
-                        lastResumeTime = null
-                    }
-                }
-            }
-        }
-
-        // If app is currently in foreground, add time since last resume
-        lastResumeTime?.let { resumeTime ->
-            totalTime += endTime - resumeTime
-        }
-
-        return (totalTime / 1000).toInt()
-    }
-
-    fun getAppOpenCountToday(packageName: String): Int {
-        val manager = usageStatsManager ?: return 0
-
-        val (startTime, endTime) = getTodayTimeRange()
-        val usageEvents = manager.queryEvents(startTime, endTime) ?: return 0
-
-        var openCount = 0
+        val usedMillis = mutableMapOf<String, Long>()
+        val openCounts = mutableMapOf<String, Int>()
+        val lastResumeTimes = mutableMapOf<String, Long>()
         var lastForegroundPkg: String? = null
         val event = UsageEvents.Event()
 
         while (usageEvents.hasNextEvent()) {
             usageEvents.getNextEvent(event)
-            if (event.eventType == UsageEvents.Event.ACTIVITY_RESUMED) {
-                if (event.packageName == packageName && event.packageName != lastForegroundPkg) {
-                    openCount++
+            val packageName = event.packageName
+
+            when (event.eventType) {
+                UsageEvents.Event.ACTIVITY_RESUMED -> {
+                    if (packageName in packageNames) {
+                        lastResumeTimes[packageName] = event.timeStamp
+                        if (packageName != lastForegroundPkg) {
+                            openCounts[packageName] = (openCounts[packageName] ?: 0) + 1
+                        }
+                    }
+                    lastForegroundPkg = packageName
                 }
-                lastForegroundPkg = event.packageName
+                UsageEvents.Event.ACTIVITY_PAUSED -> {
+                    val resumeTime = lastResumeTimes.remove(packageName) ?: continue
+                    usedMillis[packageName] = (usedMillis[packageName] ?: 0L) + event.timeStamp - resumeTime
+                }
             }
         }
 
-        return openCount
+        lastResumeTimes.forEach { (packageName, resumeTime) ->
+            usedMillis[packageName] = (usedMillis[packageName] ?: 0L) + endTime - resumeTime
+        }
+
+        return packageNames.associateWith {
+            AppUsageToday(usedMillis[it] ?: 0L, openCounts[it] ?: 0)
+        }
     }
 
     fun getLastResumeTime(packageName: String): Long {

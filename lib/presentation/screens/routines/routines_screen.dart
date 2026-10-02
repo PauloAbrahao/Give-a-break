@@ -17,6 +17,7 @@ class RoutinesScreen extends ConsumerWidget {
     final currentlyRunningAsync = ref.watch(currentlyRunningRoutinesProvider);
     final upcomingAsync = ref.watch(upcomingRoutinesProvider);
     final disabledAsync = ref.watch(disabledRoutinesProvider);
+    final hasRoutines = routinesAsync.valueOrNull?.isNotEmpty ?? false;
 
     return Scaffold(
       appBar: AppBar(
@@ -76,11 +77,13 @@ class RoutinesScreen extends ConsumerWidget {
           ),
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => _showCreateRoutineDialog(context, null),
-        backgroundColor: AppColors.primary,
-        child: const Icon(Icons.add, color: Colors.white),
-      ),
+      floatingActionButton: hasRoutines
+          ? FloatingActionButton(
+              onPressed: () => _showCreateRoutineDialog(context, null),
+              backgroundColor: AppColors.primary,
+              child: const Icon(Icons.add, color: Colors.white),
+            )
+          : null,
     );
   }
 
