@@ -145,6 +145,8 @@ lib/
 5. A **foreground service** keeps monitoring running, and **BootReceiver** restarts it after a reboot.
 
 ## Demo
-<img width="400" height="867" alt="demo" src="https://github.com/user-attachments/assets/07127b31-47e9-411c-b647-e30f369dc717" />
+<img width="300" height="700" alt="1-compressed" src="https://github.com/user-attachments/assets/d15cc23f-7439-4fec-8ddb-faae721f7439" />
+<img width="300" height="700" alt="2-compressed" src="https://github.com/user-attachments/assets/37ff6bf3-ae09-43e0-b721-10816298eec8" />
+<img width="300" height="700" alt="3-compressed" src="https://github.com/user-attachments/assets/ea716c92-492f-4e98-bbbb-60bdeb5a5c1c" />
 
 
