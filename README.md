@@ -143,3 +143,8 @@ lib/
 3. **LimitChecker** (Kotlin) reads the synced limits, checks whether a routine is active, and compares today's usage and launch count with the limits.
 4. If a limit has been reached, **OverlayService** shows the full-screen warning with the app name, the time used, and the limit. It uses the routine's color and icon when the app belongs to a routine.
 5. A **foreground service** keeps monitoring running, and **BootReceiver** restarts it after a reboot.
+
+## Demo
+<img width="400" height="867" alt="demo" src="https://github.com/user-attachments/assets/07127b31-47e9-411c-b647-e30f369dc717" />
+
+
