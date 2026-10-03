@@ -145,8 +145,14 @@ lib/
 5. A **foreground service** keeps monitoring running, and **BootReceiver** restarts it after a reboot.
 
 ## Demo
+
+### Individual App Limit
 <img width="300" height="700" alt="1-compressed" src="https://github.com/user-attachments/assets/d15cc23f-7439-4fec-8ddb-faae721f7439" />
+
+### Routines & App Limits
 <img width="300" height="700" alt="2-compressed" src="https://github.com/user-attachments/assets/37ff6bf3-ae09-43e0-b721-10816298eec8" />
+
+### Configs
 <img width="300" height="700" alt="3-compressed" src="https://github.com/user-attachments/assets/ea716c92-492f-4e98-bbbb-60bdeb5a5c1c" />
 
 
